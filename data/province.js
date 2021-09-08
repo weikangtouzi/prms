@@ -1,0 +1,96 @@
+let provinces_data = [{
+    "name": "北京市",
+    "province_id": "110000000000"
+}, {
+    "name": "天津市",
+    "province_id": "120000000000"
+}, {
+    "name": "河北省",
+    "province_id": "130000000000"
+}, {
+    "name": "山西省",
+    "province_id": "140000000000"
+}, {
+    "name": "内蒙古自治区", 
+    "province_id": "150000000000"
+}, {
+    "name": "辽宁省",
+    "province_id": "210000000000"
+}, {
+    "name": "吉林省",
+    "province_id": "220000000000"
+}, {
+    "name": "黑龙江省",
+    "province_id": "230000000000"
+}, {
+    "name": "上海市",
+    "province_id": "310000000000"
+}, {
+    "name": "江苏省",
+    "province_id": "320000000000"
+}, {
+    "name": "浙江省",
+    "province_id": "330000000000"
+}, {
+    "name": "安徽省",
+    "province_id": "340000000000"
+}, {
+    "name": "福建省",
+    "province_id": "350000000000"
+}, {
+    "name": "江西省",
+    "province_id": "360000000000"
+}, {
+    "name": "山东省",
+    "province_id": "370000000000"
+}, {
+    "name": "河南省",
+    "province_id": "410000000000"
+}, {
+    "name": "湖北省",
+    "province_id": "420000000000"
+}, {
+    "name": "湖南省",
+    "province_id": "430000000000"
+}, {
+    "name": "广东省",
+    "province_id": "440000000000"
+}, {
+    "name": "广西壮族自治区",
+    "province_id": "450000000000"
+}, {
+    "name": "海南省",
+    "province_id": "460000000000"
+}, {
+    "name": "重庆市",
+    "province_id": "500000000000"
+}, {
+    "name": "四川省",
+    "province_id": "510000000000"
+}, {
+    "name": "贵州省",
+    "province_id": "520000000000"
+}, {
+    "name": "云南省",
+    "province_id": "530000000000"
+}, {
+    "name": "西藏自治区",  
+    "province_id": "540000000000"
+}, {
+    "name": "陕西省",
+    "province_id": "610000000000"
+}, {
+    "name": "甘肃省",
+    "province_id": "620000000000"
+}, {
+    "name": "青海省",
+    "province_id": "630000000000"
+}, {
+    "name": "宁夏回族自治区",
+    "province_id": "640000000000"
+}, {
+    "name": "新疆维吾尔自治区",
+    "province_id": "650000000000"
+}]
+
+module.exports = provinces_data;
