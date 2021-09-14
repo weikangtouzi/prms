@@ -1,19 +1,31 @@
-const { sequelize, DataTypes } = require('./common');
-
-module.exports = sequelize.define('province', {
-    pro_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
+'use strict';
+const {
+  Model
+} = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  class Province extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
+    }
+  };
+  Province.init({
     name: {
-        type: DataTypes.STRING(64),
-        allowNull: false,
+      type: DataTypes.STRING(64),
+      allowNull: false,
     },
     province_id: {
-        type: DataTypes.STRING(12),
-        allowNull: false,
+      type: DataTypes.STRING(12),
+      allowNull: false,
     }
-},{
-    freezeTableName: true
-});
+  }, {
+    sequelize,
+    modelName: 'Province',
+    tableName: 'province'
+  });
+  return Province;
+};

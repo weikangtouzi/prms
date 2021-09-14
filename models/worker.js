@@ -1,38 +1,44 @@
-const { Deferrable } = require('sequelize');
-const { sequelize, DataTypes } = require('./common');
-const user = require('./users');
-
-module.exports = sequelize.define('worker', {
-  worker_id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
-  real_name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-
-  },
-  company_belonged: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: user,
-
-      key: "user_id",
-
-      deferrable: Deferrable.NOT
+'use strict';
+const {
+  Model, Deferrable
+} = require('sequelize');
+const user = require('./user');
+module.exports = (sequelize, DataTypes) => {
+  class Worker extends Model {
+    /**
+     * Helper method for defining associations.
+     * This method is not a part of Sequelize lifecycle.
+     * The `models/index` file will call this method automatically.
+     */
+    static associate(models) {
+      // define association here
     }
-  },
-  user_binding: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-
-  },
-  position: {
-    type: DataTypes.JSON,
-    allowNull: false
-
-  }
-}, {
-  freezeTableName: true
-});
+  };
+  Worker.init({
+    company_belonged: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: "users",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
+    },
+    real_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    user_binding: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    position: {
+      type: DataTypes.JSON,
+      allowNull: false
+    }
+  }, {
+    sequelize,
+    modelName: 'Worker',
+    tableName: 'worker'
+  });
+  return Worker;
+};
