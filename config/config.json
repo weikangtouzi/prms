@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "otAS9I6f3S5uBE2FyVK6",
+    "database": "prms",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "otAS9I6f3S5uBE2FyVK6",
+    "database": "prms",
+    "host": "1.117.45.51",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "otAS9I6f3S5uBE2FyVK6",
+    "database": "prms",
+    "host": "1.117.45.51",
+    "dialect": "postgres"
+  }
+}

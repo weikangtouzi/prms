@@ -4,7 +4,7 @@ const {
 } = require('sequelize');
 const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
-  class Order extends Model {
+  class Comment extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  Order.init({
+  Comment.init({
     user_id: {
       type: DataTypes.INTEGER,
       references: {
@@ -23,39 +23,31 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    order_time: {
-      type: DataTypes.TIME,
-      allowNull: false
-    },
-    order_status: {
-      type: DataTypes.ENUM("Unpaid", "Done", "Canceled", "RefundmentInReview", "RefundmentSucceed", "RefundmentFailed"),
-      allowNull: false
-  
-    },
-    required_invoice: {
+    content: {
       type: DataTypes.TEXT,
       allowNull: false
-  
     },
-    invoice: {
-      type: DataTypes.TEXT,
-      allowNull: true
+    reply_type: {
+      type: DataTypes.ENUM("None", "Article", "Interview", "Comment", "Other"),
+      allowNull: false
     },
-    goods: {
-      type: DataTypes.JSON,
+    reply_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    anonymous: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
-      comment: "{\
-                  goods_id: (integer),\
-                  goods_name: (string),\
-                  purchase_quantity: (integer),\
-                  total_price: (double),\
-                  extra_data: (undefined)\
-              }"
+      defaultValue: false
+    },
+    stars: {
+      type: DataTypes.ENUM("One", "Two", "Three", "Four", "Five"),
+      allowNull: true
     }
   }, {
     sequelize,
-    modelName: 'Order',
-    tableName: 'order'
+    modelName: 'Comment',
+    tableName: 'comment'
   });
-  return Order;
+  return Comment;
 };
