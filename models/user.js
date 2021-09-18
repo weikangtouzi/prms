@@ -24,14 +24,16 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true,
+      validate: {
+        isEmail: {
+          args: true,
+          msg: 'must be a valid email address'
+        }
+      }
     },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    last_time: {
-      type: DataTypes.TIME,
-      allowNull: false
     },
     phone_number: {
       type: DataTypes.STRING,
@@ -46,7 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    imageUrl: {
+    image_url: {
       type: DataTypes.STRING
     }
   }, {
