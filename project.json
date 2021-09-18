@@ -1,0 +1,38 @@
+{
+    "message": {
+        "aliyun": {
+            "accessKeyId": "LTAI5tSoCesdP9NwSjWgC1Wb",
+            "accessKeySecret": "FgfTSTvuQmnXERQ0uWcP7FDeDu2D7u",
+            "templateCodes": {
+                "verifyCode": "SMS_214980009"
+            },
+            "signName": "德兴在线",
+            "endpoint": "dysmsapi.aliyuncs.com"
+        },
+        "tencent": {
+            "appId": "",
+            "sercetKeyId": ""
+        },
+        "common": {
+            "verifyCode": {
+                "length": 6,
+                "expireTime": 300000,
+                "refreshEveryQuery": true
+            },
+            "notification": {
+                
+            }
+        }
+    },
+    "email": {
+        "host": "",
+        "from": "趁早找",
+        "cc": "趁早找",
+        "subject": ""
+    },
+    "chat": {
+        
+    },
+    "jwtSecret": "wdnmd"
+    
+}

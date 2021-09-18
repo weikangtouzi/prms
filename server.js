@@ -3,7 +3,8 @@ const {
 } = require("apollo-server-core");
 const { ApolloServer, gql } = require('apollo-server');
 const { sequelize } = require('./models');
-
+const { resolvers} = require('./graphql')
+const mongo = require('./mongo')
 // The GraphQL schema
 const typeDefs = gql`
   input Register {
@@ -12,10 +13,15 @@ const typeDefs = gql`
     password: String!
     confirmPassword: String!
     phoneNumber: String!
+    verifyCode: String!
   }
-  
-  type Token {
-    token: String!
+  type User {
+    username: String!,
+  }
+  type LoginResult {
+    username: String!,
+    createdAt: String!,
+    token: String!,
   }
   type Province {
     name: String!
@@ -29,9 +35,11 @@ const typeDefs = gql`
     value: String
   }
   type Query {
-    logIn(info: Login!): Token!
+    logIn(info: Login!): LoginResult!
     numberCheck(num: String!): Boolean!
     getProvince: [Province]
+    sendSms(phoneNumber: String): String!
+    getUsers: [User]!
   }
   type Mutation {
     register(info: Register!): String!
@@ -39,32 +47,7 @@ const typeDefs = gql`
 `;
 
 // A map of functions which return data for the schema.
-const resolvers = {
-  Query: {
-    logIn(parent, args, context, info){
-      console.log(args)
-      return { token: "" }
-    },
-    numberCheck(parent, args, context, info){
-      let res = sequelize.models.User.findOne({
-        where: {
-          phone_number: args.num
-        }
-      },["id"]);
-      if (res !== null && res !== undefined) {
-        return true
-      }
-      return false
-    },
-    
-  },
-  Mutation: {
-    register(parent, args, context, info){
-      console.log(register)
-      return "sdada"
-    },
-  }
-};
+
 
 const server = new ApolloServer({
   typeDefs,
@@ -72,14 +55,17 @@ const server = new ApolloServer({
   plugins: [
     ApolloServerPluginLandingPageGraphQLPlayground(),
   ],
+  context: (ctx) => ctx,  
 });
 
 server.listen().then(({ url }) => {
   console.log(`🚀 Server ready at ${url}`);
-
+  mongo.init().then(() => {
+    console.log('mongo Connection has been established successfully');
+  })
   sequelize
     .authenticate()
     .then(() => {
-      console.log('Connection has been established successfully');
+      console.log('postgres Connection has been established successfully');
     })
-});
+}).finally(() => mongo.close());
