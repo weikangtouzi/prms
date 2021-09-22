@@ -33,6 +33,10 @@
     "chat": {
         
     },
-    "jwtSecret": "wdnmd"
+    "jwtSecret": "wdnmd",
+    "basic": {
+        "email": false,
+        "host": "dev.chenzaozzhao.com"
+    }
     
 }
