@@ -74,7 +74,7 @@ const logIn = async (parent, args, context, info) => {
 };
 const numberCheck = async (parent, args, context, info) => {
     try {
-        let res = User.findOne({
+        let res = await User.findOne({
             where: {
                 phone_number: args.num
             }
