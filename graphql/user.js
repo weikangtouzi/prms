@@ -80,10 +80,9 @@ const numberCheck = async (parent, args, context, info) => {
             }
         }, ["id"]);
         if (res !== null && res !== undefined) {
-            console.log(res);
-            return true
+            return false
         }
-        return false
+        return true
     } catch (err) {
 
     }
