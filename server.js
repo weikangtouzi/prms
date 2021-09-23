@@ -7,6 +7,7 @@ const { resolvers} = require('./graphql')
 const mongo = require('./mongo')
 // The GraphQL schema
 const typeDefs = gql`
+  #register 
   input Register {
     username: String!
     email: String
