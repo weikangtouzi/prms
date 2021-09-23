@@ -1,10 +1,10 @@
 const { MongoClient } = require('mongodb');
+const { mongodb } = require('../project.json')
 // or as an es module:
 // import { MongoClient } from 'mongodb'
 
 // Connection URL
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
+const client = new MongoClient(mongodb.url);
 
 // Database Name
 const dbName = 'prms';
