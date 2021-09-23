@@ -3,8 +3,9 @@
     "username": "postgres",
     "password": "otAS9I6f3S5uBE2FyVK6",
     "database": "prms",
-    "host": "localhost",
-    "dialect": "postgres"
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "port": 23333
   },
   "test": {
     "username": "postgres",
