@@ -2,6 +2,7 @@ const { Config } = require('@alicloud/openapi-client');
 const Client = require('@alicloud/dysmsapi20170525');
 const mongo = require('../mongo');
 const { UserInputError } = require('apollo-server-errors');
+const { isvaildNum } = require('../utils/validations');
 const sendSms = async (parent, args, context, info) => {
     const { phoneNumber } = args;
     let error = {};
@@ -46,13 +47,7 @@ function saveVerifyCode(phoneNumber, code) {
         });
     })
 }
-function isvaildNum(error, num) {
-    let reg = /^1(3[0-9]|4[5,7]|5[0,1,2,3,5,6,7,8,9]|6[2,5,6,7]|7[0,1,7,8]|8[0-9]|9[1,8,9])\d{8}$/;
-    let res = reg.test(num);
-    if (!res) {
-        error.phoneNumber = "invaild phone number"
-    }
-}
+
 module.exports = {
     sendSms
 }
