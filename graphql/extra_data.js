@@ -1,4 +1,4 @@
-const { UserInputError } = require('apollo-server-errors');
+const { UserInputError, AuthenticationError } = require('apollo-server-errors');
 const { GraphQLEnumType } = require('graphql');
 const mongo = require('../mongo');
 const { isvaildNum, isvaildidCardNum } = require('../utils/validations');
@@ -20,27 +20,37 @@ const Education = new GraphQLEnumType({
 
 const insertPersonalData = async (parent, args, context, info) => {
     let error = {};
-    let { name, number, idCardNum, education, skills } = args.info;
-    if (name.trim() == "") { throw new UserInputError('real name cannot be empty') }
-    if (number.trim() == "") { throw new UserInputError('phoneNumber cannot be empty') }
-    isvaildNum(error, number);
-    if (idCardNum.trim() == "") { throw new UserInputError('idCardNum cannot be empty') }
-    isvaildidCardNum(error, idCardNum);
-    if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
-    await mongo.query('Talent Pool', async (collection) => {
-        collection.updateOne({ idCardNum: idCardNum }, {
-            $set: {
-                name,
-                number,
-                idCardNum,
-                education: education.toString(),
-                skills
-            }
-        }, { upsert: true })
-    })
-    return {
-        statusCode: "200",
-        msg: "Success"
+    if (context.req && context.req.headers.authorization) {
+        const pro_number = context.req.headers.authorization;
+        isvaildNum(error, pro_number);
+        if (Object.keys(error).length > 0) { throw new AuthenticationError('invaild provider phone number', { error }) }
+        let { name, number, idCardNum, education, skills } = args.info;
+        if (name.trim() == "") { throw new UserInputError('real name cannot be empty') }
+        if (number.trim() == "") { throw new UserInputError('phoneNumber cannot be empty') }
+        isvaildNum(error, number);
+        if (idCardNum.trim() == "") { throw new UserInputError('idCardNum cannot be empty') }
+        isvaildidCardNum(error, idCardNum);
+        if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
+        await mongo.query('Talent Pool', async (collection) => {
+            collection.updateOne({ idCardNum: idCardNum }, {
+                $set: {
+                    data: {
+                        name,
+                        number,
+                        idCardNum,
+                        education: education.toString(),
+                        skills
+                    },
+                    providerNumber: pro_number
+                }
+            }, { upsert: true })
+        })
+        return {
+            statusCode: "200",
+            msg: "Success"
+        }
+    } else {
+        throw new AuthenticationError('missing provider phone number')
     }
 }
 

@@ -92,7 +92,7 @@ const typeDefs = gql`
   type Mutation {
     "api for register"
     register(info: Register!): String!
-    "this api need you to add a custom header parameter call provider phoneNumber"
+    "this api need you to pass the provider's phone number as the authorization header"
     insertPersonalData(info: PersonalData!): InsertResult!
   }
 `;
