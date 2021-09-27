@@ -54,6 +54,32 @@ const insertPersonalData = async (parent, args, context, info) => {
     }
 }
 
+const phoneNumberCheck = async (parent, args, context, info) => {
+    let errors = {};
+    const {phoneNumber, verifyCode} = args;
+    isvaildNum(errors, phoneNumber);
+    if(Object.keys(errors).length > 0) {
+        throw UserInputError('bad input', { errors });
+    }
+    await mongo.query('user_log_in_cache', async (collection) => {
+        let res = await collection.findOne({
+            phoneNumber: phoneNumber
+        });
+        if (res.code == undefined) {
+            errors.verifyCode = "verify code out of time"
+            return
+        }
+        if (res.code !== verifyCode) {
+            errors.verifyCode = "invaild verify code";
+        }
+    })
+    if(Object.keys(errors).length > 0) {
+        throw UserInputError('bad input', { errors });
+    }
+    return "passed"
+}
+
 module.exports = {
-    insertPersonalData
+    insertPersonalData,
+    phoneNumberCheck
 }

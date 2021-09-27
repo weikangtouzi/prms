@@ -1,0 +1,4 @@
+🚀 Server ready at http://localhost:4000/
+mongo Connection has been established successfully
+Executing (default): SELECT 1+1 AS result
+postgres Connection has been established successfully

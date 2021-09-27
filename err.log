@@ -1,0 +1,20 @@
+node:events:353
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::4000
+    at Server.setupListenHandle [as _listen2] (node:net:1290:16)
+    at listenInCluster (node:net:1338:12)
+    at Server.listen (node:net:1424:7)
+    at D:\workspace\nodejs\prms\node_modules\apollo-server\dist\index.js:83:29
+    at new Promise (<anonymous>)
+    at ApolloServer.listen (D:\workspace\nodejs\prms\node_modules\apollo-server\dist\index.js:81:15)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:1317:8)
+    at processTicksAndRejections (node:internal/process/task_queues:80:21) {
+  code: 'EADDRINUSE',
+  errno: -4091,
+  syscall: 'listen',
+  address: '::',
+  port: 4000
+}

@@ -88,6 +88,7 @@ const typeDefs = gql`
     sendSms(phoneNumber: String): String!
     "not able to be used yet"
     getUsers: [User]!
+    phoneNumberCheck(phoneNumber: String, verifyCode: String): String!
   }
   type Mutation {
     "api for register"
