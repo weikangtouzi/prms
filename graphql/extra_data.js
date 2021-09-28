@@ -59,13 +59,13 @@ const phoneNumberCheck = async (parent, args, context, info) => {
     const {phoneNumber, verifyCode} = args;
     isvaildNum(errors, phoneNumber);
     if(Object.keys(errors).length > 0) {
-        throw UserInputError('bad input', { errors });
+        throw new UserInputError('bad input', { errors });
     }
     await mongo.query('user_log_in_cache', async (collection) => {
         let res = await collection.findOne({
             phoneNumber: phoneNumber
         });
-        if (res.code == undefined) {
+        if (!res) {
             errors.verifyCode = "verify code out of time"
             return
         }
@@ -74,7 +74,7 @@ const phoneNumberCheck = async (parent, args, context, info) => {
         }
     })
     if(Object.keys(errors).length > 0) {
-        throw UserInputError('bad input', { errors });
+        throw new UserInputError('bad input', { errors });
     }
     return "passed"
 }

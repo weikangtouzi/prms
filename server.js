@@ -1,13 +1,20 @@
+const express = require('express');
 const {
   ApolloServerPluginLandingPageGraphQLPlayground
 } = require("apollo-server-core");
-const { ApolloServer, gql } = require('apollo-server');
+const { ApolloServer, gql } = require('apollo-server-express');
 const { sequelize } = require('./models');
-const { resolvers} = require('./graphql')
-const mongo = require('./mongo')
+const {
+  GraphQLUpload,
+  graphqlUploadExpress, // A Koa implementation is also exported.
+} = require('graphql-upload');
+const { resolvers} = require('./graphql');
+
+const mongo = require('./mongo');
 // The GraphQL schema
 const typeDefs = gql`
-  "data used by register user,"
+  scalar Upload
+  # data used by register user
   input Register {
     "username: required, unique, make sense by the name"
     username: String!
@@ -77,6 +84,7 @@ const typeDefs = gql`
     statusCode: String!,
     msg: String!,
   }
+
   type Query {
     "api for login"
     logIn(info: Login!): LoginResult!
@@ -95,23 +103,30 @@ const typeDefs = gql`
     register(info: Register!): String!
     "this api need you to pass the provider's phone number as the authorization header"
     insertPersonalData(info: PersonalData!): InsertResult!
+    singleUpload(file: Upload!): String!
   }
 `;
 
 // A map of functions which return data for the schema.
+async function startServer() {
+  resolvers.Upload = GraphQLUpload;
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [
+      ApolloServerPluginLandingPageGraphQLPlayground(),
+    ],
+    context: (ctx) => ctx,  
+  });
+  await server.start();
 
+  const app = express();
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  plugins: [
-    ApolloServerPluginLandingPageGraphQLPlayground(),
-  ],
-  context: (ctx) => ctx,  
-});
+  app.use(graphqlUploadExpress());
+  app.use(express.static('upload'))
+  server.applyMiddleware({ app });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
+  await new Promise(r => app.listen({ port: 4000}, r));
   mongo.init().then(() => {
     console.log('mongo Connection has been established successfully');
   })
@@ -119,5 +134,8 @@ server.listen().then(({ url }) => {
     .authenticate()
     .then(() => {
       console.log('postgres Connection has been established successfully');
-    })
-}).finally(() => mongo.close());
+  })
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  
+}
+startServer();
