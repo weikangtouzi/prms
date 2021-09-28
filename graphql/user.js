@@ -27,7 +27,7 @@ const logIn = async (parent, args, context, info) => {
                 let res = await collection.findOne({
                     phoneNumber: account
                 });
-                if (res.code == undefined) {
+                if (!res) {
                     errors.verifyCode = "verify code out of time"
                     return
                 }
@@ -49,7 +49,6 @@ const logIn = async (parent, args, context, info) => {
                 }
             })
             checkUser(user, errors);
-
             const correctPassword = await bcrypt.compare(password.value, user.password);
             if (!correctPassword) {
                 errors.password = 'password is incorrect'

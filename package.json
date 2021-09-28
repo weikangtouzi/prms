@@ -28,6 +28,7 @@
     "sequelize-cli": "^6.2.0"
   },
   "devDependencies": {
+    "graphql-upload": "^12.0.0",
     "nodemon": "^2.0.12"
   },
   "repository": {

@@ -26,8 +26,6 @@ module.exports = (sequelize, DataTypes) => {
     title: {
       type: DataTypes.STRING,
       allowNull: false,
-  
-  
     },
     detail: {
       type: DataTypes.JSON,
