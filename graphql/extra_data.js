@@ -45,10 +45,9 @@ const insertPersonalData = async (parent, args, context, info) => {
                 }
             }, { upsert: true })
         })
-        return {
-            statusCode: "200",
-            msg: "Success"
-        }
+        return await mongo.query('Talent Pool', async (collection) => {
+            return collection.countDocuments({providerNumber: pro_number})
+        })
     } else {
         throw new AuthenticationError('missing provider phone number')
     }
@@ -76,10 +75,21 @@ const phoneNumberCheck = async (parent, args, context, info) => {
     if(Object.keys(errors).length > 0) {
         throw new UserInputError('bad input', { errors });
     }
-    return "passed"
+    return await mongo.query('Talent Pool', async (collection) => {
+        return collection.countDocuments({providerNumber: phoneNumber})
+    })
+}
+
+const checkIdCardNumber = async (parent, args, context, info) => {
+    const {idCardNum} = args
+    let count = await mongo.query('Talent Pool', (collection) => {
+        return collection.countDocuments({"data.idcardNum": idCardNum})
+    })
+    return count == 1
 }
 
 module.exports = {
     insertPersonalData,
-    phoneNumberCheck
+    phoneNumberCheck,
+    checkIdCardNumber
 }

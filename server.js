@@ -80,10 +80,6 @@ const typeDefs = gql`
     education: Education!,
     skills: [String]!
   }
-  type InsertResult {
-    statusCode: String!,
-    msg: String!,
-  }
 
   type Query {
     "api for login"
@@ -96,13 +92,15 @@ const typeDefs = gql`
     sendSms(phoneNumber: String): String!
     "not able to be used yet"
     getUsers: [User]!
-    phoneNumberCheck(phoneNumber: String, verifyCode: String): String!
+    phoneNumberCheck(phoneNumber: String, verifyCode: String): Int!
+    "true means already inserted"
+    checkIdCardNumber(num: String!): Boolean!
   }
   type Mutation {
     "api for register"
     register(info: Register!): String!
     "this api need you to pass the provider's phone number as the authorization header"
-    insertPersonalData(info: PersonalData!): InsertResult!
+    insertPersonalData(info: PersonalData!): Int!
     singleUpload(file: Upload!): String!
   }
 `;

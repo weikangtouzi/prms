@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    type: {
+    message_type: {
       type: DataTypes.ENUM("Normal", "System", "Share", "Other"),
       allowNull: false
   
