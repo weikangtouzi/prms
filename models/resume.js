@@ -23,12 +23,8 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    title: {
+    personal_advantage: {
       type: DataTypes.STRING,
-      allowNull: false,
-    },
-    detail: {
-      type: DataTypes.JSON,
       allowNull: false,
     },
     grade: {

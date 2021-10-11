@@ -13,7 +13,7 @@ async function query(collectionName,runner) {
   // Use connect method to connect to the server
   const db = client.db(dbName);
   const collection = db.collection(collectionName);
-  await runner(collection);
+  return await runner(collection);
   // the following code examples can be pasted here...
 }
 

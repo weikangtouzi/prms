@@ -1,6 +1,6 @@
 const { logIn, numberCheck, register, getUsers } = require('./user');
 const { sendSms } = require('./send_sms');
-const { insertPersonalData, phoneNumberCheck } = require('./extra_data');
+const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const resolvers = {
     Query: {
@@ -9,6 +9,7 @@ const resolvers = {
         sendSms: sendSms,
         getUsers: getUsers,
         phoneNumberCheck: phoneNumberCheck,
+        checkIdCardNumber: checkIdCardNumber,
     },
     Mutation: {
         register: register,
