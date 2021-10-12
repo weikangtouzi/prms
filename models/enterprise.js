@@ -14,14 +14,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Enterprise.init({
-    user_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: "users",
-        key: "id",
-        deferrable: Deferrable.NOT
-      }
-    },
     enterprise_name: {
       type: DataTypes.STRING,
       allowNull: false
