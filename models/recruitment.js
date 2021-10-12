@@ -35,8 +35,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    adress: {
-        
+    adress_longtitude: {
+        type: DataTypes.REAL,
+        allowNull: false
+    },
+    address_latitude: {
+      type: DataTypes.REAL,
+      allowNull: false
     }
   }, {
     sequelize,
