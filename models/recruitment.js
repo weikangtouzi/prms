@@ -35,11 +35,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    
+
   }, {
     sequelize,
     modelName: 'Recruitment',
     tableName: 'recruitment'
   });
-  return Interview;
+  return Recruitment;
 };
