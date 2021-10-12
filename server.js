@@ -78,6 +78,7 @@ const typeDefs = gql`
     number: String!,
     idCardNum: String!,
     education: Education!,
+    city: String!,
     skills: [String]!
   }
 

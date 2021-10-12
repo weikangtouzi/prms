@@ -35,7 +35,9 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TEXT,
         allowNull: false
     },
-
+    adress: {
+        
+    }
   }, {
     sequelize,
     modelName: 'Recruitment',
