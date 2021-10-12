@@ -4,7 +4,7 @@ const {
 } = require('sequelize');
 const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
-  class Interview extends Model {
+  class BlackList extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  Interview.init({
+  BlackList.init({
     user_id: {
       type: DataTypes.INTEGER,
       references: {
@@ -23,30 +23,18 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    job_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    useName: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true,
     },
-    HR_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    appointment_time: {
-      type: DataTypes.TIME,
-      allowNull: false
-    },
-    comp_name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    status: {
-      type: DataTypes.ENUM("Waiting", "Start", "Cancel", "Done", "Pass"),
-      allowNull: false
+    useId: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        allowNull: true
     }
   }, {
     sequelize,
-    modelName: 'Interview',
-    tableName: 'interview'
+    modelName: 'BlackList',
+    tableName: 'black_list'
   });
-  return Interview;
+  return BlackList;
 };

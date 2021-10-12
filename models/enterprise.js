@@ -42,6 +42,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM("LessThanFivePeople", "FiveToTwenty", "TwentyToHundred", "MoreThanHundred"),
       allowNull: false
     },
+    enterprise_welfare: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: true
+    },
     enterprise_logo: {
       type: DataTypes.STRING,
       allowNull: false

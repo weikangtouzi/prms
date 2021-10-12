@@ -5,7 +5,7 @@ const {
 const resume = require('./resume');
 const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
-  class ResumePersonalData extends Model {
+  class ResumeWorkExp extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  ResumePersonalData.init({
+  ResumeWorkExp.init({
     resume_id: {
       type: DataTypes.INTEGER,
       references: {
@@ -24,38 +24,30 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    real_name: {
+    comp_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    pos_name: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    birth_date: {
+    start_at: {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
-    first_time_working: {
+    end_at: {
         type: DataTypes.DATEONLY,
         allowNull: true
     },
-    gender: {
-        type: DataTypes.BOOLEAN,
+    working_detail: {
+        type: DataTypes.TEXT,
         allowNull: false
-    },
-    current_city: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    phone_number: {
-        type: DataTypes.STRING,
-        references: {
-            model: "users",
-            key: "phone_number",
-            deferrable: Deferrable.NOT
-        }
     }
   }, {
     sequelize,
-    modelName: 'ResumePersonalData',
-    tableName: 'resume_personal_data'
+    modelName: 'ResumeWorkExp',
+    tableName: 'resume_work_exp'
   });
-  return ResumePersonalData;
+  return ResumeWorkExp;
 };

@@ -32,7 +32,7 @@ const insertPersonalData = async (parent, args, context, info) => {
         isvaildidCardNum(error, idCardNum);
         if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
         await mongo.query('Talent Pool', async (collection) => {
-            collection.updateOne({ idCardNum: idCardNum }, {
+            collection.updateOne({ "data.idCardNum": idCardNum }, {
                 $set: {
                     data: {
                         name,
