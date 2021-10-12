@@ -2,10 +2,9 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const resume = require('./resume');
 const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
-  class ResumePersonalData extends Model {
+  class InterviewRecomment extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -15,47 +14,47 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  ResumePersonalData.init({
-    resume_id: {
+  InterviewRecomment.init({
+    interview_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "resume",
+        model: "interview",
         key: "id",
         deferrable: Deferrable.NOT
       }
     },
-    real_name: {
+    job_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    comp_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    content: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    birth_date: {
-        type: DataTypes.DATEONLY,
+    description: {
+        type: DataTypes.ENUM("One", "Two", "Three", "Four", "Five"),
         allowNull: false
     },
-    first_time_working: {
-        type: DataTypes.DATEONLY,
+    comp_env: {
+        type: DataTypes.ENUM("One", "Two", "Three", "Four", "Five"),
+        allowNull: false
+    },
+    HR: {
+        type: DataTypes.ENUM("One", "Two", "Three", "Four", "Five"),
+        allowNull: false
+    },
+    tags: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
-    },
-    gender: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
-    },
-    current_city: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    phone_number: {
-        type: DataTypes.STRING,
-        references: {
-            model: "users",
-            key: "phone_number",
-            deferrable: Deferrable.NOT
-        }
     }
   }, {
     sequelize,
-    modelName: 'ResumePersonalData',
-    tableName: 'resume_personal_data'
+    modelName: 'InterviewRecomment',
+    tableName: 'interview_recomment'
   });
-  return ResumePersonalData;
+  return InterviewRecomment;
 };

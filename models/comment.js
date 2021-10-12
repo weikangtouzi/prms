@@ -39,10 +39,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
-    },
-    stars: {
-      type: DataTypes.ENUM("One", "Two", "Three", "Four", "Five"),
-      allowNull: true
     }
   }, {
     sequelize,

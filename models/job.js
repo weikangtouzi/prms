@@ -35,10 +35,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    welfare: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
     is_fulltime: {
       type: DataTypes.BOOLEAN,
       allowNull: false
