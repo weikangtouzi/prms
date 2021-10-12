@@ -83,7 +83,7 @@ const phoneNumberCheck = async (parent, args, context, info) => {
 const checkIdCardNumber = async (parent, args, context, info) => {
     const {idCardNum} = args
     let count = await mongo.query('Talent Pool', (collection) => {
-        return collection.countDocuments({"data.idcardNum": idCardNum})
+        return collection.countDocuments({"data.idCardNum": idCardNum})
     })
     return count == 1
 }
