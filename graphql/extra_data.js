@@ -24,7 +24,7 @@ const insertPersonalData = async (parent, args, context, info) => {
         const pro_number = context.req.headers.authorization;
         isvaildNum(error, pro_number);
         if (Object.keys(error).length > 0) { throw new AuthenticationError('invaild provider phone number', { error }) }
-        let { name, number, idCardNum, education, skills } = args.info;
+        let { name, number, idCardNum, education, skills, city } = args.info;
         if (name.trim() == "") { throw new UserInputError('real name cannot be empty') }
         if (number.trim() == "") { throw new UserInputError('phoneNumber cannot be empty') }
         isvaildNum(error, number);
@@ -39,6 +39,7 @@ const insertPersonalData = async (parent, args, context, info) => {
                         number,
                         idCardNum,
                         education: education.toString(),
+                        city,
                         skills
                     },
                     providerNumber: pro_number
