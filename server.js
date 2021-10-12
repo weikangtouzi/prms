@@ -94,7 +94,7 @@ const typeDefs = gql`
     getUsers: [User]!
     phoneNumberCheck(phoneNumber: String, verifyCode: String): Int!
     "true means already inserted"
-    checkIdCardNumber(num: String!): Boolean!
+    checkIdCardNumber(idCardNum: String!): Boolean!
   }
   type Mutation {
     "api for register"

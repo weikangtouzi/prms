@@ -3,6 +3,7 @@ const {
   Model, Deferrable
 } = require('sequelize');
 const user = require('./user');
+const enterprise = require('./enterprise');
 module.exports = (sequelize, DataTypes) => {
   class Job extends Model {
     /**
@@ -46,11 +47,20 @@ module.exports = (sequelize, DataTypes) => {
     contact_id: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    comp_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "enterprise",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
     }
   }, {
     sequelize,
     modelName: 'Job',
-    tableName: 'job'
+    tableName: 'job',
   });
   return Job;
 };
