@@ -15,6 +15,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Recruitment.init({
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     sponsor: {
         type: DataTypes.STRING,
         allowNull: false
@@ -41,6 +45,10 @@ module.exports = (sequelize, DataTypes) => {
     },
     address_latitude: {
       type: DataTypes.REAL,
+      allowNull: false
+    },
+    job_count: {
+      type: DataTypes.INTEGER,
       allowNull: false
     }
   }, {

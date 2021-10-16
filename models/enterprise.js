@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    enterprise_financing: {
+      type: DataTypes.ENUM("None"),
+      allowNull: false
+    },
     enterprise_size: {
       type: DataTypes.ENUM("LessThanFivePeople", "FiveToTwenty", "TwentyToHundred", "MoreThanHundred"),
       allowNull: false
@@ -42,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    tags: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false
+    },
     extra_attribute: {
       type: DataTypes.JSON,
       allowNull: false,
@@ -49,7 +57,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Enterprise',
-    tableName: 'enterprise'
+    tableName: 'enterprise',
+    updatedAt: false
   });
   return Enterprise;
 };

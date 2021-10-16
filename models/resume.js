@@ -23,18 +23,22 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    personal_advantage: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
     grade: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
-    ontop: {
+    is_attachment: {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
+    path: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    is_public: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
+    }
   }, {
     sequelize,
     modelName: 'Resume',

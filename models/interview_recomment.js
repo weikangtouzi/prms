@@ -2,7 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const user = require('./user');
+const user = require('./interview');
 module.exports = (sequelize, DataTypes) => {
   class InterviewRecomment extends Model {
     /**

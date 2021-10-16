@@ -40,6 +40,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
     },
+    real_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     identified: {
       type: DataTypes.ENUM("None", "Failed", "Success"),
       allowNull: false

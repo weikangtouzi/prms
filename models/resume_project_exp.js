@@ -3,7 +3,6 @@ const {
   Model, Deferrable
 } = require('sequelize');
 const resume = require('./resume');
-const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
   class ResumeProjectExp extends Model {
     /**
@@ -28,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
     },
-    character_played: {
+    role: {
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -40,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
-    project_detail: {
+    project_description: {
         type: DataTypes.TEXT,
         allowNull: false
     },

@@ -3,8 +3,9 @@ const {
   Model, Deferrable
 } = require('sequelize');
 const user = require('./user');
+const enterprise = require('./enterprise');
 module.exports = (sequelize, DataTypes) => {
-  class Message extends Model {
+  class InterviewQuestion extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,39 +15,45 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  Message.init({
+  InterviewQuestion.init({
     user_id: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: "users",
         key: "id",
         deferrable: Deferrable.NOT
       }
     },
-    from: {
+    comp_id: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "enterprise",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
+    },
+    target: {
+        type: DataTypes.ENUM("EnterpriseWorker", "Interviewee"),
+        allowNull: false
+    },
+    question_description: {
+      type: DataTypes.STRING,
       allowNull: false
     },
-    message_type: {
-      type: DataTypes.ENUM("Normal", "System", "Resume", "InterviewInvitation", "Other"),
-      allowNull: false
-    },
-    detail: {
+    addtional_description: {
       type: DataTypes.TEXT,
-      allowNull: false
+      allowNull: true
     },
-    time: {
-      type: DataTypes.TIME,
-      allowNull: false
-    },
-    availiable: {
+    anonymous: {
       type: DataTypes.BOOLEAN,
       allowNull: false
     }
   }, {
     sequelize,
-    modelName: 'Message',
-    tableName: 'message'
+    modelName: 'InterviewQuestion',
+    tableName: 'Interview_question'
   });
-  return Message;
+  return InterviewQuestion;
 };

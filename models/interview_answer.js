@@ -2,9 +2,9 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const resume = require('./resume');
+const question = require('./interview_question');
 module.exports = (sequelize, DataTypes) => {
-  class ResumeWorkExp extends Model {
+  class InterviewQuestion extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,43 +14,37 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  ResumeWorkExp.init({
-    resume_id: {
+  InterviewQuestion.init({
+    user_id: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
-        model: "resume",
+        model: "users",
         key: "id",
         deferrable: Deferrable.NOT
       }
     },
-    comp_name: {
-        type: DataTypes.STRING,
+    question_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+            model: "users",
+            key: "id",
+            deferrable: Deferrable.NOT
+        }
     },
-    pos_name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    department: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    start_at: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
-    },
-    end_at: {
-        type: DataTypes.DATEONLY,
-        allowNull: true
-    },
-    working_detail: {
+    content: {
         type: DataTypes.TEXT,
+        allowNull: false
+    },
+    anonymous: {
+        type: DataTypes.BOOLEAN,
         allowNull: false
     }
   }, {
     sequelize,
-    modelName: 'ResumeWorkExp',
-    tableName: 'resume_work_exp'
+    modelName: 'InterviewQuestion',
+    tableName: 'Interview_question'
   });
-  return ResumeWorkExp;
+  return InterviewQuestion;
 };

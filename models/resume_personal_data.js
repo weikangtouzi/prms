@@ -3,7 +3,6 @@ const {
   Model, Deferrable
 } = require('sequelize');
 const resume = require('./resume');
-const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
   class ResumePersonalData extends Model {
     /**
@@ -51,7 +50,19 @@ module.exports = (sequelize, DataTypes) => {
             key: "phone_number",
             deferrable: Deferrable.NOT
         }
-    }
+    },
+    job_status: {
+      type: DataTypes.ENUM("NoJobButNoJob", "NoJobButWantJob", "OnTheJob", "OnTheJobButLookingForAJob", "GraduatingStudent"),
+      allowNull: false
+    },
+    employment_nature: {
+      type: DataTypes.ENUM("Anytime", "LessThanTwoDays", "LessThanOneWeek", "LessThanTwoWeeks", "LessThanOneMonth", "MoreThanOneMonth"),
+      allowNull: false
+    },
+    personal_advantage: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'ResumePersonalData',

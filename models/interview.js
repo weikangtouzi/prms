@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     appointment_time: {
-      type: DataTypes.TIME,
+      type: DataTypes.DATE,
       allowNull: false
     },
     comp_name: {
@@ -40,8 +40,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     status: {
-      type: DataTypes.ENUM("Waiting", "Start", "Cancel", "Done", "Pass"),
+      type: DataTypes.ENUM("Waiting", "Started", "Canceled", "Failed", "Passed"),
       allowNull: false
+    },
+    description: {
+      type: DataTypes.ENUM("RejectionFromApplicants", "CanceledByApplicants", "CanceledByHR"),
+      allowNull: true,
+      comment: "Description only needed when this interview is canceled"
     }
   }, {
     sequelize,

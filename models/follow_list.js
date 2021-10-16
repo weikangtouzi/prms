@@ -3,8 +3,9 @@ const {
   Model, Deferrable
 } = require('sequelize');
 const user = require('./user');
+const enterprise = require('./enterprise');
 module.exports = (sequelize, DataTypes) => {
-  class Message extends Model {
+  class FollowList extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  Message.init({
+  FollowList.init({
     user_id: {
       type: DataTypes.INTEGER,
       references: {
@@ -23,30 +24,18 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    from: {
+    enterprise_id: {
       type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    message_type: {
-      type: DataTypes.ENUM("Normal", "System", "Resume", "InterviewInvitation", "Other"),
-      allowNull: false
-    },
-    detail: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    time: {
-      type: DataTypes.TIME,
-      allowNull: false
-    },
-    availiable: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
+      references: {
+        model: "enterprise",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
     }
   }, {
     sequelize,
-    modelName: 'Message',
-    tableName: 'message'
+    modelName: 'FollowList',
+    tableName: 'follow_list'
   });
-  return Message;
+  return FollowList;
 };
