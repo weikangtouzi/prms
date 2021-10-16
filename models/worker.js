@@ -31,14 +31,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    position: {
-      type: DataTypes.JSON,
+    role: {
+      type: DataTypes.ENUM("HR", "Teacher", "Admin"),
       allowNull: false
     }
   }, {
     sequelize,
     modelName: 'Worker',
-    tableName: 'worker'
+    tableName: 'worker',
+    
   });
   return Worker;
 };

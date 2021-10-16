@@ -24,7 +24,15 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     job_category: {
-      type: DataTypes.JSON,
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    industry: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    aimed_city: {
+      type: DataTypes.STRING,
       allowNull: false
     },
     min_salary_expectation: {
@@ -34,15 +42,8 @@ module.exports = (sequelize, DataTypes) => {
     max_salary_expectation: {
       type: DataTypes.DOUBLE,
       allowNull: false
-    },
-    job_status: {
-      type: DataTypes.ENUM("NoJobButNoJob", "NoJobButWantJob", "OnTheJob", "OnTheJobButLookingForAJob", "GraduatingStudent"),
-      allowNull: false
-    },
-    employment_nature: {
-      type: DataTypes.ENUM("Anytime", "LessThanTwoDays", "LessThanOneWeek", "LessThanTwoWeeks", "LessThanOneMonth", "MoreThanOneMonth"),
-      allowNull: false
     }
+    
   }, {
     sequelize,
     modelName: 'JobExpectation',

@@ -2,8 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const user = require('./user');
-const enterprise = require('./enterprise');
+const worker = require('./worker');
 module.exports = (sequelize, DataTypes) => {
   class Job extends Model {
     /**
@@ -16,36 +15,70 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Job.init({
-    user_id: {
+    worker_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "users",
+        model: "worker",
         key: "id",
         deferrable: Deferrable.NOT
       }
+    },
+    worker_name: {
+      type: DataTypes.STRING,
+      allowNull: false
     },
     title: {
       type: DataTypes.STRING,
       allowNull: false
     },
     detail: {
-      type: DataTypes.JSON,
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    adress_coordinate: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    adress_description: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    min_salary: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    max_salary: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    min_experience: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    max_experience: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    min_education: {
+      type: DataTypes.ENUM("Null", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"),
+      allowNull: false
+    },
+    requiredNum: {
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     ontop: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      allowNull: false,
+      defaultValue: false
     },
     is_fulltime: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      allowNull: false,
+      defaultValue: true
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false
-    },
-    contact_id: {
-      type: DataTypes.INTEGER,
       allowNull: false
     },
     comp_id: {
@@ -56,6 +89,10 @@ module.exports = (sequelize, DataTypes) => {
         key: "id",
         deferrable: Deferrable.NOT
       }
+    },
+    tranfering_to: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
     }
   }, {
     sequelize,

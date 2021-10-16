@@ -7,7 +7,7 @@ const resolvers = {
         logIn: logIn,
         numberCheck: numberCheck,
         sendSms: sendSms,
-        getUsers: getUsers,
+        // getUsers: getUsers,
         phoneNumberCheck: phoneNumberCheck,
         checkIdCardNumber: checkIdCardNumber,
     },

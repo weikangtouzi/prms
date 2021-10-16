@@ -1,3 +1,4 @@
+const {QueryInterface, DataTypes} = require('sequelize');
 const province = require('../models/province');
 const getProvinces = async () => {
     console.log("getProvinces called")

@@ -3,7 +3,6 @@ const {
   Model, Deferrable
 } = require('sequelize');
 const resume = require('./resume');
-const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
   class ResumeEduExp extends Model {
     /**
@@ -25,28 +24,28 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     school_name: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false
     },
     education: {
-        type: DataTypes.ENUM("High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"),
-        allowNull: false
+      type: DataTypes.ENUM("LessThanPrime", "Primary", "Junior", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"),
+      allowNull: false
     },
     is_all_time: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     major: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false
     },
     time: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false
     },
     exp_at_school: {
-        type: DataTypes.TEXT,
-        allowNull: false
+      type: DataTypes.TEXT,
+      allowNull: false
     }
   }, {
     sequelize,
