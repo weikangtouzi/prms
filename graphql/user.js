@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken')
 const { User } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
-const { jwtSecret } = require('../project.json');
+const { jwtConfig } = require('../project.json');
 const { basic } = require('../project.json');
 const logIn = async (parent, args, context, info) => {
     const { account, password } = args.info;
@@ -56,8 +56,9 @@ const logIn = async (parent, args, context, info) => {
             }
 
             const token = await jwt.sign({
+                user_id: user.id,
                 username: user.username
-            }, jwtSecret, { expiresIn: 60 * 60 });
+            }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime });
             return {
                 ...user.toJSON(),
                 createdAt: user.createdAt.toISOString(),
@@ -127,7 +128,7 @@ const register = async (parent, args, context, info) => {
                 is_personal: true,
                 identified: "None"
             });
-        }else {
+        } else {
             user = await User.create({
                 username: username,
                 password: password_encrypted,
@@ -151,33 +152,68 @@ const register = async (parent, args, context, info) => {
         throw new UserInputError('Bad input', { errors })
     }
 };
+
+const chooseOrSwitchIdentity = async (parent, args, context, info) => {
+    let token = context.req.headers.authorization;
+
+    if (context.req && context.req.headers.authorization) {
+        try {
+            let userInfo = jwt.decode(token);
+            if ((userInfo.exp && userInfo.exp > new Date().getTime() / 1000) || userInfo.identity) {
+                return jwt.sign({
+                    user_id: userInfo.id,
+                    username: userInfo.username,
+                    identity: args.indentity
+                }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
+            } else {
+                console.log(new Date().getTime() / 1000)
+                throw new jwt.TokenExpiredError("your token is expired and without any identity. identity switch needs a token that is not expired or contains current identity", userInfo.exp);
+            }
+        } catch (err) {
+            throw new UserInputError("token invalid", err)
+        }
+    } else {
+        throw new AuthenticationError('missing authorization')
+    }
+
+}
+const resetPassword = async (parent, args, context, info) => {
+    let token = context.req.headers.authorization;
+    let userInfo = jwt.decode(token);
+    const {password, confirmPassword, phoneNumber, verifyCode} = args.info;
+    if(password.trim() == '') throw new UserInputError('password must be not empty');
+    if(confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
+    if(verifyCode.trim() == '') throw new UserInputError('confirmPassword must be not empty');
+    if (context.req && context.req.headers.authorization && userInfo) {
+        try{
+            await User.update({
+                password: (await bcrypt.hash(password, 2)).toString(),
+            },{
+                where: { username: userInfo.username}
+            });
+        } catch(e){
+            throw new UserInputError('bad input', {e})
+        }
+        
+
+    } else {
+        throw new AuthenticationError('missing authorization')
+    }
+}
+
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
         throw new UserInputError('user not found', { errors })
     }
 }
-const getUsers = async (parent, args, context, info) => {
-    let user;
-    if (context.req && context.req.headers.authorization) {
-        const token = context.req.headers.authorization.split('Bearer ')[1]
-        jwt.verify(token, jwtSecret, (e, decodedToken) => {
-            if (e) {
-                throw new AuthenticationError('Unauthenticated')
-            }
-            user = decodedToken
 
-            console.log(user)
-        })
-    }
-    return [{
-        username: "shdauisdha"
-    }]
 
-}
 module.exports = {
     logIn,
     numberCheck,
     register,
-    getUsers,
+    chooseOrSwitchIdentity,
+    resetPassword,
 }

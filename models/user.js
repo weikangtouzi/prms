@@ -48,10 +48,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM("None", "Failed", "Success"),
       allowNull: false
     },
-    is_personal: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
-    },
     image_url: {
       type: DataTypes.STRING
     }

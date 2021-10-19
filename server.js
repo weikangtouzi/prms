@@ -369,7 +369,6 @@ const typeDefs = gql`
   }
   "reset password means that user forget password"
   input ResetPassword {
-    phoneNumber: String!,
     verifyCode: String!,
     password: String!,
     confirmPassword: String!,
@@ -381,12 +380,65 @@ const typeDefs = gql`
     StateOwnedEnterprises, 
     Extra
   }
+  enum EnterpriseFinancing {
+    NotYet,
+    AngelFinancing,
+    A,
+    B,
+    C,
+    D,
+    Listed,
+    NoNeed
+  }
+  enum EnterpriseSize {
+    LessThanFifteen, 
+    FifteenToFifty, 
+    FiftyToOneHundredFifty, 
+    OneHundredFiftyToFiveHundreds, 
+    FiveHundredsToTwoThousands, 
+    MoreThanTwoThousands
+  }
+  enum EnterpriseRestRule {
+    OneDayOffPerWeekend, 
+    TwoDayOffPerWeekend, 
+    StaggerWeekends
+  }
+  enum EnterpriseOvertimeDegree {
+    None, 
+    Occasionally, 
+    Usually
+  }
   input EnterpriseCertification {
+    name: String!,
+    charter: String!
+  }
+  input EnterpriseBasicInfo {
     enterpriseName: String!,
-    enterpriseLocation: String!,
+    abbreviation: String!,
+    "pass the whole adress information in this array"
+    enterpriseLocation: [String]!,
+    "longtitude and latitude"
+    enterprisecCoordinate: [Float]!,
     "checkout EnterpriseNature type for value options"
     enterpriseNature: String!,
-    role: String!
+    enterpriseIndustry: [String]!,
+    "checkout EnterpriseIndustry type for value options"
+    enterpriseFinancing: String!,
+    "checkout EnterpriseSize type for value options"
+    enterpriseSize: String!,
+    logo: String!
+  }
+  enum CustomFileType {
+    Charter,
+    Resume,
+    Photo,
+    Other
+  }
+  input UploadExtraAttributes {
+    customUploadPath: String,
+    customFileName: String,
+    "checkout CustomFileType for value options"
+    customFileType: String,
   }
   "for most of get query needed token for authorization"
   type Query {
@@ -402,7 +454,7 @@ const typeDefs = gql`
     getCounty(cityId: String!): [String]!
     "get all town of the given county"
     getTown(countyId: String!): [String]!
-    "send a verify code to the given number"
+    "send a verify code to the given number, if phoneNumber not provider and has token in header, will send to the user's phone number"
     sendSms(phoneNumber: String): String!
     "tags are those tags that hr added to a job. keyword stands for the input at search page. tags and keyword are not required. pageNumber and pageSize default value are 1 and 10"
     getJobs(filter: JobFilter): JobQueryResult!
@@ -429,7 +481,8 @@ const typeDefs = gql`
     register(info: Register!): String!
     "this api need you to pass the provider's phone number as the authorization header"
     insertPersonalData(info: PersonalData!): Int!
-    singleUpload(file: Upload!): String!
+    "leave extraAttributes null for default upload options"
+    singleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): String!
     postJob(job: JobPost): String!
     "insert or edit a personal data"
     editPersonalData(info: BasicData): Void
@@ -457,6 +510,8 @@ const typeDefs = gql`
     resetPassword(info: ResetPassword!): Void
     "enterprise certification need censor"
     enterpriseCertificate(info: EnterpriseCertification!): Void
+    "enterprise certificate required, if not will return error"
+    editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): Void
     recruitmentApply(recruitmentId: Int!): Void
   }
 `;

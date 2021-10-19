@@ -55,9 +55,6 @@ module.exports = (sequelize, DataTypes) => {
     readedAt: {
       type: DataTypes.DATE,
       allowNull: false
-    },
-    inappropriate_reason: {
-      type: DataTypes.ENUM("")
     }
   }, {
     sequelize,
