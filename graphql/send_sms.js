@@ -3,9 +3,22 @@ const Client = require('@alicloud/dysmsapi20170525');
 const mongo = require('../mongo');
 const { UserInputError } = require('apollo-server-errors');
 const { isvaildNum } = require('../utils/validations');
+const jwt = require('jsonwebtoken');
+const {User} = require('../models')
 const sendSms = async (parent, args, context, info) => {
-    const { phoneNumber } = args;
+    let { phoneNumber } = args;
     let error = {};
+    
+    if(!phoneNumber) {
+        let token = context.req.headers.authorization;
+        if(context.req && context.req.headers.authorization) {
+            let username = jwt.decode(token).username;
+            let res = await User.findOne({ where: { username: username}});
+            phoneNumber = res.phone_number;
+        }else {
+            throw new AuthenticationError('this api needs at least a phone number of your account token');
+        }
+    }
     isvaildNum(error, phoneNumber);
     if (Object.keys(error).length > 0) {
         throw new UserInputError('bad input', { error })

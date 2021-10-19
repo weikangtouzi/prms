@@ -1,4 +1,4 @@
-const { logIn, numberCheck, register, getUsers } = require('./user');
+const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword} = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -15,6 +15,8 @@ const resolvers = {
         register: register,
         insertPersonalData: insertPersonalData,
         singleUpload: singleUpload,
+        chooseOrSwitchIdentity: chooseOrSwitchIdentity,
+        resetPassword: resetPassword,
     }
 };
 module.exports = {

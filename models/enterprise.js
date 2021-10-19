@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     enterprise_size: {
-      type: DataTypes.ENUM("LessThanFivePeople", "FiveToTwenty", "TwentyToHundred", "MoreThanHundred"),
+      type: DataTypes.ENUM("LessThanFifteen", "FifteenToFifty", "FiftyToOneHundredFifty", "OneHundredFiftyToFiveHundreds", "FiveHundredsToTwoThousands", "MoreThanTwoThousands"),
       allowNull: false
     },
     enterprise_welfare: {
@@ -48,12 +48,40 @@ module.exports = (sequelize, DataTypes) => {
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: true
+    },
+    enterprise_loc_longtitude: {
+      type: DataTypes.REAL,
+      allowNull: false
+    },
+    enterprise_loc_latitude: {
+      type: DataTypes.REAL,
+      allowNull: false
+    },
+    enterprise_loc_detail: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     },
     extra_attribute: {
       type: DataTypes.JSON,
       allowNull: false,
     },
+    charter: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    failed_description: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    rest_rule: {
+      type: DataTypes.ENUM("OneDayOffPerWeekend", "TwoDayOffPerWeekend", "StaggerWeekends"),
+      allowNull: true
+    },
+    overtime_work_degree: {
+      type: DataTypes.ENUM("None", "Occasionally", "Usually"),
+      allowNull: true
+    }
   }, {
     sequelize,
     modelName: 'Enterprise',

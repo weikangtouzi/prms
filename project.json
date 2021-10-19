@@ -33,7 +33,10 @@
     "chat": {
         
     },
-    "jwtSecret": "wdnmd",
+    "jwtConfig": {
+        "secret": "wdnmd",
+        "expireTime": "3600000"
+    },
     "basic": {
         "email": false,
         "host": "dev.chenzaozzhao.com"
