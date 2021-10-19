@@ -1,56 +1,39 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { Enterprise } = require('../models');
 const jwt = require('jsonwebtoken');
+//     enterpriseName: String!,
+//     abbreviation: String!,
+//     "pass the whole adress information in this array"
+//     enterpriseLocation: [String]!,
+//     "longtitude and latitude"
+//     enterprisecCoordinate: [Float]!,
+//     "checkout EnterpriseNature type for value options"
+//     enterpriseNature: String!,
+//     enterpriseIndustry: [String]!,
+//     "checkout EnterpriseIndustry type for value options"
+//     enterpriseFinancing: String!,
+//     "checkout EnterpriseSize type for value options"
+//     enterpriseSize: String!,
+//     logo: String!
 const enterpriseCertificate = async (parent, args, context, info) => {
-  const { enterpriseName, enterpriseNature, enterpriseLocation, enterpriseIndustry, enterpriseFinancing, role } = args.info;
+  const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, role, logo } = args.info;
   let token = context.req.headers.authorization;
   if (context.req && context.req.headers.authorization) {
     let userInfo = jwt.decode(token);
     Enterprise.create({
       enterprise_name: enterpriseName,
+      abbreviation: abbreviation,
       business_nature: enterpriseNature,
       industry_involved: enterpriseIndustry,
-      enterprise_profile: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      enterprise_financing: {
-        type: DataTypes.ENUM("None"),
-        allowNull: false
-      },
-      enterprise_size: {
-        type: DataTypes.ENUM("LessThanFifteenPeople", "FifteenToFifty", "FiftyToOneHundredFifty", "OneHundredFiftyToFiveHundreds", "FiveHundredsToTwoThousands", "MoreThanTwoThousands"),
-        allowNull: false
-      },
-      enterprise_welfare: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true
-      },
-      enterprise_logo: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
-      tags: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: false
-      },
-      extra_attribute: {
-        type: DataTypes.JSON,
-        allowNull: false,
-      },
-      charter: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
-      censor_status: {
-        type: DataTypes.ENUM("MissingCarter", "Waiting", "Passed", "Failed"),
-        allowNull: false
-      },
-      failed_description: {
-        type: DataTypes.STRING,
-        allowNull: true
-      }
-    })
+      enterprise_profile: enterpriseProfile,
+      enterprise_financing: enterpriseFinancing,
+      enterprise_size: enterpriseSize,
+      enterprise_logo: logo,
+      charter: charter,
+      enterprise_loc_longtitude: enterprisecCoordinate[0],
+      enterprise_loc_latitude: enterprisecCoordinate[1],
+      enterprise_loc_detail: enterpriseLocation,
+    });
   } else {
     throw new AuthenticationError('missing authorization');
   }

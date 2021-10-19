@@ -67,6 +67,18 @@ const typeDefs = gql`
     province_id: String!,
     name: String!
   }
+  type City {
+    city_id: String!,
+    name: String!
+  }
+  type County {
+    county_id: String!,
+    name: String!
+  }
+  type Town {
+    town_id: String!,
+    name: String!
+  }
   "just data needed to login"
   input Login {
     "could be username, email, phone number"
@@ -426,6 +438,7 @@ const typeDefs = gql`
     enterpriseFinancing: String!,
     "checkout EnterpriseSize type for value options"
     enterpriseSize: String!,
+    enterpriseProfile: String!,
     logo: String!
   }
   enum CustomFileType {
@@ -449,11 +462,11 @@ const typeDefs = gql`
     "get Province data"
     getProvinces: [Province]
     "get all cities of the given province"
-    getCity(provinceId: String!): [String]!
+    getCities(provinceId: String!): [City]!
     "get all counties of the given city"
-    getCounty(cityId: String!): [String]!
+    getCounties(cityId: String!): [County]!
     "get all town of the given county"
-    getTown(countyId: String!): [String]!
+    getTowns(countyId: String!): [Town]!
     "send a verify code to the given number, if phoneNumber not provider and has token in header, will send to the user's phone number"
     sendSms(phoneNumber: String): String!
     "tags are those tags that hr added to a job. keyword stands for the input at search page. tags and keyword are not required. pageNumber and pageSize default value are 1 and 10"
@@ -532,7 +545,8 @@ async function startServer() {
   const app = express();
 
   app.use(graphqlUploadExpress());
-  app.use(express.static('upload'))
+  app.use(express.static('upload'));
+  app.use(express.static('datas'));
   server.applyMiddleware({ app });
 
   await new Promise(r => app.listen({ port: 4000 }, r));
