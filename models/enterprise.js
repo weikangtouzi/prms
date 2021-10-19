@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     enterprise_logo: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING),

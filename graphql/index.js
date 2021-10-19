@@ -1,7 +1,8 @@
-const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword} = require('./user');
+const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
+const { getProvinces, getCities, getCounties, getTowns } = require('./citys_data');
 const resolvers = {
     Query: {
         logIn: logIn,
@@ -10,6 +11,10 @@ const resolvers = {
         // getUsers: getUsers,
         phoneNumberCheck: phoneNumberCheck,
         checkIdCardNumber: checkIdCardNumber,
+        getProvinces: getProvinces,
+        getCities: getCities,
+        getCounties: getCounties,
+        getTowns: getTowns,
     },
     Mutation: {
         register: register,

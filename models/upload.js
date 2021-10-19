@@ -2,9 +2,9 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const user = require('./enterprise');
+const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
-  class Worker extends Model {
+  class Upload extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -14,32 +14,31 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  Worker.init({
-    company_belonged: {
+  Upload.init({
+    user_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: "enterprise",
+        model: "users",
         key: "id",
         deferrable: Deferrable.NOT
       }
     },
-    real_name: {
-      type: DataTypes.STRING,
-      allowNull: false,
+    filename: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    user_binding: {
-      type: DataTypes.INTEGER,
-      allowNull: false
+    fileType: {
+        type: DataTypes.STRING,
+        allowNull: false
     },
-    role: {
-      type: DataTypes.ENUM("HR", "Teacher", "Admin", "None"),
-      allowNull: false
+    url: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
   }, {
     sequelize,
-    modelName: 'Worker',
-    tableName: 'worker',
-    
+    modelName: 'Upload',
+    tableName: 'upload'
   });
-  return Worker;
+  return Upload;
 };
