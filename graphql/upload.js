@@ -1,14 +1,14 @@
 const { finished } = require('stream/promises');
 const { uploadPath } = require('../project.json')
 const { Upload } = require('../models')
-const { domain } = require('../project.json')
+const { basic } = require('../project.json')
 const { AuthenticationError } = require('apollo-server')
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const singleUpload = async (parent, args, context, info) => {
     const { createReadStream, filename, mimetype, encoding } = await args.file;
     const { extraAttributes } = args;
-
+    let domain = basic.host;
     let userInfo = jwt.decode(context.req.headers.authorization);
     
     if (context.req && context.req.headers.authorization) {
@@ -27,7 +27,7 @@ const singleUpload = async (parent, args, context, info) => {
             const out = fs.createWriteStream(`${path}/${filename}`);
             stream.pipe(out);
             await finished(out);
-            let url = domain + '/' + `${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}${filename}`;
+            let url = domain + '/' + `${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}/${filename}`;
             Upload.create({
                 filename: filename,
                 fileType: mimetype,
