@@ -14,7 +14,7 @@ const singleUpload = async (parent, args, context, info) => {
     if(context.req && context.req.headers.authorization) {
         try {
             const stream = createReadStream();
-            let path = `${uploadPath}/${userInfo.username}/${extraAttributes? extraAttributes.customUploadPath: mimetype}/`
+            let path = `./${uploadPath}/${userInfo.username}/${extraAttributes? extraAttributes.customUploadPath: mimetype}/`
             if(!fs.existsSync(path)) {
                 fs.mkdirSync(path);
             }
