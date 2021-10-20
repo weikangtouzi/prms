@@ -39,11 +39,11 @@
     },
     "basic": {
         "email": false,
-        "host": "dev.chenzaozzhao.com"
+        "host": "dev.chenzaozhao.com:4000"
     },
     "mongodb": {
         "url": "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
     },
     "uploadPath": "upload",
-    "domain": "dev.chenzaozzhao.com:4000"
+    "domain": "dev.chenzaozhao.com"
 }
