@@ -14,11 +14,11 @@ const singleUpload = async (parent, args, context, info) => {
     if(context.req && context.req.headers.authorization) {
         try {
             const stream = createReadStream();
-            let path = `./${uploadPath}/${userInfo.username}/${extraAttributes? extraAttributes.customUploadPath: mimetype}/`
-            if(!fs.existsSync(path)) {
-                fs.mkdirSync(path);
+            let path = `${uploadPath}/${userInfo.username}/${extraAttributes? extraAttributes.customUploadPath: mimetype}`
+            if(!fs.existsSync(fs.realpathSync(".")+path)) {
+                fs.mkdirSync(fs.realpathSync(".")+path);
             }
-            const out = fs.createWriteStream(`${path}${filename}`);
+            const out = fs.createWriteStream(`${path}/${filename}`);
             stream.pipe(out);
             await finished(out);
             let url = domain + '/' + filename
