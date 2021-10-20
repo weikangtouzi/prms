@@ -10,7 +10,7 @@ const singleUpload = async (parent, args, context, info) => {
     const { extraAttributes } = args;
 
     let userInfo = jwt.decode(context.req.headers.authorization);
-
+    
     if (context.req && context.req.headers.authorization) {
         try {
             const stream = createReadStream();
@@ -27,19 +27,20 @@ const singleUpload = async (parent, args, context, info) => {
             const out = fs.createWriteStream(`${path}/${filename}`);
             stream.pipe(out);
             await finished(out);
-            let url = domain + '/' + filename
+            let url = domain + '/' + `${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}${filename}`;
             Upload.create({
                 filename: filename,
                 fileType: mimetype,
                 url: url,
             })
+            return url
         } catch (e) {
             throw e;
         }
     } else {
         throw new AuthenticationError("missing authorization")
     }
-    return url
+    
 }
 
 module.exports = {
