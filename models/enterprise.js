@@ -2,6 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
+const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
   class Enterprise extends Model {
     /**
@@ -14,9 +15,18 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Enterprise.init({
+    user_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: "users",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
+    },
     enterprise_name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      unique: true,
     },
     business_nature: {
       type: DataTypes.ENUM("ForeignVentures", "ForeignFundedEnterprises", "PrivateEnterprise", "StateOwnedEnterprises", "Extra"),
@@ -31,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     enterprise_financing: {
-      type: DataTypes.ENUM("None"),
+      type: DataTypes.ENUM("NotYet","AngelFinancing","A","B","C","D","Listed","NoNeed"),
       allowNull: false
     },
     enterprise_size: {
@@ -64,10 +74,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     extra_attribute: {
       type: DataTypes.JSON,
-      allowNull: false,
-    },
-    charter: {
-      type: DataTypes.STRING,
       allowNull: true,
     },
     failed_description: {
@@ -80,6 +86,22 @@ module.exports = (sequelize, DataTypes) => {
     },
     overtime_work_degree: {
       type: DataTypes.ENUM("None", "Occasionally", "Usually"),
+      allowNull: true
+    },
+    homepage: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    established_time: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    tel: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    work_time: {
+      type: DataTypes.STRING,
       allowNull: true
     }
   }, {

@@ -156,8 +156,8 @@ const register = async (parent, args, context, info) => {
 };
 
 const chooseOrSwitchIdentity = async (parent, args, context, info) => {
+    
     let token = context.req.headers.authorization;
-
     if (context.req && context.req.headers.authorization) {
         try {
             let userInfo = jwt.decode(token);
