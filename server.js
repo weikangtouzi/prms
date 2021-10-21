@@ -11,13 +11,13 @@ const {
 const { resolvers } = require('./graphql');
 const { GraphQLScalarType } = require('graphql');
 const mongo = require('./mongo');
-const Void = new GraphQLScalarType({
+const MayBeToken = new GraphQLScalarType({
   name: 'Void',
 
   description: 'Represents NULL values',
 
-  serialize() {
-    return null
+  serialize(value) {
+    return value? value : null;
   },
 
   parseValue() {
@@ -31,7 +31,7 @@ const Void = new GraphQLScalarType({
 // The GraphQL schema
 const typeDefs = gql`
   scalar Upload
-  scalar Void
+  scalar MayBeToken
   # data used by register user
   input Register {
     "username: required, unique, make sense by the name"
@@ -133,6 +133,7 @@ const typeDefs = gql`
     tags: [String]!,
     createdAt: String!,
     updatedAt: String!,
+    token: MayBeToken
   }
   "for list query"
   type JobDataBriefly {
@@ -150,6 +151,7 @@ const typeDefs = gql`
     "just job ids"
     data: [JobDataBriefly]!,
     cacheId: String!,
+    token: MayBeToken
   }
   "these are from fontend"
   input JobPost {
@@ -281,6 +283,7 @@ const typeDefs = gql`
     workExperience: [ResumeWorkExp],
     projectExperience: [ResumeProExp],
     educationExperience: [ResumeEduExp],
+    token: MayBeToken
   }
   "for personal user the interview data will be like this"
   type PersonalUserSideInterviewData {
@@ -322,7 +325,8 @@ const typeDefs = gql`
     address: String!,
     attachments: String!,
     "checkout InterviewProcess type for value options"
-    process: String!
+    process: String!,
+    token: MayBeToken
   }
   "make it available when different thing happens in same query"
   union InterviewData = PersonalUserSideInterviewData | EnterpriseUserSideInterviewData
@@ -448,7 +452,10 @@ const typeDefs = gql`
     "checkout EnterpriseSize type for value options"
     enterpriseSize: String!,
     enterpriseProfile: String!,
-    logo: String!
+    logo: String,
+    establishedDate: String,
+    homepage: String,
+    tel: String
   }
   enum CustomFileType {
     Charter,
@@ -477,6 +484,20 @@ const typeDefs = gql`
     identity: TokenIdentity!
   }
   union Token = TokenWithoutIdentity | TokenWithIdentity
+  input EnterpriseWorkTimeAndWelfare {
+    workRule: String,
+    restRule: String,
+    welfare: String,
+    overtimeWorkDegree: String,
+  }
+  type InterviewSchedule {
+    schedul: [InterviewData]!,
+    token: MayBeToken
+  }
+  type SearchApplicantsResult {
+    data: [ApplicantData],
+    token: MayBeToken
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -505,51 +526,56 @@ const typeDefs = gql`
     "true means already inserted"
     checkIdCardNumber(idCardNum: String!): Boolean!
     "gets InterviewSchedule"
-    getIterviewSchedule: [InterviewData]!
+    getIterviewSchedule: InterviewSchedule!
     "detail page for interview"
     getIterviewDetail(interviewId: Int!): InterviewDetail
     "get applicant by conditions, null for no limitation, null when no matched data"
-    getApplicants(filter: ApplicantFilter): [ApplicantData]
+    getApplicants(filter: ApplicantFilter): SearchApplicantsResult
     checkResumeCompletion: Boolean!
+  }
+  type FileLink {
+    link: String!,
+    token: MayBeToken
   }
   "most of mutations needed token for authorization"
   type Mutation {
     "api for register"
-    register(info: Register!): String!
+    register(info: Register!): MayBeToken
     "this api need you to pass the provider's phone number as the authorization header"
     insertPersonalData(info: PersonalData!): Int!
     "leave extraAttributes null for default upload options"
-    singleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): String!
-    postJob(job: JobPost): String!
+    singleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
+    postJob(job: JobPost): MayBeToken
     "insert or edit a personal data"
-    editPersonalData(info: BasicData): Void
+    editPersonalData(info: BasicData): MayBeToken
     "insert or edit a personal advantage"
-    editPersonalAdvantage(advantage: String!): Void
+    editPersonalAdvantage(advantage: String!): MayBeToken
     "insert or edit a work experience"
-    editWorkExprience(info: WorkExperience!): Void
+    editWorkExprience(info: WorkExperience!): MayBeToken
     "insert or edit a education experience"
-    editEduExp(info: EduExp): Void
+    editEduExp(info: EduExp): MayBeToken
     "insert or edit a project experience"
-    editProExp(info: ProExp): Void
+    editProExp(info: ProExp): MayBeToken
     "if wanted to send the online one, then don't need to pass resumeId"
-    sendResume(resumeId:Int): Void
+    sendResume(resumeId:Int): MayBeToken
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    inviteInterview(userId: Int!, jobId: Int!, time: Int!): Int
+    inviteInterview(userId: Int!, jobId: Int!, time: Int!): MayBeToken
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
-    cancelInterview(interviewId: Int!): Void
+    cancelInterview(interviewId: Int!): MayBeToken
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
-    endIterview(interviewId: Int!, ispassed: Boolean!, description: String!): Void
+    endIterview(interviewId: Int!, ispassed: Boolean!, description: String!): MayBeToken
     "accept or reject an interview by id"
-    acceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
+    acceptOrRejectInterview(interviewId: Int!, accept: Boolean!): MayBeToken
     "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
-    chooseOrSwitchIdentity(targetIdentity: String!, role: String): String!
+    chooseOrSwitchIdentity(targetIdentity: String!, role: String): MayBeToken
     "use phone number to reset password"
-    resetPassword(info: ResetPassword!): Void
+    resetPassword(info: ResetPassword!): MayBeToken
     "enterprise certification need censor"
-    enterpriseCertificate(info: EnterpriseCertification!): Void
+    enterpriseCertificate(info: EnterpriseCertification!): MayBeToken
     "enterprise certificate required, if not will return error"
-    editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): Void
-    recruitmentApply(recruitmentId: Int!): Void
+    editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): MayBeToken
+    editEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): MayBeToken
+    recruitmentApply(recruitmentId: Int!): MayBeToken
   }
 `;
 

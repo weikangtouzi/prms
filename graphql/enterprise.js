@@ -10,12 +10,13 @@ function isvalidEnterpriseAdmin(userIdentity) {
 
 
 const editEnterpriseBasicInfo = async (parent, args, context, info) => {
-  const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize } = args.info;
-  let token = context.req.headers.authorization;
   if (context.req && context.req.headers.authorization) {
+    let token = context.req.headers.authorization;
     let userInfo = jwt.decode(token);
     if (isvalidEnterpriseAdmin(userInfo.identity)) {
+      const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize } = args.info;
       await Enterprise.upsert({
+        user_id: userInfo.username,
         enterprise_name: enterpriseName,
         abbreviation: abbreviation,
         business_nature: enterpriseNature,
@@ -31,12 +32,24 @@ const editEnterpriseBasicInfo = async (parent, args, context, info) => {
     } else {
       throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
     }
-
   } else {
     throw new AuthenticationError('missing authorization');
   }
 }
+const editEnterpriseWorkTimeAndWelfare = async (parent, args, context, info) => {
+  if (context.req && context.req.headers.authorization) {
+    let token = context.req.headers.authorization;
+    let userInfo = jwt.decode(token);
+    if (isvalidEnterpriseAdmin(userInfo.identity)) {
+      
+      await Enterprise.update({
 
+      })
+    } else {
+      throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    }
+  }
+}
 module.exports = {
   editEnterpriseBasicInfo
 }

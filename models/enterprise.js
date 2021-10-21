@@ -2,6 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
+const user = require('./user');
 module.exports = (sequelize, DataTypes) => {
   class Enterprise extends Model {
     /**
@@ -14,6 +15,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Enterprise.init({
+    user_id: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: "users",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
+    },
     enterprise_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -77,6 +86,22 @@ module.exports = (sequelize, DataTypes) => {
     },
     overtime_work_degree: {
       type: DataTypes.ENUM("None", "Occasionally", "Usually"),
+      allowNull: true
+    },
+    homepage: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    established_time: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    tel: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    work_time: {
+      type: DataTypes.STRING,
       allowNull: true
     }
   }, {
