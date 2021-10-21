@@ -3,27 +3,28 @@ const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns } = require('./citys_data');
-const { editEnterpriseBasicInfo } = require('./enterprise')
+const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare } = require('./enterprise')
 const resolvers = {
     Query: {
-        logIn: logIn,
-        numberCheck: numberCheck,
-        sendSms: sendSms,
+        logIn,
+        numberCheck,
+        sendSms,
         // getUsers: getUsers,
-        phoneNumberCheck: phoneNumberCheck,
-        checkIdCardNumber: checkIdCardNumber,
-        getProvinces: getProvinces,
-        getCities: getCities,
-        getCounties: getCounties,
-        getTowns: getTowns,
+        phoneNumberCheck,
+        checkIdCardNumber,
+        getProvinces,
+        getCities,
+        getCounties,
+        getTowns,
     },
     Mutation: {
-        register: register,
-        insertPersonalData: insertPersonalData,
-        singleUpload: singleUpload,
-        chooseOrSwitchIdentity: chooseOrSwitchIdentity,
-        resetPassword: resetPassword,
-        editEnterpriseBasicInfo: editEnterpriseBasicInfo,
+        register,
+        insertPersonalData,
+        singleUpload,
+        chooseOrSwitchIdentity,
+        resetPassword,
+        editEnterpriseBasicInfo,
+        editEnterpriseWorkTimeAndWelfare
     }
 };
 module.exports = {

@@ -44,8 +44,31 @@ function isvaildidCardNum(error, idCard) {
     }
 }
 
+function isvalidTimeSection(input) {
+    let twosides = input.split('-');
+    if(twosides.length <= 1) {
+        return false
+    }
+    for(key in twosides) {
+        let HAM = twosides[key].split(":");
+        if(HAM.length <= 1 || HAM[0].length <=1 || HAM[1].length <= 1) {
+            return false
+        }
+        let hour = Number.parseInt(HAM[0]);
+        let minute = Number.parseInt(HAM[1]);
+        let condition = hour!==NaN && hour < 24 && hour >= 0 && minute !== NaN && minute >= 0 && minute <60;
+        if(!condition) {
+            return false
+        }
+    }
+    return true
+}
+
+
+
 
 module.exports = {
     isvaildNum,
-    isvaildidCardNum
+    isvaildidCardNum,
+    isvalidTimeSection
 }

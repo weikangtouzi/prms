@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     real_name: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: false
     },
     birth_date: {
@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false
     },
     current_city: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(64),
         allowNull: false
     },
     phone_number: {

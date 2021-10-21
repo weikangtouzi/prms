@@ -24,23 +24,23 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     job_category: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(40),
       allowNull: false
     },
     industry: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(30),
       allowNull: false
     },
     aimed_city: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(64),
       allowNull: false
     },
     min_salary_expectation: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false
     },
     max_salary_expectation: {
-      type: DataTypes.DOUBLE,
+      type: DataTypes.INTEGER,
       allowNull: false
     }
     

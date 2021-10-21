@@ -28,11 +28,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
     },
     pos_name: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(60),
         allowNull: false
     },
     department: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(60),
       allowNull: false
     },
     start_at: {

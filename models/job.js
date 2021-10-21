@@ -24,11 +24,11 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     worker_name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(30),
       allowNull: false
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(40),
       allowNull: false
     },
     detail: {
@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     adress_coordinate: {
-      type: DataTypes.STRING,
+      type: DataTypes.ARRAY(DataTypes.REAL),
       allowNull: false
     },
     adress_description: {
@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: true
     },
     tags: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.STRING(15)),
       allowNull: false
     },
     comp_id: {
