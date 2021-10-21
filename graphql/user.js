@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const { Identity } = require('./types');
 const { UserInputError, AuthenticationError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
 const { User } = require('../models');
@@ -6,6 +7,7 @@ const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
 const { basic } = require('../project.json');
+
 const logIn = async (parent, args, context, info) => {
     const { account, password } = args.info;
     let errors = {}
@@ -160,17 +162,41 @@ const chooseOrSwitchIdentity = async (parent, args, context, info) => {
         try {
             let userInfo = jwt.decode(token);
             if ((userInfo.exp && userInfo.exp > new Date().getTime() / 1000) || userInfo.identity) {
-                return jwt.sign({
-                    user_id: userInfo.id,
-                    username: userInfo.username,
-                    identity: args.indentity
-                }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
+                if (Identity.parseValue(args.targetIdentity)) {
+                    let tokenObj
+                    let identity = Identity.parseValue(args.targetIdentity);
+                    if (identity == Identity.getValue("EnterpriseUser").value) {
+                        if (args.role) {
+                            tokenObj = {
+                                user_id: userInfo.user_id,
+                                username: userInfo.username,
+                                identity: {
+                                    role: args.role,
+                                    identity: args.targetIdentity
+                                }
+                            }
+                        } else {
+                            throw new UserInputError('bad input', { role: "enterprise user needs specify role for using" })
+                        }
+                    } else if (identity == Identity.getValue("PersonalUser").value) {
+                        tokenObj = {
+                            user_id: userInfo.user_id,
+                            username: userInfo.username,
+                            identity: { identity: args.targetIdentity }
+                        }
+                    } else {
+                        throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })
+                    }
+                    return jwt.sign(tokenObj, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
+                } else {
+                    throw new UserInputError("token invalid", { identity: `invaild identity: ${args.identity}` })
+                }
+
             } else {
-                console.log(new Date().getTime() / 1000)
-                throw new jwt.TokenExpiredError("your token is expired and without any identity. identity switch needs a token that is not expired or contains current identity", userInfo.exp);
+                throw new jwt.TokenExpiredError(`your token is expired and without any identity. identity switch needs a token that is not expired or contains current identity, your idnentity is ${userInfo.identity}`, userInfo.exp);
             }
         } catch (err) {
-            throw new UserInputError("token invalid", err)
+            throw new UserInputError("token invalid", {err})
         }
     } else {
         throw new AuthenticationError('missing authorization')
@@ -180,21 +206,21 @@ const chooseOrSwitchIdentity = async (parent, args, context, info) => {
 const resetPassword = async (parent, args, context, info) => {
     let token = context.req.headers.authorization;
     let userInfo = jwt.decode(token);
-    const {password, confirmPassword, phoneNumber, verifyCode} = args.info;
-    if(password.trim() == '') throw new UserInputError('password must be not empty');
-    if(confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
-    if(verifyCode.trim() == '') throw new UserInputError('confirmPassword must be not empty');
+    const { password, confirmPassword, phoneNumber, verifyCode } = args.info;
+    if (password.trim() == '') throw new UserInputError('password must be not empty');
+    if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
+    if (verifyCode.trim() == '') throw new UserInputError('confirmPassword must be not empty');
     if (context.req && context.req.headers.authorization && userInfo) {
-        try{
+        try {
             await User.update({
                 password: (await bcrypt.hash(password, 2)).toString(),
-            },{
-                where: { username: userInfo.username}
+            }, {
+                where: { username: userInfo.username }
             });
-        } catch(e){
-            throw new UserInputError('bad input', {e})
+        } catch (e) {
+            throw new UserInputError('bad input', { e })
         }
-        
+
 
     } else {
         throw new AuthenticationError('missing authorization')

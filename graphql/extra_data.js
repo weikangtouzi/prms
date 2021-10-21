@@ -1,21 +1,9 @@
 const { UserInputError, AuthenticationError } = require('apollo-server-errors');
-const { GraphQLEnumType } = require('graphql');
+const { Education } = require('./types');
 const mongo = require('../mongo');
 const { isvaildNum, isvaildidCardNum } = require('../utils/validations');
 
-const Education = new GraphQLEnumType({
-    name: 'Education',
-    values: {
-        LessThanPrime: { value: 0 },
-        Primary: { value: 1 },
-        Junior: { value: 2 },
-        High: { value: 3 },
-        JuniorCollege: { value: 4 },
-        RegularCollege: { value: 5 },
-        Postgraduate: { value: 6 },
-        Doctor: { value: 7 },
-    }
-})
+
 
 
 const insertPersonalData = async (parent, args, context, info) => {
