@@ -43,6 +43,8 @@ function isvaildidCardNum(error, idCard) {
         error.idCard = "invaild length for idCardNum";
     }
 }
+
+
 module.exports = {
     isvaildNum,
     isvaildidCardNum

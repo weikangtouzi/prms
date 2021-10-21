@@ -37,7 +37,7 @@ const Identity = new GraphQLEnumType({
     }
 })
 
-const Role = new GraphQLEnumType({
+const EnterpriseRole = new GraphQLEnumType({
     name: 'Role',
     values: {
         HR: { value: 0 },
@@ -51,5 +51,5 @@ module.exports = {
     Education,
     EnterpriseNature,
     Identity,
-    Role
+    EnterpriseRole
 }
