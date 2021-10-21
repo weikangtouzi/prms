@@ -379,6 +379,15 @@ const typeDefs = gql`
     Administrator,
     Counselor,
   }
+  enum Role {
+    
+    HR,
+    Teacher,
+    "represent the main account of the enterprise"
+    Admin,
+    "for no right account and personal user"
+    None
+  }
   "reset password means that user forget password"
   input ResetPassword {
     verifyCode: String!,
@@ -453,6 +462,21 @@ const typeDefs = gql`
     "checkout CustomFileType for value options"
     customFileType: String,
   }
+  type TokenWithoutIdentity {
+    user_id: Int!,
+    username: String!
+  }
+  type TokenIdentity {
+    idnentity: Identity!,
+    "personal user don't need this"
+    role: Role
+  }
+  type TokenWithIdentity {
+    user_id: Int!,
+    username: String!,
+    identity: TokenIdentity!
+  }
+  union Token = TokenWithoutIdentity | TokenWithIdentity
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -517,8 +541,8 @@ const typeDefs = gql`
     endIterview(interviewId: Int!, ispassed: Boolean!, description: String!): Void
     "accept or reject an interview by id"
     acceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
-    "switch to another indentity if exists, Identity type is an enum, checkout type definition, return token"
-    chooseOrSwitchIdentity(targetIdentity: String!): String!
+    "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
+    chooseOrSwitchIdentity(targetIdentity: String!, role: String): String!
     "use phone number to reset password"
     resetPassword(info: ResetPassword!): Void
     "enterprise certification need censor"
