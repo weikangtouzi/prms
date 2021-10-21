@@ -43,7 +43,7 @@ const editEnterpriseWorkTimeAndWelfare = async (parent, args, context, info) => 
     if (isvalidEnterpriseAdmin(userInfo.identity)) {
       
       await Enterprise.update({
-
+        
       })
     } else {
       throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)

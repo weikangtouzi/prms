@@ -487,8 +487,9 @@ const typeDefs = gql`
   input EnterpriseWorkTimeAndWelfare {
     workRule: String,
     restRule: String,
-    welfare: String,
+    welfare: [String],
     overtimeWorkDegree: String,
+    customTags: [String]
   }
   type InterviewSchedule {
     schedul: [InterviewData]!,
@@ -496,6 +497,10 @@ const typeDefs = gql`
   }
   type SearchApplicantsResult {
     data: [ApplicantData],
+    token: MayBeToken
+  }
+  type FileLink {
+    link: String!,
     token: MayBeToken
   }
   "for most of get query needed token for authorization"
@@ -533,10 +538,7 @@ const typeDefs = gql`
     getApplicants(filter: ApplicantFilter): SearchApplicantsResult
     checkResumeCompletion: Boolean!
   }
-  type FileLink {
-    link: String!,
-    token: MayBeToken
-  }
+  
   "most of mutations needed token for authorization"
   type Mutation {
     "api for register"
