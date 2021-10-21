@@ -33,11 +33,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     industry_involved: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.STRING(40)),
       allowNull: false
     },
     enterprise_profile: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     enterprise_financing: {
@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     enterprise_welfare: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.STRING(15)),
       allowNull: true
     },
     enterprise_logo: {
@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     tags: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.STRING(15)),
       allowNull: true
     },
     enterprise_loc_longtitude: {
@@ -97,11 +97,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     tel: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(12),
       allowNull: true
     },
     work_time: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(12),
       allowNull: true
     }
   }, {

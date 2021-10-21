@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     school_name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(40),
       allowNull: false
     },
     education: {
@@ -36,11 +36,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     major: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(60),
       allowNull: false
     },
     time: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(16),
       allowNull: false
     },
     exp_at_school: {
