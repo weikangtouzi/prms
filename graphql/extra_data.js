@@ -73,7 +73,7 @@ const checkIdCardNumber = async (parent, args, context, info) => {
     const {idCardNum} = args
     let error = {}
     isvaildidCardNum(error, idCardNum);
-    if(error !== {}) {
+    if (Object.keys(error).length > 0) {
         throw new UserInputError('bad input', { error })
     }
     let count = await mongo.query('Talent Pool', (collection) => {
