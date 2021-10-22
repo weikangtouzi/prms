@@ -577,6 +577,7 @@ const typeDefs = gql`
     "enterprise certificate required, if not will return error"
     editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): MayBeToken
     editEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): MayBeToken
+    editEnterpriseExtraData(info: String!): MayBeToken
     recruitmentApply(recruitmentId: Int!): MayBeToken
   }
 `;

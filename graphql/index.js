@@ -3,7 +3,7 @@ const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns } = require('./citys_data');
-const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare } = require('./enterprise')
+const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare, editEnterpriseExtraData } = require('./enterprise')
 const resolvers = {
     Query: {
         logIn,
@@ -24,7 +24,8 @@ const resolvers = {
         chooseOrSwitchIdentity,
         resetPassword,
         editEnterpriseBasicInfo,
-        editEnterpriseWorkTimeAndWelfare
+        editEnterpriseWorkTimeAndWelfare,
+        editEnterpriseExtraData
     }
 };
 module.exports = {
