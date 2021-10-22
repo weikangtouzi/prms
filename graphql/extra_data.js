@@ -71,6 +71,11 @@ const phoneNumberCheck = async (parent, args, context, info) => {
 
 const checkIdCardNumber = async (parent, args, context, info) => {
     const {idCardNum} = args
+    let error = {}
+    isvaildidCardNum(error, idCardNum);
+    if(error !== {}) {
+        throw new UserInputError('bad input', { error })
+    }
     let count = await mongo.query('Talent Pool', (collection) => {
         return collection.countDocuments({"data.idCardNum": idCardNum})
     })

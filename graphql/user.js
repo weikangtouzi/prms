@@ -140,9 +140,11 @@ const register = async (parent, args, context, info) => {
                 identified: "None"
             });
         }
-        return username
+        return jwt.sign({
+            user_id: user.id,
+            username: user.username
+        }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime });
     } catch (e) {
-
         if (e.name === 'SequelizeUniqueConstraintError') {
             let key = e.original.constraint;
             let tableName = e.original.table;
@@ -151,12 +153,11 @@ const register = async (parent, args, context, info) => {
         } else if (e.name === 'SequelizeValidationError') {
             e.errors.forEach((err) => (errors[err.path] = err.message))
         }
-        throw new UserInputError('Bad input', { errors })
+        throw new UserInputError('Bad input', { e })
     }
 };
 
 const chooseOrSwitchIdentity = async (parent, args, context, info) => {
-    
     let token = context.req.headers.authorization;
     if (context.req && context.req.headers.authorization) {
         try {

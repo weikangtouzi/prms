@@ -26,6 +26,11 @@ function isvaildidCardNum(error, idCard) {
             error.idCard = "invaild birthday in idCardNum";
             return;
         } else { //检验18位身份证的校验码是否正确。 //校验位按照ISO 7064:1983.MOD 11-2的规定生成，X可以认为是数字10。
+            let age = new Date().getFullYear() - dtmBirth.getFullYear();
+            if(age>=60 || age <=16) {
+                error.idCard = "only allowed 16-60 years old"
+                return
+            }
             var valnum;
             var arrInt = new Array(7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2);
             var arrCh = new Array('1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2');
