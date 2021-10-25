@@ -110,6 +110,20 @@ const editEnterpriseExtraData = async (parent, args, context, info) => {
     }
   }
 }
+const inviteWorkMate = async (parent, args, context, info) => {
+  if(context.req && context.req.headers.authorization) {
+    let token = context.req.headers.authorization;
+    let userInfo = jwt.verify(token, jwtConfig.secret);
+    if(isvalidEnterpriseAdmin(userInfo.identity)) {
+      const {phoneNumber, role} = args.info;
+      
+    } else {
+      throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    }
+  } else {
+
+  }
+}
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,

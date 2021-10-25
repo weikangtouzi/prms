@@ -11,6 +11,10 @@ const {
 const { resolvers } = require('./graphql');
 const { GraphQLScalarType } = require('graphql');
 const mongo = require('./mongo');
+const fs = require('fs');
+const {env} = require('./project.json');
+const http = require('http');
+const https = require('https');
 const MayBeToken = new GraphQLScalarType({
   name: 'Void',
 
@@ -584,6 +588,11 @@ const typeDefs = gql`
 
 // A map of functions which return data for the schema.
 async function startServer() {
+  const configurations = {
+    // Note: You may need sudo to run on port 443
+    production: { ssl: true, port: 443, hostname: 'example.com' },
+    development: { ssl: false, port: 4000, hostname: 'localhost' },
+  };
   resolvers.Upload = GraphQLUpload;
   const server = new ApolloServer({
     typeDefs,
@@ -594,15 +603,24 @@ async function startServer() {
     context: (ctx) => ctx,
   });
   await server.start();
-
+  
   const app = express();
 
   app.use(graphqlUploadExpress());
   app.use(express.static('upload'));
   app.use(express.static('datas'));
   server.applyMiddleware({ app });
-
-  await new Promise(r => app.listen({ port: 4000 }, r));
+  let httpSever;
+  if(env == 'production') {
+    httpSever = https.createServer({
+      key: fs.readFileSync('./ssl/2_chenzaozhao.com.key'),
+      cert: fs.readFileSync('./ssl/1_chenzaozhao.com_bundle.crt'),
+    })
+  } else {
+    console.log(env)
+    httpSever = http.createServer(app);
+  }
+  await new Promise(r => httpSever.listen({ port: 4000 }, r));
   mongo.init().then(() => {
     console.log('mongo Connection has been established successfully');
   })
@@ -611,7 +629,7 @@ async function startServer() {
     .then(() => {
       console.log('postgres Connection has been established successfully');
     })
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  console.log(`🚀 Server ready at http${env=='production'? 's': ''}://localhost:4000${server.graphqlPath}`);
 
 }
 startServer();
