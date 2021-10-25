@@ -615,7 +615,7 @@ async function startServer() {
     httpSever = https.createServer({
       key: fs.readFileSync('./ssl/2_chenzaozhao.com.key'),
       cert: fs.readFileSync('./ssl/1_chenzaozhao.com_bundle.crt'),
-    })
+    },app)
   } else {
     console.log(env)
     httpSever = http.createServer(app);
