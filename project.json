@@ -46,5 +46,5 @@
     },
     "uploadPath": "upload",
     "domain": "dev.chenzaozhao.com",
-    "env": "devolopment"
+    "env": "development"
 }
