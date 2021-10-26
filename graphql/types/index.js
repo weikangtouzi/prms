@@ -72,5 +72,6 @@ module.exports = {
     EnterpriseNature,
     Identity,
     EnterpriseRole,
-    EnterpriseCertificationStatus
+    EnterpriseCertificationStatus,
+    WorkerMatePrecheckResult
 }

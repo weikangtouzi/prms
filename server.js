@@ -9,23 +9,23 @@ const {
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require('graphql-upload');
 const { resolvers } = require('./graphql');
-const { GraphQLScalarType,execute, subscribe } = require('graphql');
+const { GraphQLScalarType, execute, subscribe } = require('graphql');
 const mongo = require('./mongo');
 const fs = require('fs');
-const {env} = require('./project.json');
+const { env } = require('./project.json');
 const http = require('http');
 const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const {EnterpriseCertificationStatus, EnterpriseRole} = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult } = require('./graphql/types')
 const Void = new GraphQLScalarType({
   name: 'Void',
 
   description: 'Represents NULL values',
 
   serialize(value) {
-    return value? value : null;
+    return value ? value : null;
   },
 
   parseValue() {
@@ -509,6 +509,35 @@ const typeDefs = gql`
     None\
   }"
   scalar EnterpriseRole
+  "enum WorkerMatePrecheckResult {\
+    OK\
+    NotAUser\
+    AlreadyWorkMate\
+    WorkingInAnotherCompany\
+  }"
+  scalar WorkerMatePrecheckResult
+  type Town {
+    town_id: String!,
+    name: String!
+  }
+  type CountyWithChildren {
+    county_id: String!,
+    name: String!,
+    Towns: [Town]!
+  }
+  type CityWithChildren {
+    city_id: String!,
+    name: String!,
+    Counties: [CountyWithChildren]!,
+  }
+  type ProvinceWithChildren {
+    province_id: String!,
+    name: String!,
+    Cities: [CityWithChildren]!,
+  }
+  type RegionList {
+    data: [ProvinceWithChildren]!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -545,6 +574,7 @@ const typeDefs = gql`
     checkResumeCompletion: Boolean!
     checkEnterpriseIdentification: EnterpriseIdentification!
     getCensorList(pageSize: Int, lastIndex: String): [CensorData]
+    getAllRegion: RegionList!
   }
   
   "most of mutations needed token for authorization"
@@ -601,11 +631,11 @@ async function startServer() {
     development: { ssl: false, port: 4000, hostname: 'localhost' },
   };
   resolvers.Upload = GraphQLUpload;
-  const schema = makeExecutableSchema({typeDefs, resolvers });
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
   const server = new ApolloServer({
     schema,
     plugins: [
-      ApolloServerPluginLandingPageGraphQLPlayground(),{
+      ApolloServerPluginLandingPageGraphQLPlayground(), {
         async serverWillStart() {
           return {
             async drainServer() {
@@ -617,9 +647,9 @@ async function startServer() {
     ],
     context: contextMiddleware
   });
-  
+
   await server.start();
-  
+
   const app = express();
 
   app.use(graphqlUploadExpress());
@@ -627,11 +657,11 @@ async function startServer() {
   app.use(express.static('datas'));
   server.applyMiddleware({ app });
   let httpServer;
-  if(env == 'production') {
+  if (env == 'production') {
     httpServer = https.createServer({
       key: fs.readFileSync('./ssl/2_chenzaozhao.com.key'),
       cert: fs.readFileSync('./ssl/1_chenzaozhao.com_bundle.crt'),
-    },app)
+    }, app)
   } else {
     console.log(env)
     httpServer = http.createServer(app);
@@ -653,7 +683,7 @@ async function startServer() {
     .then(() => {
       console.log('postgres Connection has been established successfully');
     })
-  console.log(`🚀 Server ready at http${env=='production'? 's': ''}://localhost:4000${server.graphqlPath}`);
+  console.log(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
 
 }
 startServer();
