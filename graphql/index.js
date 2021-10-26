@@ -2,7 +2,7 @@ const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword, ref
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
-const { getProvinces, getCities, getCounties, getTowns } = require('./citys_data');
+const { getProvinces, getCities, getCounties, getTowns,getAllRegion } = require('./citys_data');
 const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare, editEnterpriseExtraData, enterpriseIdentify, checkEnterpriseIdentification } = require('./enterprise')
 const {getCensorList} = require('./admin')
 const resolvers = {
@@ -18,7 +18,8 @@ const resolvers = {
         getCounties,
         getTowns,
         checkEnterpriseIdentification,
-        getCensorList
+        getCensorList,
+        getAllRegion
     },
     Mutation: {
         register,
