@@ -1,6 +1,6 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { Identity, EnterpriseNature, EnterpriseRole, EnterpriseCertificationStatus } = require('./types/')
-const { Enterprise } = require('../models');
+const { Enterprise, User, Worker } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
@@ -117,14 +117,58 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    const { phoneNumber, role } = args.info;
-    if(role) {
+    const { phoneNumber, role, pos } = args.info;
+    let user = await User.findOne({
       
+      where: {
+        phone_number: phoneNumber
+      }
+    });
+    try {
+      await Worker.create({
+        company_belonged: userInfo.enterpriseId,
+        real_name: user.real_name,
+        user_binding: user.id,
+        role,
+        pos,
+        phone_number: phoneNumber
+      })
+    } catch (e) {
+      throw e
     }
   } else {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
-
+}
+const precheckForInviteWorkMate = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidEnterpriseAdmin(userInfo.identity)) {
+    const { phoneNumber } = args;
+    let res = await User.findOne({
+      include: [{
+        model: Worker,
+        required: false
+      }],
+      where: {
+        phone_number: phoneNumber
+      }
+    });
+    let user = res.dataValues;
+    if(!user) throw new UserInputError('this phone number not register yet')
+    if(!user.real_name) throw new UserInputError('this account is not certificated')
+    if(user.Worker) {
+      if(user.Worker.company_belonged == userInfo.enterpriseId) {
+        throw new UserInputError('this account is already your workmate')
+      } else {
+        throw new UserInputError('this account is already binding to another company')
+      }
+    } else {
+      return 
+    }
+  } else {
+    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+  }
 }
 const checkEnterpriseIdentification = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')

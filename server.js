@@ -465,21 +465,6 @@ const typeDefs = gql`
     "checkout CustomFileType for value options"
     customFileType: String,
   }
-  type TokenWithoutIdentity {
-    user_id: Int!,
-    username: String!
-  }
-  type TokenIdentity {
-    idnentity: Identity!,
-    "personal user don't need this"
-    role: EnterpriseRole
-  }
-  type TokenWithIdentity {
-    user_id: Int!,
-    username: String!,
-    identity: TokenIdentity!
-  }
-  union Token = TokenWithoutIdentity | TokenWithIdentity
   input EnterpriseWorkTimeAndWelfare {
     workRule: String,
     restRule: String,

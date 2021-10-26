@@ -2,7 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const user = require('./enterprise');
+const {User, Enterprise} = require('./enterprise');
 module.exports = (sequelize, DataTypes) => {
   class Worker extends Model {
     /**
@@ -29,7 +29,12 @@ module.exports = (sequelize, DataTypes) => {
     },
     user_binding: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
     },
     role: {
       type: DataTypes.ENUM("HR", "Teacher", "Admin", "None"),
@@ -37,15 +42,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     pos: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     phone_number: {
       type: DataTypes.STRING,
-      references: {
-        model: "users",
-        key: "phone_number",
-        deferrable: Deferrable.NOT
-      }
+      
     }
   }, {
     sequelize,
@@ -53,5 +54,6 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'worker',
     
   });
+  
   return Worker;
 };

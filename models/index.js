@@ -31,5 +31,34 @@ Object.keys(db).forEach(modelName => {
 });
 
 db.sequelize = sequelize;
-
+db.Worker.belongsTo(db.User, {
+  foreignKey: 'user_binding'
+});
+db.Worker.belongsTo(db.Enterprise, {
+  foreignKey: "company_belonged"
+})
+db.User.hasOne(db.Worker, {
+  foreignKey: 'user_binding'
+})
+db.Enterprise.hasMany(db.Worker, {
+  foreignKey: 'company_belonged'
+})
+db.Province.hasMany(db.City, {
+  foreignKey: 'province_id'
+});
+db.City.belongsTo(db.Province, {
+  foreignKey: 'province_id'
+})
+db.City.hasMany(db.County, {
+  foreignKey: 'city_id'
+})
+db.County.belongsTo(db.City, {
+  foreignKey: 'city_id'
+})
+db.County.hasMany(db.Town, {
+  foreignKey: 'county_id'
+})
+db.Town.belongsTo(db.County, {
+  foreignKey: 'county_id'
+})
 module.exports = db;

@@ -55,6 +55,16 @@ const EnterpriseCertificationStatus = new GraphQLEnumType({
         Passed: { value: 2 },
         Waiting: { value: 3 }
     }
+});
+
+const WorkerMatePrecheckResult = new GraphQLEnumType({
+    name: 'WorkMatePrecheckResult',
+    values: {
+        OK: { value: 0 },
+        NotAUser: { value: 1 },
+        AlreadyWorkMate: { value: 2 },
+        WorkingInAnotherCompany: { value: 3 }
+    }
 })
 
 module.exports = {

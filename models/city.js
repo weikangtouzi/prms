@@ -1,7 +1,8 @@
 'use strict';
 const {
-  Model
+  Model,Deferrable
 } = require('sequelize');
+const pro = require('./province')
 module.exports = (sequelize, DataTypes) => {
   class City extends Model {
     /**
@@ -21,15 +22,21 @@ module.exports = (sequelize, DataTypes) => {
     city_id: {
       type: DataTypes.STRING(12),
       allowNull: false,
+      primaryKey: true,
     },
     province_id: {
       type: DataTypes.STRING(12),
       allowNull: false,
+      references: {
+        model: 'province',
+        key: 'province_id',
+        deferrable: Deferrable.NOT
+      }
     }
   }, {
     sequelize,
     modelName: 'City',
-    tableName: 'city'
+    tableName: 'city',
   });
   return City;
 };

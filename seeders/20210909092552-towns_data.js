@@ -1,5 +1,4 @@
 'use strict';
-'use strict';
 const towns_data = require('../data/town');
 const models = require("../models");
 module.exports = {
@@ -13,7 +12,9 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-     return models.Town.bulkCreate(towns_data);
+     return models.Town.bulkCreate(towns_data).catch(err => {
+       console.log(err)
+     });
   },
 
   down: async (queryInterface, Sequelize) => {

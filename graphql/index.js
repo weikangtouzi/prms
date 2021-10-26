@@ -31,7 +31,6 @@ const resolvers = {
         editEnterpriseExtraData,
         refreshToken,
         enterpriseIdentify,
-        
     }
 };
 module.exports = {
