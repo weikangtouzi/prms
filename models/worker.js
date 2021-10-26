@@ -38,6 +38,14 @@ module.exports = (sequelize, DataTypes) => {
     pos: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    phone_number: {
+      type: DataTypes.STRING,
+      references: {
+        model: "users",
+        key: "phone_number",
+        deferrable: Deferrable.NOT
+      }
     }
   }, {
     sequelize,

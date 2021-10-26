@@ -45,11 +45,22 @@ const EnterpriseRole = new GraphQLEnumType({
         Admin: { value: 2 },
         None: { value: 3 }
     }
+});
+
+const EnterpriseCertificationStatus = new GraphQLEnumType({
+    name: 'EnterpriseCertificationStatus',
+    values: {
+        None: { value: 0 },
+        Failed: { value: 1},
+        Passed: { value: 2 },
+        Waiting: { value: 3 }
+    }
 })
 
 module.exports = {
     Education,
     EnterpriseNature,
     Identity,
-    EnterpriseRole
+    EnterpriseRole,
+    EnterpriseCertificationStatus
 }

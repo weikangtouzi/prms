@@ -2,11 +2,12 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User } = require('../models');
+const { User, Worker } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
 const { basic } = require('../project.json');
+const serializers = require('../utils/serializers');
 
 const logIn = async (parent, args, context, info) => {
     const { account, password } = args.info;
@@ -56,11 +57,10 @@ const logIn = async (parent, args, context, info) => {
                 errors.password = 'password is incorrect'
                 throw new AuthenticationError('password is incorrect', { errors })
             }
-
-            const token = await jwt.sign({
+            const token = serializers.jwt({
                 user_id: user.id,
                 username: user.username
-            }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime });
+            })
             return {
                 ...user.toJSON(),
                 createdAt: user.createdAt.toISOString(),
@@ -157,60 +157,66 @@ const register = async (parent, args, context, info) => {
     }
 };
 
-const chooseOrSwitchIdentity = async (parent, args, context, info) => {
-    let token = context.req.headers.authorization;
-    if (context.req && context.req.headers.authorization) {
-        try {
-            let userInfo = jwt.decode(token);
-            if ((userInfo.exp && userInfo.exp > new Date().getTime() / 1000) || userInfo.identity) {
-                if (Identity.parseValue(args.targetIdentity)) {
-                    let tokenObj
-                    let identity = Identity.parseValue(args.targetIdentity);
-                    if (identity == Identity.getValue("EnterpriseUser").value) {
-                        if (args.role) {
-                            tokenObj = {
-                                user_id: userInfo.user_id,
-                                username: userInfo.username,
-                                identity: {
-                                    role: args.role,
-                                    identity: args.targetIdentity
-                                }
-                            }
-                        } else {
-                            throw new UserInputError('bad input', { role: "enterprise user needs specify role for using" })
-                        }
-                    } else if (identity == Identity.getValue("PersonalUser").value) {
-                        tokenObj = {
-                            user_id: userInfo.user_id,
-                            username: userInfo.username,
-                            identity: { identity: args.targetIdentity }
-                        }
-                    } else {
-                        throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })
-                    }
-                    return jwt.sign(tokenObj, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
-                } else {
-                    throw new UserInputError("token invalid", { identity: `invaild identity: ${args.identity}` })
+const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (Identity.parseValue(args.targetIdentity)) {
+        let tokenObj
+        let identity = Identity.parseValue(args.targetIdentity);
+        if (identity == Identity.getValue("EnterpriseUser").value) {
+            let worker = await Worker.findOne({
+                where: {
+                    user_binding: userInfo.user_id
                 }
-
-            } else {
-                throw new jwt.TokenExpiredError(`your token is expired and without any identity. identity switch needs a token that is not expired or contains current identity, your idnentity is ${userInfo.identity}`, userInfo.exp);
+            })
+            if (!worker) {
+                throw new UserInputError('bad input', { identity: "it's not a enterprise user" })
             }
-        } catch (err) {
-            throw new UserInputError("token invalid", {err})
+            if (args.role) {
+                tokenObj = {
+                    user_id: userInfo.user_id,
+                    username: userInfo.username,
+                    identity: {
+                        role: args.role,
+                        identity: args.targetIdentity,
+                        enterpriseId: worker.company_belonged
+                    }
+                }
+            } else {
+                throw new UserInputError('bad input', { role: "enterprise user needs specify role for using" })
+            }
+        } else if (identity == Identity.getValue("PersonalUser").value) {
+            tokenObj = {
+                user_id: userInfo.user_id,
+                username: userInfo.username,
+                identity: { identity: args.targetIdentity }
+            }
+        } else {
+            throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })
         }
+        return serializers.jwt(tokenObj)
     } else {
-        throw new AuthenticationError('missing authorization')
+        throw new UserInputError("token invalid", { identity: `invaild identity: ${args.identity}` })
     }
-
 }
-const resetPassword = async (parent, args, context, info) => {
-    let token = context.req.headers.authorization;
-    let userInfo = jwt.decode(token);
+const resetPassword = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization');
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { password, confirmPassword, phoneNumber, verifyCode } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
     if (verifyCode.trim() == '') throw new UserInputError('confirmPassword must be not empty');
+    await mongo.query("user_log_in_cache", async (collection) => {
+        let res = await collection.findOne({
+            phoneNumber
+        });
+        if (!res) {
+            throw new UserInputError('verify code out of time');
+        }
+        if (res.code !== verifyCode) {
+            throw new UserInputError('invaild verify code');
+        }
+    });
     if (context.req && context.req.headers.authorization && userInfo) {
         try {
             await User.update({
@@ -221,13 +227,24 @@ const resetPassword = async (parent, args, context, info) => {
         } catch (e) {
             throw new UserInputError('bad input', { e })
         }
-
-
     } else {
         throw new AuthenticationError('missing authorization')
     }
 }
 
+
+const refreshToken = async (parent, args, context, info) => {
+    if (context.req && context.req.headers.authorization) {
+        let token = context.req.headers.authorization;
+        let userInfo = jwt.decode(token);
+        if (userInfo.deadTime > new Date().getTime()) {
+            return serializers.jwt(userInfo)
+        } else {
+            console.log(userInfo)
+            throw new AuthenticationError('this token is dead, you need to resign you account for a new token', {deadTime: userInfo.deadTime})
+        }
+    }
+}
 
 function checkUser(user, errors) {
     if (!user) {
@@ -243,4 +260,5 @@ module.exports = {
     register,
     chooseOrSwitchIdentity,
     resetPassword,
+    refreshToken
 }

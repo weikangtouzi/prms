@@ -1,9 +1,10 @@
-const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword } = require('./user');
+const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword, refreshToken } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns } = require('./citys_data');
-const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare, editEnterpriseExtraData } = require('./enterprise')
+const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare, editEnterpriseExtraData, enterpriseIdentify, checkEnterpriseIdentification } = require('./enterprise')
+const {getCensorList} = require('./admin')
 const resolvers = {
     Query: {
         logIn,
@@ -16,6 +17,8 @@ const resolvers = {
         getCities,
         getCounties,
         getTowns,
+        checkEnterpriseIdentification,
+        getCensorList
     },
     Mutation: {
         register,
@@ -25,7 +28,10 @@ const resolvers = {
         resetPassword,
         editEnterpriseBasicInfo,
         editEnterpriseWorkTimeAndWelfare,
-        editEnterpriseExtraData
+        editEnterpriseExtraData,
+        refreshToken,
+        enterpriseIdentify,
+        
     }
 };
 module.exports = {

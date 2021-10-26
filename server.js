@@ -9,13 +9,17 @@ const {
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require('graphql-upload');
 const { resolvers } = require('./graphql');
-const { GraphQLScalarType } = require('graphql');
+const { GraphQLScalarType,execute, subscribe } = require('graphql');
 const mongo = require('./mongo');
 const fs = require('fs');
 const {env} = require('./project.json');
 const http = require('http');
 const https = require('https');
-const MayBeToken = new GraphQLScalarType({
+const { SubscriptionServer } = require('subscriptions-transport-ws');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const contextMiddleware = require('./utils/contextMiddleware');
+const {EnterpriseCertificationStatus} = require('./graphql/types')
+const Void = new GraphQLScalarType({
   name: 'Void',
 
   description: 'Represents NULL values',
@@ -35,7 +39,7 @@ const MayBeToken = new GraphQLScalarType({
 // The GraphQL schema
 const typeDefs = gql`
   scalar Upload
-  scalar MayBeToken
+  scalar Void
   # data used by register user
   input Register {
     "username: required, unique, make sense by the name"
@@ -67,7 +71,7 @@ const typeDefs = gql`
   }
   "the data of province, usually contains name and id"
   type Province {
-    "this id is from the official data, so don't trying to change it"
+    "this id is = require(the official data, so don't trying to change it"
     province_id: String!,
     name: String!
   }
@@ -114,7 +118,7 @@ const typeDefs = gql`
     Postgraduate,
     Doctor
   }
-  "the data from the providers?"
+  "the data = require(the providers?"
   input PersonalData {
     "real name"
     name: String!,
@@ -137,7 +141,7 @@ const typeDefs = gql`
     tags: [String]!,
     createdAt: String!,
     updatedAt: String!,
-    token: MayBeToken
+    
   }
   "for list query"
   type JobDataBriefly {
@@ -155,9 +159,9 @@ const typeDefs = gql`
     "just job ids"
     data: [JobDataBriefly]!,
     cacheId: String!,
-    token: MayBeToken
+    
   }
-  "these are from fontend"
+  "these are = require(fontend"
   input JobPost {
     JobTitle: String!,
     WorkingAddress: String!,
@@ -287,7 +291,7 @@ const typeDefs = gql`
     workExperience: [ResumeWorkExp],
     projectExperience: [ResumeProExp],
     educationExperience: [ResumeEduExp],
-    token: MayBeToken
+    
   }
   "for personal user the interview data will be like this"
   type PersonalUserSideInterviewData {
@@ -330,7 +334,7 @@ const typeDefs = gql`
     attachments: String!,
     "checkout InterviewProcess type for value options"
     process: String!,
-    token: MayBeToken
+    
   }
   "make it available when different thing happens in same query"
   union InterviewData = PersonalUserSideInterviewData | EnterpriseUserSideInterviewData
@@ -437,10 +441,6 @@ const typeDefs = gql`
     Occasionally, 
     Usually
   }
-  input EnterpriseCertification {
-    name: String!,
-    charter: String!
-  }
   input EnterpriseBasicInfo {
     enterpriseName: String!,
     abbreviation: String!,
@@ -497,15 +497,34 @@ const typeDefs = gql`
   }
   type InterviewSchedule {
     schedul: [InterviewData]!,
-    token: MayBeToken
+    
   }
   type SearchApplicantsResult {
     data: [ApplicantData],
-    token: MayBeToken
+    
   }
   type FileLink {
     link: String!,
-    token: MayBeToken
+  }
+  input EnterpriseCharterSencorRequest {
+    enterpriseName: String!,
+    charter: String!,
+    "just a phone number for notification"
+    phoneNumber: String
+  }
+  "enum {None, Failed, Passed, Waiting}"
+  scalar EnterpriseIdentificationStatus
+  "if the status is Failed, will get the other three fields"
+  type EnterpriseIdentification {
+    status: EnterpriseIdentificationStatus,
+    enterpriseName: String,
+    charter: String,
+    phoneNumber: String
+  }
+  type CensorData {
+    _id: String!,
+    enterpriseName: String,
+    charter: String,
   }
   "for most of get query needed token for authorization"
   type Query {
@@ -541,48 +560,53 @@ const typeDefs = gql`
     "get applicant by conditions, null for no limitation, null when no matched data"
     getApplicants(filter: ApplicantFilter): SearchApplicantsResult
     checkResumeCompletion: Boolean!
+    checkEnterpriseIdentification: EnterpriseIdentification!
+    getCensorList(pageSize: Int, lastIndex: String): [CensorData]
   }
   
   "most of mutations needed token for authorization"
   type Mutation {
     "api for register"
-    register(info: Register!): MayBeToken
+    register(info: Register!): Void
     "this api need you to pass the provider's phone number as the authorization header"
     insertPersonalData(info: PersonalData!): Int!
     "leave extraAttributes null for default upload options"
     singleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
-    postJob(job: JobPost): MayBeToken
+    postJob(job: JobPost): Void
     "insert or edit a personal data"
-    editPersonalData(info: BasicData): MayBeToken
+    editPersonalData(info: BasicData): Void
     "insert or edit a personal advantage"
-    editPersonalAdvantage(advantage: String!): MayBeToken
+    editPersonalAdvantage(advantage: String!): Void
     "insert or edit a work experience"
-    editWorkExprience(info: WorkExperience!): MayBeToken
+    editWorkExprience(info: WorkExperience!): Void
     "insert or edit a education experience"
-    editEduExp(info: EduExp): MayBeToken
+    editEduExp(info: EduExp): Void
     "insert or edit a project experience"
-    editProExp(info: ProExp): MayBeToken
+    editProExp(info: ProExp): Void
     "if wanted to send the online one, then don't need to pass resumeId"
-    sendResume(resumeId:Int): MayBeToken
+    sendResume(resumeId:Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    inviteInterview(userId: Int!, jobId: Int!, time: Int!): MayBeToken
+    inviteInterview(userId: Int!, jobId: Int!, time: Int!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
-    cancelInterview(interviewId: Int!): MayBeToken
+    cancelInterview(interviewId: Int!): Void
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
-    endIterview(interviewId: Int!, ispassed: Boolean!, description: String!): MayBeToken
+    endIterview(interviewId: Int!, ispassed: Boolean!, description: String!): Void
     "accept or reject an interview by id"
-    acceptOrRejectInterview(interviewId: Int!, accept: Boolean!): MayBeToken
+    acceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
     "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
-    chooseOrSwitchIdentity(targetIdentity: String!, role: String): MayBeToken
+    chooseOrSwitchIdentity(targetIdentity: String!, role: String): Void
     "use phone number to reset password"
-    resetPassword(info: ResetPassword!): MayBeToken
+    resetPassword(info: ResetPassword!): Void
     "enterprise certification need censor"
-    enterpriseCertificate(info: EnterpriseCertification!): MayBeToken
+    enterpriseIdentify(info: EnterpriseCharterSencorRequest!): Void
     "enterprise certificate required, if not will return error"
-    editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): MayBeToken
-    editEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): MayBeToken
-    editEnterpriseExtraData(info: String!): MayBeToken
-    recruitmentApply(recruitmentId: Int!): MayBeToken
+    editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): Void
+    editEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): Void
+    editEnterpriseExtraData(info: String!): Void
+    recruitmentApply(recruitmentId: Int!): Void
+    "only availiable when token is expired and not dead"
+    refreshToken: String!
+    setCensoredForAnItem(_id: String!, isPassed: Boolean): Void
   }
 `;
 
@@ -594,14 +618,23 @@ async function startServer() {
     development: { ssl: false, port: 4000, hostname: 'localhost' },
   };
   resolvers.Upload = GraphQLUpload;
+  const schema = makeExecutableSchema({typeDefs, resolvers });
   const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
     plugins: [
-      ApolloServerPluginLandingPageGraphQLPlayground(),
+      ApolloServerPluginLandingPageGraphQLPlayground(),{
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              subscriptionServer.close();
+            }
+          };
+        }
+      }
     ],
-    context: (ctx) => ctx,
+    context: contextMiddleware
   });
+  
   await server.start();
   
   const app = express();
@@ -610,17 +643,25 @@ async function startServer() {
   app.use(express.static('upload'));
   app.use(express.static('datas'));
   server.applyMiddleware({ app });
-  let httpSever;
+  let httpServer;
   if(env == 'production') {
-    httpSever = https.createServer({
+    httpServer = https.createServer({
       key: fs.readFileSync('./ssl/2_chenzaozhao.com.key'),
       cert: fs.readFileSync('./ssl/1_chenzaozhao.com_bundle.crt'),
     },app)
   } else {
     console.log(env)
-    httpSever = http.createServer(app);
+    httpServer = http.createServer(app);
   }
-  await new Promise(r => httpSever.listen({ port: 4000 }, r));
+  const subscriptionServer = SubscriptionServer.create({
+    schema,
+    execute,
+    subscribe,
+  }, {
+    server: httpServer,
+    path: server.graphqlPath
+  });
+  await new Promise(r => httpServer.listen({ port: 4000 }, r));
   mongo.init().then(() => {
     console.log('mongo Connection has been established successfully');
   })

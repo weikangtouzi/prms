@@ -1,29 +1,26 @@
-const { MongoClient } = require('mongodb');
-// or as an es module:
-// import { MongoClient } from 'mongodb'
-
-// Connection URL
-const url = 'mongodb://localhost:27017';
-const client = new MongoClient(url);
-
-// Database Name
-const dbName = 'prms';
-
-async function query() {
-  // Use connect method to connect to the server
-  await client.connect();
-  console.log('Connected successfully to server');
-  const db = client.db(dbName);
-  const collection = db.collection('user_log_in_cache');
-  let res = await collection.findOne({
-    a: "A"
-  });
-  console.log(res)
-  // the following code examples can be pasted here...
+const mongo = require('../mongo');
+let userInfo = {
+  user_id: 1
 }
-
-query()
-  .catch(console.error)
-  .finally(() => client.close());
-
-
+let enterpriseName = "test_enterpriseName";
+let charter = "test_charterPath";
+let phoneNumber = "test_phoneNumber";
+mongo.init().then(() => {
+  mongo.query('administrator_censor_list', async (collection) => {
+    collection.updateOne({
+      "user_id": userInfo.user_id,
+      "editable": true,
+    }, {
+      $set: {
+        user_id: userInfo.user_id,
+        enterpriseName: enterpriseName,
+        charter: charter,
+        phoneNumber: phoneNumber? phoneNumber: null,
+        editable: false
+      }
+    }, { upsert: false })
+  }).then(res => {
+    console.log(res)
+  })
+  
+})
