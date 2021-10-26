@@ -17,10 +17,13 @@ async function query(collectionName,runner) {
   // the following code examples can be pasted here...
 }
 
+
 module.exports = {
     init: async () => {
         await client.connect();
+        client.db(dbName).collection('administrator_censor_list').createIndex({time: 1})
+        
     },
     close: client.close,
-    query
+    query,
 }

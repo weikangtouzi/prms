@@ -35,7 +35,8 @@
     },
     "jwtConfig": {
         "secret": "wdnmd",
-        "expireTime": "3600000"
+        "expireTime": "3600000",
+        "deadTime": "86400000"
     },
     "basic": {
         "email": false,
