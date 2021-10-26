@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const {EnterpriseCertificationStatus} = require('./graphql/types')
+const {EnterpriseCertificationStatus, EnterpriseRole} = require('./graphql/types')
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -391,15 +391,7 @@ const typeDefs = gql`
     Administrator,
     Counselor,
   }
-  enum Role {
-    
-    HR,
-    Teacher,
-    "represent the main account of the enterprise"
-    Admin,
-    "for no right account and personal user"
-    None
-  }
+  
   "reset password means that user forget password"
   input ResetPassword {
     verifyCode: String!,
@@ -480,7 +472,7 @@ const typeDefs = gql`
   type TokenIdentity {
     idnentity: Identity!,
     "personal user don't need this"
-    role: Role
+    role: EnterpriseRole
   }
   type TokenWithIdentity {
     user_id: Int!,
@@ -501,7 +493,6 @@ const typeDefs = gql`
   }
   type SearchApplicantsResult {
     data: [ApplicantData],
-    
   }
   type FileLink {
     link: String!,
@@ -526,6 +517,13 @@ const typeDefs = gql`
     enterpriseName: String,
     charter: String,
   }
+  "enum Role {\
+    HR,\
+    Teacher,\
+    Admin,\
+    None\
+  }"
+  scalar EnterpriseRole
   "for most of get query needed token for authorization"
   type Query {
     "api for login"

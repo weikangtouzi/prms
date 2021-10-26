@@ -9,7 +9,7 @@ const mongo = require('../mongo')
 function isvalidEnterpriseAdmin(userIdentity) {
   return Identity.parseValue(userIdentity.identity) == Identity.getValue("EnterpriseUser").value && userIdentity.role && EnterpriseRole.parseValue(userIdentity.role) == EnterpriseRole.getValue("Admin").value
 }
-const enterpriseIdentify = async (parent, args, {userInfo}, info) => {
+const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   const { enterpriseName, charter, phoneNumber, isEdit } = args.info;
@@ -56,7 +56,7 @@ const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
-const editEnterpriseWorkTimeAndWelfare = async (parent, args, {userInfo}, info) => {
+const editEnterpriseWorkTimeAndWelfare = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
@@ -88,7 +88,7 @@ const editEnterpriseWorkTimeAndWelfare = async (parent, args, {userInfo}, info) 
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
-const editEnterpriseExtraData = async (parent, args, {userInfo}, info) => {
+const editEnterpriseExtraData = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   try {
@@ -113,33 +113,32 @@ const editEnterpriseExtraData = async (parent, args, {userInfo}, info) => {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
-const inviteWorkMate = async (parent, args, context, info) => {
-  if (context.req && context.req.headers.authorization) {
-    let token = context.req.headers.authorization;
-    let userInfo = jwt.verify(token, jwtConfig.secret);
-    if (isvalidEnterpriseAdmin(userInfo.identity)) {
-      const { phoneNumber, role } = args.info;
-
-    } else {
-      throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+const inviteWorkMate = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidEnterpriseAdmin(userInfo.identity)) {
+    const { phoneNumber, role } = args.info;
+    if(role) {
+      
     }
   } else {
-    
+    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
+
 }
-const checkEnterpriseIdentification = async (parent, args, {userInfo}, info) => {
+const checkEnterpriseIdentification = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   let res = await mongo.query('administrator_censor_list', async (collection) => {
-    return collection.findOne({user_id: userInfo.user_id})
+    return collection.findOne({ user_id: userInfo.user_id })
   });
-  if(res) {
-    if(res.passed) {
+  if (res) {
+    if (res.passed) {
       return {
         status: "Passed"
       }
     } else {
-      if(res.editable) {
+      if (res.editable) {
         return {
           status: "Failed",
           ...res
@@ -149,7 +148,7 @@ const checkEnterpriseIdentification = async (parent, args, {userInfo}, info) => 
           status: "Waiting"
         }
       }
-      
+
     }
   } else {
     return {
