@@ -40,7 +40,6 @@ const setCensoredForAnItem = async (parent, args, {userInfo}, info) => {
                 }
             },{upsert: false})
         }
-        
     })
 }
 
