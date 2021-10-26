@@ -25,6 +25,9 @@ const getTowns = async (parent, args, context, info) => {
     });
     return res
 }
+const getAllData = async (parent, args, context, info) => {
+    
+}
 module.exports = {
     getProvinces,
     getCities,

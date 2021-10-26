@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     province_id: {
       type: DataTypes.STRING(12),
       allowNull: false,
+      primaryKey: true,
     }
   }, {
     sequelize,
