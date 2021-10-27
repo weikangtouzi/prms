@@ -10,12 +10,11 @@ const insertPersonalData = async (parent, args, context, info) => {
     let error = {};
     if (context.req && context.req.headers.authorization) {
         const pro_number = context.req.headers.authorization;
-        isvaildNum(error, pro_number, true);
         if (Object.keys(error).length > 0) { throw new AuthenticationError('无效的手机号', { error }) }
         let { name, number, idCardNum, education, skills, city } = args.info;
         if (name.trim() == "") { throw new UserInputError('真实姓名不能为空') }
         if (number.trim() == "") { throw new UserInputError('手机号不能为空') }
-        isvaildNum(error, number);
+        isvaildNum(error, pro_number, true);
         if (idCardNum.trim() == "") { throw new UserInputError('身份证号不能为空') }
         isvaildidCardNum(error, idCardNum, true);
         if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
