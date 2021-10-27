@@ -23,10 +23,6 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    worker_name: {
-      type: DataTypes.STRING(30),
-      allowNull: false
-    },
     title: {
       type: DataTypes.STRING(40),
       allowNull: false
@@ -55,10 +51,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    max_experience: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
     min_education: {
       type: DataTypes.ENUM("Null", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"),
       allowNull: false
@@ -79,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING(15)),
-      allowNull: false
+      allowNull: true
     },
     comp_id: {
       type: DataTypes.INTEGER,

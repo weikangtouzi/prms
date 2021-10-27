@@ -22,7 +22,8 @@ module.exports = {
     init: async () => {
         await client.connect();
         client.db(dbName).collection('administrator_censor_list').createIndex({time: 1})
-        
+        client.db(dbName).collection('administrator_censor_list').createIndex({enterpriseName: "text"})
+        client.db(dbName).collection('administrator_censor_list').createIndex({user_id: 1}, {unique: true})
     },
     close: client.close,
     query,

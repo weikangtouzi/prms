@@ -2,9 +2,17 @@ const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword, ref
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
 const { singleUpload } = require('./upload');
-const { getProvinces, getCities, getCounties, getTowns,getAllRegion } = require('./citys_data');
-const { editEnterpriseBasicInfo, editEnterpriseWorkTimeAndWelfare, editEnterpriseExtraData, enterpriseIdentify, checkEnterpriseIdentification } = require('./enterprise')
-const {getCensorList} = require('./admin')
+const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
+const { editEnterpriseBasicInfo, 
+    editEnterpriseWorkTimeAndWelfare, 
+    editEnterpriseExtraData, 
+    enterpriseIdentify, 
+    checkEnterpriseIdentification, 
+    inviteWorkMate, 
+    precheckForInviteWorkMate, 
+    postJob 
+} = require('./enterprise')
+const { getCensorList, setCensoredForAnItem } = require('./admin')
 const resolvers = {
     Query: {
         logIn,
@@ -19,7 +27,8 @@ const resolvers = {
         getTowns,
         checkEnterpriseIdentification,
         getCensorList,
-        getAllRegion
+        getAllRegion,
+        precheckForInviteWorkMate
     },
     Mutation: {
         register,
@@ -32,6 +41,9 @@ const resolvers = {
         editEnterpriseExtraData,
         refreshToken,
         enterpriseIdentify,
+        inviteWorkMate,
+        postJob,
+        setCensoredForAnItem
     }
 };
 module.exports = {
