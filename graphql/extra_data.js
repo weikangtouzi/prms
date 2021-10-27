@@ -72,7 +72,7 @@ const phoneNumberCheck = async (parent, args, context, info) => {
 const checkIdCardNumber = async (parent, args, context, info) => {
     const {idCardNum} = args
     let error = {}
-    isvaildidCardNum(error, idCardNum);
+    isvaildidCardNum(error, idCardNum, true);
     if (Object.keys(error).length > 0) {
         throw new UserInputError('bad input', { error })
     }
