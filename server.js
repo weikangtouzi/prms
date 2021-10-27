@@ -128,15 +128,18 @@ const typeDefs = gql`
     city: String!,
     skills: [String]!
   }
-  type PersonalDataView {
-    _id: String!,
-    "real name"
+  type PersonalDataDetail {
     name: String!,
     number: String!,
     idCardNum: String!,
     education: Education!,
     city: String!,
     skills: [String]!
+  }
+  type PersonalDataView {
+    _id: String!,
+    "real name"
+    data: PersonalDataDetail
   }
   "a job always contains these datas. these are formatted data, not exactly what is in database"
   type JobData {
