@@ -81,8 +81,18 @@ const checkIdCardNumber = async (parent, args, context, info) => {
     return count == 1
 }
 
+const showDatas = async (parent, args, context, info) => {
+    const{ pageSize, lastIndex} = args;
+    return await mongo.query('Talent Pool', async (collection) => {
+        return await collection.find({
+            _id: {$gt: lastIndex}
+        })
+    }) 
+}
+
 module.exports = {
     insertPersonalData,
     phoneNumberCheck,
-    checkIdCardNumber
+    checkIdCardNumber,
+    showDatas
 }

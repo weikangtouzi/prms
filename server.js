@@ -128,6 +128,16 @@ const typeDefs = gql`
     city: String!,
     skills: [String]!
   }
+  type PersonalDataView {
+    _id: String!,
+    "real name"
+    name: String!,
+    number: String!,
+    idCardNum: String!,
+    education: Education!,
+    city: String!,
+    skills: [String]!
+  }
   "a job always contains these datas. these are formatted data, not exactly what is in database"
   type JobData {
     JobTitle: String!,
@@ -574,6 +584,8 @@ const typeDefs = gql`
     getCensorList(pageSize: Int, lastIndex: String): [CensorData]
     getAllRegion: RegionList!
     precheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
+    "just tests"
+    showDatas: [PersonalDataView]!
   }
   
   "most of mutations needed token for authorization"

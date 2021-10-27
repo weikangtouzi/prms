@@ -1,6 +1,6 @@
 const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword, refreshToken } = require('./user');
 const { sendSms } = require('./send_sms');
-const { insertPersonalData, phoneNumberCheck, checkIdCardNumber } = require('./extra_data');
+const { insertPersonalData, phoneNumberCheck, checkIdCardNumber,showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
 const { editEnterpriseBasicInfo, 
@@ -28,7 +28,8 @@ const resolvers = {
         checkEnterpriseIdentification,
         getCensorList,
         getAllRegion,
-        precheckForInviteWorkMate
+        precheckForInviteWorkMate,
+        showDatas
     },
     Mutation: {
         register,
