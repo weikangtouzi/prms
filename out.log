@@ -2,3 +2,7 @@
 mongo Connection has been established successfully
 Executing (default): SELECT 1+1 AS result
 postgres Connection has been established successfully
+
+
+
+db.createUser({user:"admin_1",pwd:"pwd_admin_1",roles:[{ role: "readWrite", db: "prms" }]})
