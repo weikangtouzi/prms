@@ -84,9 +84,15 @@ const checkIdCardNumber = async (parent, args, context, info) => {
 const showDatas = async (parent, args, context, info) => {
     const{ pageSize, lastIndex} = args;
     return await mongo.query('Talent Pool', async (collection) => {
-        let res =  await collection.find({
-            _id: {$gt: lastIndex}
-        })
+        let res
+        if(lastIndex) {
+            res =  await collection.find({
+                _id: {$gt: lastIndex}
+            }).limit(pageSize? pageSize : 10)
+        } else {
+            res = await collection.find().limit(pageSize? pageSize : 10)
+        }
+        
         return res.toArray()
     }) 
 }
