@@ -161,12 +161,10 @@ const typeDefs = gql`
     cacheId: String!,
     
   }
-  "these are = require(fontend"
   input JobPost {
     JobTitle: String!,
-    WorkingAddress: String!,
-    "just a two value array which first value means the min one, second means the max one"
-    experience: [Int]!,
+    workingAddress: String!,
+    experience:Int!,
     "just a two value array which first value means the min one, second means the max"
     salary: [Int]!,
     education: EducationRequired!,
@@ -575,6 +573,7 @@ const typeDefs = gql`
     checkEnterpriseIdentification: EnterpriseIdentification!
     getCensorList(pageSize: Int, lastIndex: String): [CensorData]
     getAllRegion: RegionList!
+    precheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
   }
   
   "most of mutations needed token for authorization"
@@ -585,7 +584,7 @@ const typeDefs = gql`
     insertPersonalData(info: PersonalData!): Int!
     "leave extraAttributes null for default upload options"
     singleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
-    postJob(job: JobPost): Void
+    postJob(info: JobPost): Void
     "insert or edit a personal data"
     editPersonalData(info: BasicData): Void
     "insert or edit a personal advantage"
@@ -619,7 +618,8 @@ const typeDefs = gql`
     recruitmentApply(recruitmentId: Int!): Void
     "only availiable when token is expired and not dead"
     refreshToken: String!
-    setCensoredForAnItem(_id: String!, isPassed: Boolean): Void
+    setCensoredForAnItem(_id: String!, isPassed: Boolean, description: String): Void
+    inviteWorkMate(phoneNumber:String!, role: String, pos: String): Void
   }
 `;
 

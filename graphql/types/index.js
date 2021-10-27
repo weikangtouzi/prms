@@ -63,7 +63,8 @@ const WorkerMatePrecheckResult = new GraphQLEnumType({
         OK: { value: 0 },
         NotAUser: { value: 1 },
         AlreadyWorkMate: { value: 2 },
-        WorkingInAnotherCompany: { value: 3 }
+        WorkingInAnotherCompany: { value: 3 },
+        NotCertified: { value: 4 }
     }
 })
 

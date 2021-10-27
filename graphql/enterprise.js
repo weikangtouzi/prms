@@ -7,29 +7,61 @@ const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo')
 
 function isvalidEnterpriseAdmin(userIdentity) {
-  return Identity.parseValue(userIdentity.identity) == Identity.getValue("EnterpriseUser").value && userIdentity.role && EnterpriseRole.parseValue(userIdentity.role) == EnterpriseRole.getValue("Admin").value
+  if(!userIdentity) {
+    throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
+  }
+  return userIdentity.identity == "EnterpriseUser" && userIdentity.role && userIdentity.role == "Admin"
+}
+function isvalidJobPoster(userIdentity) {
+  if(!userIdentity) {
+    throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
+  }
+  return userIdentity.identity == "EnterpriseUser" && userIdentity.role && (userIdentity.role == "HR" || userIdentity.role == "Admin")
 }
 const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-  const { enterpriseName, charter, phoneNumber, isEdit } = args.info;
+  const { enterpriseName, charter, phoneNumber } = args.info;
   try {
     await mongo.query('administrator_censor_list', async (collection) => {
-      collection.insertOne({
-        user_id: userInfo.user_id,
-        enterpriseName: enterpriseName,
-        charter: charter,
-        phoneNumber: phoneNumber ? phoneNumber : null,
-        editable: false,
-        passed: false,
-        time: new Date()
-      })
+      try {
+        await collection.insertOne({
+          user_id: userInfo.user_id,
+          enterpriseName: enterpriseName,
+          charter: charter,
+          phoneNumber: phoneNumber ? phoneNumber : null,
+          editable: false,
+          passed: false,
+          time: new Date(),
+          description: null
+        })
+      } catch (e) {
+        throw e
+      }
     });
   } catch (e) {
-    throw new Error(e)
+    throw new UserInputError('your identify request is under censor right now, please wait')
   }
 }
-
+const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  try {
+    isvalidEnterpriseAdmin(userInfo.identity)
+  } catch (e) {
+    let info = await mongo.query('administrator_censor_list', async (collection) => {
+      let res = await collection.findOne({
+        passed: true,
+        user_id: userInfo.user_id
+      })
+      return res
+    })
+    if(!info) {
+      throw new AuthenticationError('your enterprise identify request is not passed or not applied')
+    }
+    
+  }
+}
 const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -155,16 +187,16 @@ const precheckForInviteWorkMate = async (parent, args, { userInfo }, info) => {
       }
     });
     let user = res.dataValues;
-    if(!user) throw new UserInputError('this phone number not register yet')
-    if(!user.real_name) throw new UserInputError('this account is not certificated')
+    if(!user) return "NotAUser"
+    if(!user.real_name) return "NotCertified"
     if(user.Worker) {
       if(user.Worker.company_belonged == userInfo.enterpriseId) {
-        throw new UserInputError('this account is already your workmate')
+        return "AlreadyWorkMate"
       } else {
-        throw new UserInputError('this account is already binding to another company')
+        return "WorkingInAnotherCompany"
       }
     } else {
-      return 
+      return "OK"
     }
   } else {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
@@ -192,7 +224,6 @@ const checkEnterpriseIdentification = async (parent, args, { userInfo }, info) =
           status: "Waiting"
         }
       }
-
     }
   } else {
     return {
@@ -200,10 +231,25 @@ const checkEnterpriseIdentification = async (parent, args, { userInfo }, info) =
     }
   }
 }
+const postJob = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if(isvalidJobPoster(userInfo.identity)) {
+    const {jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags} = args.info;
+    
+  } else {
+    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
+  }
+  
+  
+}
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,
   editEnterpriseExtraData,
   enterpriseIdentify,
-  checkEnterpriseIdentification
+  checkEnterpriseIdentification,
+  precheckForInviteWorkMate,
+  inviteWorkMate,
+  postJob
 }
