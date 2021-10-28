@@ -59,6 +59,28 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
     if(!info) {
       throw new AuthenticationError('your enterprise identify request is not passed or not applied')
     }
+    const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
+    try{
+      await Enterprise.create({
+        user_id: userInfo.user_id,
+        enterprise_name: enterpriseName,
+        abbreviation: abbreviation,
+        business_nature: enterpriseNature,
+        industry_involved: enterpriseIndustry,
+        enterprise_profile: enterpriseProfile,
+        enterprise_financing: enterpriseFinancing,
+        enterprise_size: enterpriseSize,
+        enterprise_logo: logo,
+        enterprise_loc_longtitude: enterprisecCoordinate[0],
+        enterprise_loc_latitude: enterprisecCoordinate[1],
+        enterprise_loc_detail: enterpriseLocation,
+        homepage,
+        established_time: establishedDate,
+        tel: tel
+      });
+    }catch(e) {
+      throw new UserInputError({e})
+    }
     
   }
 }
@@ -67,23 +89,31 @@ const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
     const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
-    await Enterprise.upsert({
-      user_id: userInfo.user_id,
-      enterprise_name: enterpriseName,
-      abbreviation: abbreviation,
-      business_nature: enterpriseNature,
-      industry_involved: enterpriseIndustry,
-      enterprise_profile: enterpriseProfile,
-      enterprise_financing: enterpriseFinancing,
-      enterprise_size: enterpriseSize,
-      enterprise_logo: logo,
-      enterprise_loc_longtitude: enterprisecCoordinate[0],
-      enterprise_loc_latitude: enterprisecCoordinate[1],
-      enterprise_loc_detail: enterpriseLocation,
-      homepage,
-      established_time: establishedDate,
-      tel: tel
-    });
+    if(enterpriseName|| abbreviation|| enterpriseNature|| enterpriseLocation|| enterpriseProfile|| enterprisecCoordinate|| enterpriseIndustry|| enterpriseFinancing|| logo|| enterpriseSize|| establishedDate|| homepage|| tel) {
+      await Enterprise.update({
+        enterprise_name: enterpriseName,
+        abbreviation: abbreviation,
+        business_nature: enterpriseNature,
+        industry_involved: enterpriseIndustry,
+        enterprise_profile: enterpriseProfile,
+        enterprise_financing: enterpriseFinancing,
+        enterprise_size: enterpriseSize,
+        enterprise_logo: logo,
+        enterprise_loc_longtitude: enterprisecCoordinate[0],
+        enterprise_loc_latitude: enterprisecCoordinate[1],
+        enterprise_loc_detail: enterpriseLocation,
+        homepage,
+        established_time: establishedDate,
+        tel: tel
+      }, {
+        where: {
+          user_id
+        }
+      });
+    } else {
+      throw new UserInputError('you need at least one data to update')
+    }
+    
   } else {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
@@ -251,5 +281,6 @@ module.exports = {
   checkEnterpriseIdentification,
   precheckForInviteWorkMate,
   inviteWorkMate,
-  postJob
+  postJob,
+  insertEnterpriseBasicInfo
 }

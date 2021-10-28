@@ -46,7 +46,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     phone_number: {
       type: DataTypes.STRING,
-      
     }
   }, {
     sequelize,
@@ -54,6 +53,5 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'worker',
     
   });
-  
   return Worker;
 };
