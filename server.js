@@ -549,6 +549,31 @@ const typeDefs = gql`
   type RegionList {
     data: [ProvinceWithChildren]!
   }
+  "same datas as the Insert one, but are all not required"
+  input EditEnterpriseBasicInfo {
+    enterpriseName: String,
+    abbreviation: String,
+    "pass the whole adress information in this array"
+    enterpriseLocation: [String],
+    "longtitude and latitude"
+    enterprisecCoordinate: [Float],
+    "checkout EnterpriseNature type for value options"
+    enterpriseNature: String,
+    enterpriseIndustry: [String],
+    "checkout EnterpriseIndustry type for value options"
+    enterpriseFinancing: String,
+    "checkout EnterpriseSize type for value options"
+    enterpriseSize: String,
+    enterpriseProfile: String,
+    logo: String,
+    establishedDate: String,
+    homepage: String,
+    tel: String
+  }
+  input EnterpriseWorkerInfo {
+    role: EnterpriseRole!,
+    pos: String!,
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -627,7 +652,7 @@ const typeDefs = gql`
     "enterprise certification need censor"
     enterpriseIdentify(info: EnterpriseCharterSencorRequest!): Void
     "enterprise certificate required, if not will return error"
-    editEnterpriseBasicInfo(info: EnterpriseBasicInfo!): Void
+    editEnterpriseBasicInfo(info: EditEnterpriseBasicInfo!): Void
     editEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): Void
     editEnterpriseExtraData(info: String!): Void
     recruitmentApply(recruitmentId: Int!): Void
@@ -635,6 +660,8 @@ const typeDefs = gql`
     refreshToken: String!
     setCensoredForAnItem(_id: String!, isPassed: Boolean, description: String): Void
     inviteWorkMate(phoneNumber:String!, role: String, pos: String): Void
+    insertEnterpriseBasicInfo(info:EnterpriseBasicInfo!): Void
+    enterpriseWorkerRegister(info: EnterpriseWorkerInfo!): Void
   }
 `;
 

@@ -10,7 +10,8 @@ const { editEnterpriseBasicInfo,
     checkEnterpriseIdentification, 
     inviteWorkMate, 
     precheckForInviteWorkMate, 
-    postJob 
+    postJob,
+    insertEnterpriseBasicInfo
 } = require('./enterprise')
 const { getCensorList, setCensoredForAnItem } = require('./admin')
 const resolvers = {
@@ -44,7 +45,8 @@ const resolvers = {
         enterpriseIdentify,
         inviteWorkMate,
         postJob,
-        setCensoredForAnItem
+        setCensoredForAnItem,
+        insertEnterpriseBasicInfo
     }
 };
 module.exports = {
