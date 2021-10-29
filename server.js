@@ -719,8 +719,8 @@ async function startServer() {
   const app = express();
 
   app.use(graphqlUploadExpress());
-  app.use(express.static('upload'));
-  app.use(express.static('datas'));
+  app.use('/uploadedFiles', express.static('upload'));
+  app.use('/preludeDatas',express.static('datas'));
   server.applyMiddleware({ app });
   let httpServer;
   if (env == 'production') {
