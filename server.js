@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType } = require('./graphql/types')
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -549,6 +549,26 @@ const typeDefs = gql`
   type RegionList {
     data: [ProvinceWithChildren]!
   }
+  "enum {\
+    Normal,\
+    System,\
+    Resume,\
+    InterviewInvitation,\
+    Other\
+    }"
+  scalar MessageType
+  input SendMessage {
+    to: Int!,
+    messageType: MessageType!,
+    messageContent: String!
+  }
+  type Message {
+    "0 for system message"
+    from: Int!,
+    messageType: MessageType!,
+    messageContent: String!
+    to: Int!
+  }
   "same datas as the Insert one, but are all not required"
   input EditEnterpriseBasicInfo {
     enterpriseName: String,
@@ -662,6 +682,10 @@ const typeDefs = gql`
     inviteWorkMate(phoneNumber:String!, role: String, pos: String): Void
     insertEnterpriseBasicInfo(info:EnterpriseBasicInfo!): Void
     enterpriseWorkerRegister(info: EnterpriseWorkerInfo!): Void
+    sendMessage(info: SendMessage!): Void
+  }
+  type Subscription {
+    newMessage: Message!
   }
 `;
 
@@ -712,6 +736,7 @@ async function startServer() {
     schema,
     execute,
     subscribe,
+    onConnect: contextMiddleware,
   }, {
     server: httpServer,
     path: server.graphqlPath

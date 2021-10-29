@@ -25,23 +25,24 @@ module.exports = (sequelize, DataTypes) => {
     },
     from: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: true
     },
     message_type: {
-      type: DataTypes.ENUM("Normal", "System", "Resume", "InterviewInvitation", "Other"),
+      type: DataTypes.ENUM("Normal", "System", "Other"),
       allowNull: false
     },
     detail: {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    time: {
+    ReadedAt: {
       type: DataTypes.TIME,
-      allowNull: false
+      allowNull: true
     },
     availiable: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     sequelize,

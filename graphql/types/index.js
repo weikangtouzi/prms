@@ -67,6 +67,16 @@ const WorkerMatePrecheckResult = new GraphQLEnumType({
         NotCertified: { value: 4 }
     }
 })
+const MessageType = new GraphQLEnumType({
+    name: 'WorkMatePrecheckResult',
+    values: {
+        Normal: { value: 0 },
+        System: { value: 1 },
+        Resume: { value: 2 },
+        InterviewInvitation: { value: 3 },
+        Other: { value: 4 }
+    }
+})
 
 module.exports = {
     Education,
@@ -74,5 +84,6 @@ module.exports = {
     Identity,
     EnterpriseRole,
     EnterpriseCertificationStatus,
-    WorkerMatePrecheckResult
+    WorkerMatePrecheckResult,
+    MessageType
 }
