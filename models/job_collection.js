@@ -33,8 +33,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         sequelize,
-        modelName: 'job_collection',
-        tableName: 'JobCollection'
+        modelName: 'JobCollection',
+        tableName: 'job_collection'
     });
     return JobCollection;
 };

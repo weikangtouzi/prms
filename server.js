@@ -12,7 +12,7 @@ const { resolvers } = require('./graphql');
 const { GraphQLScalarType, execute, subscribe } = require('graphql');
 const mongo = require('./mongo');
 const fs = require('fs');
-const { env } = require('./project.json');
+const { env, uploadPath } = require('./project.json');
 const http = require('http');
 const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
@@ -567,7 +567,8 @@ const typeDefs = gql`
     from: Int!,
     messageType: MessageType!,
     messageContent: String!
-    to: Int!
+    to: Int!,
+    uuid: String!,
   }
   "same datas as the Insert one, but are all not required"
   input EditEnterpriseBasicInfo {
@@ -719,7 +720,7 @@ async function startServer() {
   const app = express();
 
   app.use(graphqlUploadExpress());
-  app.use('/uploadedFiles', express.static('upload'));
+  app.use(uploadPath, express.static(uploadPath.split('/')[1]));
   app.use('/preludeDatas',express.static('datas'));
   server.applyMiddleware({ app });
   let httpServer;
