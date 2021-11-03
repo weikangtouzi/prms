@@ -17,7 +17,8 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     let msg = await Message.create({
         user_id: to,
         from: userInfo.user_id,
-        detail: messageContent
+        detail: messageContent,
+        readed: false,
     })
     pubsub.publish("NEW_MESSAGE", { newMessage: {
         to: user_id,

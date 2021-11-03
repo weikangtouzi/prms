@@ -40,19 +40,21 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    ReadedAt: {
-      type: DataTypes.TIME,
-      allowNull: true
+    Readed: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     },
     availiable: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
-    }
+    },
+    
   }, {
     sequelize,
     modelName: 'Message',
-    tableName: 'message'
+    tableName: 'message',
+    updatedAt: false,
   });
   return Message;
 };

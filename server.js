@@ -185,6 +185,8 @@ const typeDefs = gql`
     requiredNum: Int!,
     isFullTime: Boolean!,
     tags: [String]!,
+    adress: String!,
+    coordinates: [Float]!
   }
   "because the personal data is already exists, I choos this for the name"
   input BasicData {

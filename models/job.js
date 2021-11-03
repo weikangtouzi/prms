@@ -85,6 +85,11 @@ module.exports = (sequelize, DataTypes) => {
     tranfering_to: {
       type: DataTypes.INTEGER,
       allowNull: true,
+    },
+    expiredAt: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   }, {
     sequelize,

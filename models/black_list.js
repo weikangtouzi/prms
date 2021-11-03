@@ -24,13 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     useName: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true,
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
     },
-    useId: {
-        type: DataTypes.ARRAY(DataTypes.INTEGER),
-        allowNull: true
-    }
+    
   }, {
     sequelize,
     modelName: 'BlackList',
