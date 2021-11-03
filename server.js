@@ -600,92 +600,92 @@ const typeDefs = gql`
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
-    logIn(info: Login!): LoginResult!
+    UserLogIn(info: Login!): LoginResult!
     "check if the input num is availiable or not"
-    numberCheck(num: String!): Boolean!
+    UserNumberCheck(num: String!): Boolean!
     "get Province data"
-    getProvinces: [Province]
+    StaticGetProvinces: [Province]
     "get all cities of the given province"
-    getCities(provinceId: String!): [City]!
+    StaticGetCities(provinceId: String!): [City]!
     "get all counties of the given city"
-    getCounties(cityId: String!): [County]!
+    StaticGetCounties(cityId: String!): [County]!
     "get all town of the given county"
-    getTowns(countyId: String!): [Town]!
+    StaticGetTowns(countyId: String!): [Town]!
     "send a verify code to the given number, if phoneNumber not provider and has token in header, will send to the user's phone number"
-    sendSms(phoneNumber: String): String!
+    StaticSendSms(phoneNumber: String): String!
     "tags are those tags that hr added to a job. keyword stands for the input at search page. tags and keyword are not required. pageNumber and pageSize default value are 1 and 10"
-    getJobs(filter: JobFilter): JobQueryResult!
+    CandidateGetJobs(filter: JobFilter): JobQueryResult!
     "using cached jobid, need to query at least once before calling this"
-    getJobsFromCache(cacheId: String): [JobDataBriefly]!
+    CandidateGetJobsFromCache(cacheId: String): [JobDataBriefly]!
     "get job data by id"
-    getJob(jobid: Int): JobData!
+    CandidateGetJob(jobid: Int): JobData!
     "get resume data, if cache id exists then will return the cache data, cache expired every 30 minutes"
-    getResume(resumeId: Int, cacheId: String): ResumeData!
-    phoneNumberCheck(phoneNumber: String, verifyCode: String): Int!
+    CommonGetResume(resumeId: Int, cacheId: String): ResumeData!
+    QNPhoneNumberCheck(phoneNumber: String, verifyCode: String): Int!
     "true means already inserted"
-    checkIdCardNumber(idCardNum: String!): Boolean!
+    QNCheckIdCardNumber(idCardNum: String!): Boolean!
     "gets InterviewSchedule"
-    getIterviewSchedule: InterviewSchedule!
+    CommonGetIterviewSchedule: InterviewSchedule!
     "detail page for interview"
-    getIterviewDetail(interviewId: Int!): InterviewDetail
+    CommonGetIterviewDetail(interviewId: Int!): InterviewDetail
     "get applicant by conditions, null for no limitation, null when no matched data"
-    getApplicants(filter: ApplicantFilter): SearchApplicantsResult
-    checkResumeCompletion: Boolean!
-    checkEnterpriseIdentification: EnterpriseIdentification!
-    getCensorList(pageSize: Int, lastIndex: String): [CensorData]
-    getAllRegion: RegionList!
-    precheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
+    HRGetApplicants(filter: ApplicantFilter): SearchApplicantsResult
+    CandidateCheckResumeCompletion: Boolean!
+    ENTCheckEnterpriseIdentification: EnterpriseIdentification!
+    AdminGetCensorList(pageSize: Int, lastIndex: String): [CensorData]
+    StaticGetAllRegion: RegionList!
+    ENTPrecheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
     "just tests"
-    showDatas(pageSize: Int, lastIndex: String): [PersonalDataView]!
+    TestShowDatas(pageSize: Int, lastIndex: String): [PersonalDataView]!
   }
   
   "most of mutations needed token for authorization"
   type Mutation {
     "api for register"
-    register(info: Register!): Void
+    UserRegister(info: Register!): Void
     "this api need you to pass the provider's phone number as the authorization header"
-    insertPersonalData(info: PersonalData!): Int!
+    QNInsertPersonalData(info: PersonalData!): Int!
     "leave extraAttributes null for default upload options"
-    singleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
-    postJob(info: JobPost): Void
+    CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
+    HRPostJob(info: JobPost): Void
     "insert or edit a personal data"
-    editPersonalData(info: BasicData): Void
+    UserEditPersonalData(info: BasicData): Void
     "insert or edit a personal advantage"
-    editPersonalAdvantage(advantage: String!): Void
+    CandidateEditPersonalAdvantage(advantage: String!): Void
     "insert or edit a work experience"
-    editWorkExprience(info: WorkExperience!): Void
+    CandidateEditWorkExprience(info: WorkExperience!): Void
     "insert or edit a education experience"
-    editEduExp(info: EduExp): Void
+    CandidateEditEduExp(info: EduExp): Void
     "insert or edit a project experience"
-    editProExp(info: ProExp): Void
+    CandidateEditProExp(info: ProExp): Void
     "if wanted to send the online one, then don't need to pass resumeId"
-    sendResume(resumeId:Int): Void
+    CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    inviteInterview(userId: Int!, jobId: Int!, time: Int!): Void
+    HRInviteInterview(userId: Int!, jobId: Int!, time: Int!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
-    cancelInterview(interviewId: Int!): Void
+    CommoncancelInterview(interviewId: Int!): Void
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
-    endIterview(interviewId: Int!, ispassed: Boolean!, description: String!): Void
+    HREndIterview(interviewId: Int!, ispassed: Boolean!, description: String!): Void
     "accept or reject an interview by id"
-    acceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
+    CandidateAcceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
     "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
-    chooseOrSwitchIdentity(targetIdentity: String!, role: String): Void
+    UserChooseOrSwitchIdentity(targetIdentity: String!, role: String): Void
     "use phone number to reset password"
-    resetPassword(info: ResetPassword!): Void
+    UserResetPassword(info: ResetPassword!): Void
     "enterprise certification need censor"
-    enterpriseIdentify(info: EnterpriseCharterSencorRequest!): Void
+    UserEnterpriseIdentify(info: EnterpriseCharterSencorRequest!): Void
     "enterprise certificate required, if not will return error"
-    editEnterpriseBasicInfo(info: EditEnterpriseBasicInfo!): Void
-    editEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): Void
-    editEnterpriseExtraData(info: String!): Void
-    recruitmentApply(recruitmentId: Int!): Void
+    ENTEditEnterpriseBasicInfo(info: EditEnterpriseBasicInfo!): Void
+    ENTEditEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): Void
+    ENTEditEnterpriseExtraData(info: String!): Void
+    CandidateRecruitmentApply(recruitmentId: Int!): Void
     "only availiable when token is expired and not dead"
-    refreshToken: String!
-    setCensoredForAnItem(_id: String!, isPassed: Boolean, description: String): Void
-    inviteWorkMate(phoneNumber:String!, role: String, pos: String): Void
-    insertEnterpriseBasicInfo(info:EnterpriseBasicInfo!): Void
-    enterpriseWorkerRegister(info: EnterpriseWorkerInfo!): Void
-    sendMessage(info: SendMessage!): Void
+    UserRefreshToken: String!
+    AdminSetCensoredForAnItem(_id: String!, isPassed: Boolean, description: String): Void
+    ENTInviteWorkMate(phoneNumber:String!, role: String, pos: String): Void
+    ENTInsertEnterpriseBasicInfo(info:EnterpriseBasicInfo!): Void
+    ENTEnterpriseWorkerRegister(info: EnterpriseWorkerInfo!): Void
+    UserSendMessage(info: SendMessage!): Void
   }
   type Subscription {
     newMessage: Message!
