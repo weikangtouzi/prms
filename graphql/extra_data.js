@@ -18,7 +18,7 @@ const insertPersonalData = async (parent, args, context, info) => {
         if (idCardNum.trim() == "") { throw new UserInputError('身份证号不能为空') }
         isvaildidCardNum(error, idCardNum, true);
         if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
-        await mongo.query('Talent Pool', async (collection) => {
+        await mongo.query('TalentPool', async (collection) => {
             collection.updateOne({ "data.idCardNum": idCardNum }, {
                 $set: {
                     data: {
@@ -33,7 +33,7 @@ const insertPersonalData = async (parent, args, context, info) => {
                 }
             }, { upsert: true })
         })
-        return await mongo.query('Talent Pool', async (collection) => {
+        return await mongo.query('TalentPool', async (collection) => {
             return collection.countDocuments({providerNumber: pro_number})
         })
     } else {
@@ -63,7 +63,7 @@ const phoneNumberCheck = async (parent, args, context, info) => {
     if(Object.keys(errors).length > 0) {
         throw new UserInputError('bad input', { errors });
     }
-    return await mongo.query('Talent Pool', async (collection) => {
+    return await mongo.query('TalentPool', async (collection) => {
         return collection.countDocuments({providerNumber: phoneNumber})
     })
 }
@@ -75,7 +75,7 @@ const checkIdCardNumber = async (parent, args, context, info) => {
     if (Object.keys(error).length > 0) {
         throw new UserInputError('bad input', { error })
     }
-    let count = await mongo.query('Talent Pool', (collection) => {
+    let count = await mongo.query('TalentPool', (collection) => {
         return collection.countDocuments({"data.idCardNum": idCardNum})
     })
     return count == 1
@@ -83,7 +83,7 @@ const checkIdCardNumber = async (parent, args, context, info) => {
 
 const showDatas = async (parent, args, context, info) => {
     const{ pageSize, lastIndex} = args;
-    return await mongo.query('Talent Pool', async (collection) => {
+    return await mongo.query('TalentPool', async (collection) => {
         let res
         if(lastIndex) {
             res =  await collection.find({

@@ -1,6 +1,6 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { Identity, EnterpriseNature, EnterpriseRole, EnterpriseCertificationStatus } = require('./types/')
-const { Enterprise, User, Worker } = require('../models');
+const { Enterprise, User, Worker, Job } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
