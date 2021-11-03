@@ -636,7 +636,7 @@ const typeDefs = gql`
     getAllRegion: RegionList!
     precheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
     "just tests"
-    showDatas: [PersonalDataView]!
+    showDatas(pageSize: Int, lastIndex: String): [PersonalDataView]!
   }
   
   "most of mutations needed token for authorization"
