@@ -52,7 +52,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     last_login_device_id: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      defaultValue: "None"
     }
   }, {
     sequelize,
