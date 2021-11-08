@@ -78,6 +78,16 @@ const MessageType = new GraphQLEnumType({
     }
 })
 
+const LogInPlatform = new GraphQLEnumType({
+    name: 'LogInPlatform',
+    values: {
+        Mobile: { value: 0},
+        ENT: { value: 1 },
+        CAN: { value: 2 },
+        Admin: { value: 3 }
+    }
+})
+
 module.exports = {
     Education,
     EnterpriseNature,

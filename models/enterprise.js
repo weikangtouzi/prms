@@ -60,12 +60,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.STRING(15)),
       allowNull: true
     },
-    enterprise_loc_longtitude: {
-      type: DataTypes.REAL,
-      allowNull: false
-    },
-    enterprise_loc_latitude: {
-      type: DataTypes.REAL,
+    enterprise_coordinates: {
+      type: DataTypes.GEOMETRY('POINT'),
       allowNull: false
     },
     enterprise_loc_detail: {

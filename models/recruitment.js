@@ -17,44 +17,59 @@ module.exports = (sequelize, DataTypes) => {
   Recruitment.init({
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
+      defaultValue: "testing"
     },
     sponsor: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "趁早找"
     },
     co_organizer: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "趁早找"
     },
     contractor: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "趁早找"
     },
     seekers: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0,
     },
     detail: {
         type: DataTypes.TEXT,
-        allowNull: false
+        allowNull: false,
+        defaultValue: "testing"
     },
-    adress_longtitude: {
-        type: DataTypes.REAL,
-        allowNull: false
-    },
-    address_latitude: {
-      type: DataTypes.REAL,
-      allowNull: false
+    adress: {
+      type: DataTypes.GEOMETRY('POINT'),
+      allowNull: false,
+      defaultValue: {
+        type: 'Point',
+        coordinates: [1.,1.]
+      }
     },
     job_count: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    start_at: {
+      type: DataTypes.TIME,
+      allowNull: false
+    },
+    end_at: {
+      type: DataTypes.TIME,
       allowNull: false
     }
   }, {
     sequelize,
     modelName: 'Recruitment',
-    tableName: 'recruitment'
+    tableName: 'recruitment',
   });
   return Recruitment;
 };

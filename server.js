@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, LogInPlatform } = require('./graphql/types')
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -87,11 +87,18 @@ const typeDefs = gql`
     town_id: String!,
     name: String!
   }
+  "enum {Mobile,\
+        ENT,\
+        CAN,\
+        Admin} (more args in future)"
+  scalar LogInPlatform
   "just data needed to login"
   input Login {
     "could be username, email, phone number"
-    account: String!
-    password: Password!
+    account: String!,
+    password: Password!,
+    platform: LogInPlatform!,
+    extraParams: String,
   }
   "sometime password may not be password only, for very situation in one api, we need this"
   input Password {

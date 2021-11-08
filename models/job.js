@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     adress_coordinate: {
-      type: DataTypes.ARRAY(DataTypes.REAL),
+      type: DataTypes.GEOMETRY('POINT'),
       allowNull: false
     },
     adress_description: {
@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM("Null", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"),
       allowNull: false
     },
-    requiredNum: {
+    required_num: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
@@ -64,10 +64,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false
     },
-    is_fulltime: {
-      type: DataTypes.BOOLEAN,
+    full_time_job: {
+      type: DataTypes.ENUM("FullTime", "PartTime", "InterShip"),
       allowNull: false,
-      defaultValue: true
+      defaultValue: "FullTime"
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING(15)),
@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
-    expiredAt: {
+    expired_at: {
       type: DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: DataTypes.NOW
