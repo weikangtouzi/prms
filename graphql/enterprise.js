@@ -281,7 +281,7 @@ const postJob = async (parent, args, { userInfo }, info) => {
       required_num: requiredNum,
       full_time_job: isFullTime,
       tags: tags,
-      comp_id: userInfo.enterpriseId,
+      comp_id: userInfo.identity.enterpriseId,
       expired_at: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     })
   } else {
@@ -289,16 +289,52 @@ const postJob = async (parent, args, { userInfo }, info) => {
   }
 }
 
-const HRInviteInterview = (parent, args, { userInfo }, info) => {
+const HRInviteInterview = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if(isvalidJobPoster(userInfo.identity)) {
-    
+    const {userId, jobId, time} = args;
+    let resume = await ResumeDeliveryRecord.findOne({
+      user_id: userId,
+      hr_id:userInfo.user_id,
+      job_id: jobId
+    });
+    if(!resume) throw new UserInputError("could not invite the candidate that haven't sended resume to this job");
+    await Interview.create({
+      user_id: userId,
+      job_id: jobId,
+      HR_id: userInfo.user_id,
+      appointment_time: new Date(time[0]),
+      ended_at: new Date(time[1]),
+      comp_name: userInfo.identity.enterpriseId,
+      status: "Waiting"
+    })
   } else {
     throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
-
+const HREndInterview = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if(isvalidJobPoster(userInfo.identity)) {
+    const {interviewId, isPassed} = args;
+    let updateed = await Interview.update({
+      status: isPassed? "Passed": "Failed",
+    },{
+      where: { 
+        id: interviewId,
+        ended_at: {
+          [Op.lt]: new Date()
+        }
+      }
+    },{
+      returning: true
+    })[0] >= 0;
+    if(!updateed) throw new UserInputError("interview not started or")
+  } else {
+    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,
@@ -308,5 +344,7 @@ module.exports = {
   precheckForInviteWorkMate,
   inviteWorkMate,
   postJob,
-  insertEnterpriseBasicInfo
+  insertEnterpriseBasicInfo,
+  HRInviteInterview,
+  HREndInterview
 }

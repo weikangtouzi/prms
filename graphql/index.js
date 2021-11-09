@@ -12,7 +12,9 @@ const { editEnterpriseBasicInfo,
     inviteWorkMate, 
     precheckForInviteWorkMate, 
     postJob,
-    insertEnterpriseBasicInfo
+    insertEnterpriseBasicInfo,
+    HRInviteInterview,
+    HREndInterview
 } = require('./enterprise');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
@@ -50,7 +52,7 @@ const resolvers = {
         AdminSetCensoredForAnItem: setCensoredForAnItem,
         ENTInsertEnterpriseBasicInfo: insertEnterpriseBasicInfo,
         UserSendMessage: sendMessage,
-        
+        HRInviteInterview
     },
     Subscription: {
         newMessage

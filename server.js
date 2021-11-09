@@ -662,11 +662,11 @@ const typeDefs = gql`
     "if wanted to send the online one, then don't need to pass resumeId"
     CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    HRInviteInterview(userId: Int!, jobId: Int!, time: String!): Void
+    HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
     CommoncancelInterview(interviewId: Int!): Void
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
-    HREndIterview(interviewId: Int!, ispassed: Boolean!, description: String!): Void
+    HREndIterview(interviewId: Int!, ispassed: Boolean!, description: String): Void
     "accept or reject an interview by id"
     CandidateAcceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
     "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
