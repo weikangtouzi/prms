@@ -8,7 +8,6 @@ const { User } = require('../models')
 const sendSms = async (parent, args, context, info) => {
     let { phoneNumber } = args;
     let error = {};
-
     if (!phoneNumber) {
         let token = context.req.headers.authorization;
         if (context.req && context.req.headers.authorization) {

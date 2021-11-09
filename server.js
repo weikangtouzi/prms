@@ -167,6 +167,9 @@ const typeDefs = gql`
     cacheId: String!,
     
   }
+  "enum {FullTime,\
+        PartTime,\
+        InternShip}"
   scalar FullTime
   input JobPost {
     JobTitle: String!,
@@ -191,7 +194,7 @@ const typeDefs = gql`
     currentCity: String!,
     phoneNumber: String!,
     education: Education!,
-    firstTimeWorking: Int!,
+    firstTimeWorking: String!,
   }
   input WorkExperience {
     "for edit you need pass this data"
@@ -659,7 +662,7 @@ const typeDefs = gql`
     "if wanted to send the online one, then don't need to pass resumeId"
     CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    HRInviteInterview(userId: Int!, jobId: Int!, time: Int!): Void
+    HRInviteInterview(userId: Int!, jobId: Int!, time: String!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
     CommoncancelInterview(interviewId: Int!): Void
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
