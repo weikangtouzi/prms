@@ -2,7 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const user = require('./user');
+const user = require('./enterprise');
 module.exports = (sequelize, DataTypes) => {
   class Interview extends Model {
     /**
@@ -32,12 +32,21 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     appointment_time: {
-      type: DataTypes.DATE,
+      type: DataTypes.TIME,
       allowNull: false
     },
-    comp_name: {
-      type: DataTypes.STRING,
-      allowNull: false
+    ended_at: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
+    comp_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "enterprise",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
     },
     status: {
       type: DataTypes.ENUM("Waiting", "Started", "Canceled", "Failed", "Passed"),
