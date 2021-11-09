@@ -78,13 +78,12 @@ const MessageType = new GraphQLEnumType({
     }
 })
 
-const LogInPlatform = new GraphQLEnumType({
-    name: 'LogInPlatform',
+const FullTime = new GraphQLEnumType({
+    name: 'FullTime',
     values: {
-        Mobile: { value: 0},
-        ENT: { value: 1 },
-        CAN: { value: 2 },
-        Admin: { value: 3 }
+        FullTime: { value: 0},
+        PartTime: { value: 1 },
+        InternShip: { value: 2 },
     }
 })
 
@@ -95,5 +94,6 @@ module.exports = {
     EnterpriseRole,
     EnterpriseCertificationStatus,
     WorkerMatePrecheckResult,
-    MessageType
+    MessageType,
+    FullTime
 }

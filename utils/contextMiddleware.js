@@ -19,5 +19,6 @@ module.exports = context => {
         context.userInfo = userInfo;
     }
     context.pubsub = pubsub
+    
     return context;
 }

@@ -4,18 +4,18 @@ const mongo = require('../mongo');
 const { UserInputError } = require('apollo-server-errors');
 const { isvaildNum } = require('../utils/validations');
 const jwt = require('jsonwebtoken');
-const {User} = require('../models')
+const { User } = require('../models')
 const sendSms = async (parent, args, context, info) => {
     let { phoneNumber } = args;
     let error = {};
-    
-    if(!phoneNumber) {
+
+    if (!phoneNumber) {
         let token = context.req.headers.authorization;
-        if(context.req && context.req.headers.authorization) {
+        if (context.req && context.req.headers.authorization) {
             let username = jwt.decode(token).username;
-            let res = await User.findOne({ where: { username: username}});
+            let res = await User.findOne({ where: { username: username } });
             phoneNumber = res.phone_number;
-        }else {
+        } else {
             throw new AuthenticationError('this api needs at least a phone number of your account token');
         }
     }
@@ -49,15 +49,17 @@ function saveVerifyCode(phoneNumber, code) {
     mongo.query('user_log_in_cache', async (collection) => {
         await collection.updateOne({
             phoneNumber: phoneNumber
-        }, {
-            $set: {
-                code: code,
-                createAt: new Date(Date.now()).toISOString()
-            }
-
-        }, {
-            upsert: true
-        });
+        },
+            [{
+                $replaceWith: {
+                    phoneNumber,
+                    code: code,
+                    createAt: new Date(Date.now()).toISOString()
+                }
+            }],
+            {
+                upsert: true
+            });
     })
 }
 

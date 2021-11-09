@@ -6,19 +6,19 @@ let enterpriseName = "test_enterpriseName";
 let charter = "test_charterPath";
 let phoneNumber = "test_phoneNumber";
 mongo.init().then(() => {
-  mongo.query('administrator_censor_list', async (collection) => {
-    collection.updateOne({
-      "user_id": userInfo.user_id,
-      "editable": true,
-    }, {
-      $set: {
-        user_id: userInfo.user_id,
-        enterpriseName: enterpriseName,
-        charter: charter,
-        phoneNumber: phoneNumber? phoneNumber: null,
-        editable: false
+  mongo.query('user_log_in_cache', async (collection) => {
+    return collection.updateOne({
+      phoneNumber: "18179395368",
+      code: "424142"
+    }, [
+      {
+        $replaceWith: {
+          phoneNumber: 18179395368,
+          verified: "UserLogIn",
+          createAt: new Date(),
+        }
       }
-    }, { upsert: false })
+    ] )
   }).then(res => {
     console.log(res)
   })

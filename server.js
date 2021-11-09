@@ -9,7 +9,7 @@ const {
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require('graphql-upload');
 const { resolvers } = require('./graphql');
-const { GraphQLScalarType, execute, subscribe } = require('graphql');
+const { GraphQLScalarType, GraphQLUnionType, GraphQLInputObjectType, execute, subscribe,GraphQLString } = require('graphql');
 const mongo = require('./mongo');
 const fs = require('fs');
 const { env, uploadPath } = require('./project.json');
@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, LogInPlatform } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime } = require('./graphql/types')
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -36,6 +36,7 @@ const Void = new GraphQLScalarType({
     return null
   }
 })
+
 // The GraphQL schema
 const typeDefs = gql`
   scalar Upload
@@ -87,24 +88,10 @@ const typeDefs = gql`
     town_id: String!,
     name: String!
   }
-  "enum {Mobile,\
-        ENT,\
-        CAN,\
-        Admin} (more args in future)"
-  scalar LogInPlatform
-  "just data needed to login"
-  input Login {
-    "could be username, email, phone number"
+  input LogIn {
     account: String!,
-    password: Password!,
-    platform: LogInPlatform!,
-    extraParams: String,
-  }
-  "sometime password may not be password only, for very situation in one api, we need this"
-  input Password {
-    "if this is true, the value will be judge as verifyCode, or as password, one more thing, only will work when account is phoneNumber"
-    isVerifyCode: Boolean!
-    value: String
+    password: String,
+    deviceId: String
   }
   "education for extra_data api"
   enum Education {
@@ -161,7 +148,6 @@ const typeDefs = gql`
     tags: [String]!,
     createdAt: String!,
     updatedAt: String!,
-    
   }
   "for list query"
   type JobDataBriefly {
@@ -181,6 +167,7 @@ const typeDefs = gql`
     cacheId: String!,
     
   }
+  scalar FullTime
   input JobPost {
     JobTitle: String!,
     workingAddress: String!,
@@ -190,9 +177,8 @@ const typeDefs = gql`
     education: EducationRequired!,
     description: String!,
     requiredNum: Int!,
-    isFullTime: Boolean!,
+    isFullTime: FullTime!,
     tags: [String]!,
-    adress: String!,
     coordinates: [Float]!
   }
   "because the personal data is already exists, I choos this for the name"
@@ -311,7 +297,6 @@ const typeDefs = gql`
     workExperience: [ResumeWorkExp],
     projectExperience: [ResumeProExp],
     educationExperience: [ResumeEduExp],
-    
   }
   "for personal user the interview data will be like this"
   type PersonalUserSideInterviewData {
@@ -604,10 +589,15 @@ const typeDefs = gql`
     role: EnterpriseRole!,
     pos: String!,
   }
+  input VerifyInfo {
+    phoneNumber: String!,
+    verifyCode: String!,
+    operation: String!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
-    UserLogIn(info: Login!): LoginResult!
+    UserLogIn(info: LogIn!): LoginResult!
     "check if the input num is availiable or not"
     UserNumberCheck(num: String!): Boolean!
     "get Province data"
@@ -644,6 +634,7 @@ const typeDefs = gql`
     ENTPrecheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
     "just tests"
     TestShowDatas(pageSize: Int, lastIndex: String): [PersonalDataView]!
+    UserVerifyCodeConsume(info: VerifyInfo) : Void
   }
   
   "most of mutations needed token for authorization"
