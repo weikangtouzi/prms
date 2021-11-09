@@ -1,4 +1,4 @@
-const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword, refreshToken } = require('./user');
+const { logIn, numberCheck, register, chooseOrSwitchIdentity, resetPassword, refreshToken, UserVerifyCodeConsume } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber,showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -13,8 +13,8 @@ const { editEnterpriseBasicInfo,
     precheckForInviteWorkMate, 
     postJob,
     insertEnterpriseBasicInfo
-} = require('./enterprise')
-const { getCensorList, setCensoredForAnItem } = require('./admin')
+} = require('./enterprise');
+const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
     Query: {
         UserLogIn: logIn,
@@ -31,7 +31,8 @@ const resolvers = {
         AdminGetCensorList: getCensorList,
         StaticGetAllRegion: getAllRegion,
         ENTPrecheckForInviteWorkMate: precheckForInviteWorkMate,
-        TestShowDatas: showDatas
+        TestShowDatas: showDatas,
+        UserVerifyCodeConsume
     },
     Mutation: {
         UserRegister: register,

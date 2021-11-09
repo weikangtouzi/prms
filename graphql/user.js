@@ -8,46 +8,67 @@ const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
 const { basic } = require('../project.json');
 const serializers = require('../utils/serializers');
+const { checkverified } = require('../utils/validations')
+const UserVerifyCodeConsume = async (parent, args, context, info) => {
+    const { phoneNumber, verifyCode, operation } = args.info;
+    let errors = {};
+    await mongo.query("user_log_in_cache", async (collection) => {
+        let res = await collection.updateOne({
+            phoneNumber,
+            code: verifyCode
+        }, [
+            {
+                $replaceWith: {
+                    phoneNumber,
+                    verified: operation,
+                    createAt: new Date(),
+                }
+            }
+        ])
+        if (res.matchedCount == 0) {
+            errors.verifyCode = "verify code out of time or not right"
+            return
+        }
+    });
+    if (Object.keys(errors).length > 0) {
+        throw new UserInputError("bad input", { ...errors })
+    }
+}
 
 const logIn = async (parent, args, context, info) => {
     const { account, password } = args.info;
-    let errors = {}
-    try {
-        if (account.trim() === '') errors.account = 'account must not be empty'
-        if (password.value.trim() === '') errors.password = 'password/verifyCode must not be empty'
-        if (Object.keys(errors).length > 0) {
-            throw new UserInputError('bad input', { errors })
+    let user;
+    let token;
+    if (!password) {
+        if (!await checkverified(account)) {
+            throw new AuthenticationError('needed verification for none password login')
         }
-        let user;
-        if (password.isVerifyCode) {
-            user = await User.findOne({
-                where: {
-                    phone_number: account
-                }
-            });
-            checkUser(user, errors);
-            await mongo.query("user_log_in_cache", async (collection) => {
-                let res = await collection.findOne({
-                    phoneNumber: account
-                });
-                if (!res) {
-                    errors.verifyCode = "verify code out of time"
-                    return
-                }
-                if (res.code !== password.value) {
-                    errors.verifyCode = "invaild verify code";
-                }
-            });
-            if (Object.keys(errors).length > 0) {
-                throw errors
+        user = await User.findOne({
+            where: {
+                phone_number: account 
             }
-            //TODO: mongodb or redis not set up yet
-        } else {
+        })
+        if(!user) {
+            throw new UserInputError("user not found")
+        }
+        token = serializers.jwt({
+            user_id: user.id,
+            username: user.username
+        })
+        
+    } else {
+        let errors = {}
+        try {
+            if (account.trim() === '') errors.account = 'account must not be empty'
+            if (password.value.trim() === '') errors.password = 'password/verifyCode must not be empty'
+            if (Object.keys(errors).length > 0) {
+                throw new UserInputError('bad input', { errors })
+            }
             user = await User.findOne({
                 where: {
                     [Op.or]: [
                         { email: account },
-                        { username: account }
+                        { phone_number: account }
                     ],
                 }
             })
@@ -57,22 +78,20 @@ const logIn = async (parent, args, context, info) => {
                 errors.password = 'password is incorrect'
                 throw new AuthenticationError('password is incorrect', { errors })
             }
-            const token = serializers.jwt({
+            token = serializers.jwt({
                 user_id: user.id,
                 username: user.username
             })
-            return {
-                ...user.toJSON(),
-                createdAt: user.createdAt.toISOString(),
-                token
-            }
+        } catch (err) {
+            console.log(err)
+            throw err
         }
-    } catch (err) {
-        console.log(err)
-        throw err
-
     }
-
+    return {
+        ...user.toJSON(),
+        createdAt: user.createdAt.toISOString(),
+        token
+    }
 };
 const numberCheck = async (parent, args, context, info) => {
     try {
@@ -86,7 +105,7 @@ const numberCheck = async (parent, args, context, info) => {
         }
         return true
     } catch (err) {
-
+        throw new err
     }
 };
 const register = async (parent, args, context, info) => {
@@ -241,7 +260,7 @@ const refreshToken = async (parent, args, context, info) => {
             return serializers.jwt(userInfo)
         } else {
             console.log(userInfo)
-            throw new AuthenticationError('this token is dead, you need to resign you account for a new token', {deadTime: userInfo.deadTime})
+            throw new AuthenticationError('this token is dead, you need to resign you account for a new token', { deadTime: userInfo.deadTime })
         }
     }
 }
@@ -260,5 +279,6 @@ module.exports = {
     register,
     chooseOrSwitchIdentity,
     resetPassword,
-    refreshToken
+    refreshToken,
+    UserVerifyCodeConsume
 }

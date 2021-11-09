@@ -265,8 +265,26 @@ const postJob = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if(isvalidJobPoster(userInfo.identity)) {
-    const {jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags} = args.info;
-    
+    const {jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates} = args.info;
+    await Job.create({
+      worker_id: userInfo.user_id,
+      title: jobTitle,
+      detail: description,
+      adress_coordinate: {
+        type: 'Point',
+        coordinates: coordinates
+      },
+      adress_description: workingAddress,
+      min_salary: salary[0],
+      max_salary: salary[1],
+      min_experience: experience,
+      min_education: education,
+      required_num: requiredNum,
+      full_time_job: isFullTime,
+      tags: tags,
+      comp_id: userInfo.enterpriseId,
+      expired_at: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+    })
   } else {
     throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
