@@ -181,7 +181,6 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
     const { phoneNumber, role, pos } = args.info;
     let user = await User.findOne({
-      
       where: {
         phone_number: phoneNumber
       }
@@ -288,9 +287,18 @@ const postJob = async (parent, args, { userInfo }, info) => {
   } else {
     throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
-  
-  
 }
+
+const HRInviteInterview = (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if(isvalidJobPoster(userInfo.identity)) {
+    
+  } else {
+    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
+
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,

@@ -2,7 +2,9 @@ const jwt = require('jsonwebtoken')
 const { jwtConfig } = require('../project.json')
 const {PubSub} = require('graphql-subscriptions')
 const pubsub = new PubSub()
+
 module.exports = context => {
+    let ip = context.req.connection.remoteAddress
     let token
     if (context.req && context.req.headers.authorization) {
         token = context.req.headers.authorization;
