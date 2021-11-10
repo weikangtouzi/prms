@@ -61,7 +61,7 @@ const logIn = async (parent, args, context, info) => {
         let errors = {}
         try {
             if (account.trim() === '') errors.account = 'account must not be empty'
-            if (password.value.trim() === '') errors.password = 'password/verifyCode must not be empty'
+            if (password.trim() === '') errors.password = 'password/verifyCode must not be empty'
             if (Object.keys(errors).length > 0) {
                 throw new UserInputError('bad input', { errors })
             }
