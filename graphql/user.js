@@ -222,21 +222,12 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
 const resetPassword = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { password, confirmPassword, phoneNumber, verifyCode } = args.info;
+    const { password, confirmPassword } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
-    if (verifyCode.trim() == '') throw new UserInputError('confirmPassword must be not empty');
-    await mongo.query("user_log_in_cache", async (collection) => {
-        let res = await collection.findOne({
-            phoneNumber
-        });
-        if (!res) {
-            throw new UserInputError('verify code out of time');
-        }
-        if (res.code !== verifyCode) {
-            throw new UserInputError('invaild verify code');
-        }
-    });
+    if (!await checkverified(account)) {
+        throw new AuthenticationError('needed verification for this api')
+    }
     if (context.req && context.req.headers.authorization && userInfo) {
         try {
             await User.update({
