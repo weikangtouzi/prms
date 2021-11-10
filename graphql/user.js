@@ -140,7 +140,7 @@ const register = async (parent, args, context, info) => {
         }
         let password_encrypted = await bcrypt.hash(password, 2);
         let user;
-        if (basic.email) {
+        if (email) {
             user = await User.create({
                 username: username,
                 email: email,
