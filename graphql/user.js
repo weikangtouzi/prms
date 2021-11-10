@@ -74,7 +74,7 @@ const logIn = async (parent, args, context, info) => {
                 }
             })
             checkUser(user, errors);
-            const correctPassword = await bcrypt.compare(password.value, user.password);
+            const correctPassword = await bcrypt.compare(password, user.password);
             if (!correctPassword) {
                 errors.password = 'password is incorrect'
                 throw new AuthenticationError('password is incorrect', { errors })
