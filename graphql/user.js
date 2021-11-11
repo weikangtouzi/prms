@@ -24,6 +24,7 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
                 },{ upsert: true})
             
         });
+        return
     }
     let errors = {};
     await mongo.query("user_log_in_cache", async (collection) => {
