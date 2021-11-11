@@ -56,7 +56,7 @@ const logIn = async (parent, args, context, info) => {
     let user;
     let token;
     if (!password) {
-        if (!await checkverified(account)) {
+        if (!await checkverified(account, info.fieldName)) {
             throw new AuthenticationError('needed verification for none password login')
         }
         user = await User.findOne({
@@ -240,7 +240,7 @@ const resetPassword = async (parent, args, { userInfo }, info) => {
     const { phoneNumber, password, confirmPassword } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
-    if (!await checkverified(phoneNumber)) {
+    if (!await checkverified(phoneNumber, info.fieldName)) {
         throw new AuthenticationError('needed verification for this api')
     }
     if (context.req && context.req.headers.authorization && userInfo) {
