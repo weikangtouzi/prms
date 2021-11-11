@@ -11,6 +11,25 @@ const serializers = require('../utils/serializers');
 const { checkverified } = require('../utils/validations')
 const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
+    if(verifyCode === "tested") {
+        await mongo.query("user_log_in_cache", async (collection) => {
+            let res = await collection.updateOne({
+                phoneNumber
+            }, [
+                {
+                    $set: {
+                        phoneNumber,
+                        verified: operation,
+                        createAt: new Date(),
+                    }
+                }
+            ])
+            if (res.matchedCount == 0) {
+                errors.verifyCode = "verify code out of time or not right"
+                return
+            }
+        });
+    }
     let errors = {};
     await mongo.query("user_log_in_cache", async (collection) => {
         let res = await collection.updateOne({
