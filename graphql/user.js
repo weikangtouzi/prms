@@ -222,10 +222,10 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
 const resetPassword = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { password, confirmPassword } = args.info;
+    const { phoneNumber, password, confirmPassword } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
-    if (!await checkverified(account)) {
+    if (!await checkverified(phoneNumber)) {
         throw new AuthenticationError('needed verification for this api')
     }
     if (context.req && context.req.headers.authorization && userInfo) {
@@ -256,6 +256,20 @@ const refreshToken = async (parent, args, context, info) => {
         }
     }
 }
+
+const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization');
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {username, imageUrl} = args.info;
+    User.update({username, image_url: imageUrl},{where: {
+        id: userInfo.user_id
+    }});
+
+}
+
+
+
+
 
 function checkUser(user, errors) {
     if (!user) {
