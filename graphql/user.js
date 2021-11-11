@@ -15,19 +15,14 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
         await mongo.query("user_log_in_cache", async (collection) => {
             let res = await collection.updateOne({
                 phoneNumber
-            }, [
-                {
+            }, {
                     $set: {
                         phoneNumber,
                         verified: operation,
                         createAt: new Date(),
                     }
-                }
-            ])
-            if (res.matchedCount == 0) {
-                errors.verifyCode = "verify code out of time or not right"
-                return
-            }
+                },{ upsert: true})
+            
         });
     }
     let errors = {};
