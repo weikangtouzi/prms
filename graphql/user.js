@@ -11,18 +11,18 @@ const serializers = require('../utils/serializers');
 const { checkverified } = require('../utils/validations')
 const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
-    if(verifyCode === "tested") {
+    if (verifyCode === "tested") {
         await mongo.query("user_log_in_cache", async (collection) => {
             let res = await collection.updateOne({
                 phoneNumber
             }, {
-                    $set: {
-                        phoneNumber,
-                        verified: operation,
-                        createAt: new Date(),
-                    }
-                },{ upsert: true})
-            
+                $set: {
+                    phoneNumber,
+                    verified: operation,
+                    createAt: new Date(),
+                }
+            }, { upsert: true })
+
         });
         return
     }
@@ -61,17 +61,17 @@ const logIn = async (parent, args, context, info) => {
         }
         user = await User.findOne({
             where: {
-                phone_number: account 
+                phone_number: account
             }
         })
-        if(!user) {
+        if (!user) {
             throw new UserInputError("user not found")
         }
         token = serializers.jwt({
             user_id: user.id,
             username: user.username
         })
-        
+
     } else {
         let errors = {}
         try {
@@ -243,19 +243,17 @@ const resetPassword = async (parent, args, { userInfo }, info) => {
     if (!await checkverified(phoneNumber, info.fieldName)) {
         throw new AuthenticationError('needed verification for this api')
     }
-    if (context.req && context.req.headers.authorization && userInfo) {
-        try {
-            await User.update({
-                password: (await bcrypt.hash(password, 2)).toString(),
-            }, {
-                where: { username: userInfo.username }
-            });
-        } catch (e) {
-            throw new UserInputError('bad input', { e })
-        }
-    } else {
-        throw new AuthenticationError('missing authorization')
+
+    try {
+        await User.update({
+            password: (await bcrypt.hash(password, 2)).toString(),
+        }, {
+            where: { username: userInfo.username }
+        });
+    } catch (e) {
+        throw new UserInputError('bad input', { e })
     }
+
 }
 
 
@@ -275,10 +273,12 @@ const refreshToken = async (parent, args, context, info) => {
 const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const {username, imageUrl} = args.info;
-    User.update({username, image_url: imageUrl},{where: {
-        id: userInfo.user_id
-    }});
+    const { username, imageUrl } = args.info;
+    User.update({ username, image_url: imageUrl }, {
+        where: {
+            id: userInfo.user_id
+        }
+    });
 
 }
 
