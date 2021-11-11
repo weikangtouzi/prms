@@ -301,5 +301,6 @@ module.exports = {
     chooseOrSwitchIdentity,
     resetPassword,
     refreshToken,
-    UserVerifyCodeConsume
+    UserVerifyCodeConsume,
+    UserEditBasicInfo
 }
