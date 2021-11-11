@@ -402,6 +402,7 @@ const typeDefs = gql`
   
   "reset password means that user forget password"
   input ResetPassword {
+    phoneNumber: String!,
     password: String!,
     confirmPassword: String!,
   }
