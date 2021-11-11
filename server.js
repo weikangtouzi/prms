@@ -649,7 +649,7 @@ const typeDefs = gql`
     CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
     HRPostJob(info: JobPost): Void
     "insert or edit a personal data"
-    UserEditPersonalData(info: BasicData): Void
+    CandidateEditResumePersonalData(info: BasicData): Void
     "insert or edit a personal advantage"
     CandidateEditPersonalAdvantage(advantage: String!): Void
     "insert or edit a work experience"
