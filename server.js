@@ -188,7 +188,8 @@ const typeDefs = gql`
   input BasicData {
     "a link to the file"
     logo: String!,
-    name: String!,
+    realName: String!,
+    username: String!,
     birthday: Int!,
     gender: Boolean!,
     currentCity: String!,
@@ -230,7 +231,7 @@ const typeDefs = gql`
   type ResumePersonalData {
     "a link to the file"
     logo: String!,
-    name: String!,
+    realName: String!,
     age: Int!,
     gender: Boolean!,
     phoneNumber: String!,
@@ -650,7 +651,7 @@ const typeDefs = gql`
     CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
     HRPostJob(info: JobPost): Void
     "insert or edit a personal data"
-    CandidateEditResumePersonalData(info: BasicData): Void
+    UserEditBasicInfo(info: BasicData): Void
     "insert or edit a personal advantage"
     CandidateEditPersonalAdvantage(advantage: String!): Void
     "insert or edit a work experience"
