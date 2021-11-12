@@ -664,6 +664,7 @@ const typeDefs = gql`
     CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
     HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!): Void
+    HREndInterview(interviewId: Int!, ispassed:  Boolean!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
     CommoncancelInterview(interviewId: Int!): Void
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
@@ -681,6 +682,7 @@ const typeDefs = gql`
     ENTEditEnterpriseWorkTimeAndWelfare(info: EnterpriseWorkTimeAndWelfare!): Void
     ENTEditEnterpriseExtraData(info: String!): Void
     CandidateRecruitmentApply(recruitmentId: Int!): Void
+    HRRecruitmentApply(recruitmentId: Int!): Void
     "only availiable when token is expired and not dead"
     UserRefreshToken: String!
     AdminSetCensoredForAnItem(_id: String!, isPassed: Boolean, description: String): Void
@@ -688,6 +690,7 @@ const typeDefs = gql`
     ENTInsertEnterpriseBasicInfo(info:EnterpriseBasicInfo!): Void
     ENTEnterpriseWorkerRegister(info: EnterpriseWorkerInfo!): Void
     UserSendMessage(info: SendMessage!): Void
+    HRRemoveJob(jobId: Int!): Void
   }
   type Subscription {
     newMessage: Message!

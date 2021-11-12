@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
-        comment: "could be a personal user or enterprise user"
+        comment: "could be a personal user or enterprise user",
+        unique: true,
     },
     recruitment_id: {
         type: DataTypes.INTEGER,
@@ -32,6 +33,13 @@ module.exports = (sequelize, DataTypes) => {
     canceled: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    extra_datas: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: "{\
+        \"site_size\": \"small\"\
+      }"
     }
   }, {
     sequelize,
