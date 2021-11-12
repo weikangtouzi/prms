@@ -710,19 +710,11 @@ async function startServer() {
   const server = new ApolloServer({
     schema,
     plugins: [
-      ApolloServerPluginLandingPageGraphQLPlayground(), {
-        async serverWillStart() {
-          return {
-            async drainServer() {
-              subscriptionServer.close();
-            }
-          };
-        }
-      }
+      ApolloServerPluginLandingPageGraphQLPlayground()
     ],
-    context: contextMiddleware
+    context: contextMiddleware,
   });
-
+  server.graphqlPath = "/";
   await server.start();
 
   const app = express();
@@ -748,7 +740,7 @@ async function startServer() {
     onConnect: contextMiddleware,
   }, {
     server: httpServer,
-    path: "/"
+    path: "/graphql"
   });
   await new Promise(r => httpServer.listen({ port: 4000 }, r));
   mongo.init().then(() => {
