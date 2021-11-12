@@ -691,6 +691,7 @@ const typeDefs = gql`
     ENTEnterpriseWorkerRegister(info: EnterpriseWorkerInfo!): Void
     UserSendMessage(info: SendMessage!): Void
     HRRemoveJob(jobId: Int!): Void
+    ENTRecruitmentApply(recruitmentId: Int!, size: String): Void
   }
   type Subscription {
     newMessage: Message!

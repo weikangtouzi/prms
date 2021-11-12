@@ -19,7 +19,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
         comment: "could be a personal user or enterprise user",
-        unique: true,
     },
     recruitment_id: {
         type: DataTypes.INTEGER,
