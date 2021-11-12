@@ -22,6 +22,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
         readed: false,
     })
     pubsub.publish("NEW_MESSAGE", { newMessage: {
+        to: msg.user_id,
         messageType: msg.message_type,
         messageContent: msg.detail,
         ...msg.toJSON()
