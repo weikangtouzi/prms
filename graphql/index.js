@@ -21,7 +21,8 @@ const { editEnterpriseBasicInfo,
     postJob,
     insertEnterpriseBasicInfo,
     HRInviteInterview,
-    HREndInterview
+    HREndInterview,
+    HRRemoveJob
 } = require('./enterprise');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
@@ -61,8 +62,9 @@ const resolvers = {
         ENTInsertEnterpriseBasicInfo: insertEnterpriseBasicInfo,
         UserSendMessage: sendMessage,
         HRInviteInterview,
-        // HREndInterview,
-        UserEditBasicInfo
+        HREndInterview,
+        UserEditBasicInfo,
+        HRRemoveJob
     },
     Subscription: {
         newMessage

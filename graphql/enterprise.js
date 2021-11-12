@@ -335,6 +335,50 @@ const HREndInterview = async (parent, args, { userInfo }, info) => {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
 }
+const HRRemoveJob = async (parent, args, { userInfo }, info) => {
+  // if (!userInfo) throw new AuthenticationError('missing authorization')
+  // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  // if(isvalidJobPoster(userInfo.identity)) {
+    const {jobbId} = args;
+    let feedback = await Job.update({
+      expired_at: new Date(),
+    },{
+      where: {id: jobbId}
+    },{returning: true});
+    if(!feedback || feedback[0] === 0) throw new UserInputError("job not found");
+    // } else {
+  //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  // }
+}
+
+const ENTRecruitmentApply = async (parent, args, { userInfo }, info) => {
+  // if (!userInfo) throw new AuthenticationError('missing authorization')
+  // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  // if(isvalidJobPoster(userInfo.identity)) { 
+  let {recruitmentId, size} = args;
+  if(!size) {
+    size = "small";
+  }
+  try {
+    await RecruitmentRecord.upsert({
+      user_id: userInfo.user_id,
+      recruitment_id: recruitmentId,
+      canceled: false,
+    },{
+      where: {
+        user_id: userInfo.user_id,
+        recruitment_id: recruitmentId
+      }
+    })
+  }catch (err) {
+    throw new UserInputError({...err})
+  }
+  
+  // } else {
+  //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  // }
+}
+
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,
@@ -346,5 +390,6 @@ module.exports = {
   postJob,
   insertEnterpriseBasicInfo,
   HRInviteInterview,
-  HREndInterview
+  HREndInterview,
+  HRRemoveJob
 }

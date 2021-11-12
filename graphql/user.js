@@ -235,20 +235,17 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
     }
 }
 const resetPassword = async (parent, args, { userInfo }, info) => {
-    if (!userInfo) throw new AuthenticationError('missing authorization');
-    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { phoneNumber, password, confirmPassword } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
     if (!await checkverified(phoneNumber, info.fieldName)) {
         throw new AuthenticationError('needed verification for this api')
     }
-
     try {
         await User.update({
             password: (await bcrypt.hash(password, 2)).toString(),
         }, {
-            where: { username: userInfo.username }
+            where: { phone_number: phoneNumber }
         });
     } catch (e) {
         throw new UserInputError('bad input', { e })
