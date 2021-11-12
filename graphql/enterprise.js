@@ -364,6 +364,7 @@ const ENTRecruitmentApply = async (parent, args, { userInfo }, info) => {
       user_id: userInfo.user_id,
       recruitment_id: recruitmentId,
       canceled: false,
+      extra_datas: JSON.stringify({size})
     },{
       where: {
         user_id: userInfo.user_id,
@@ -391,5 +392,6 @@ module.exports = {
   insertEnterpriseBasicInfo,
   HRInviteInterview,
   HREndInterview,
-  HRRemoveJob
+  HRRemoveJob,
+  ENTRecruitmentApply
 }
