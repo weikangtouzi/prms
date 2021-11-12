@@ -22,7 +22,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
         readed: false,
     })
     pubsub.publish("NEW_MESSAGE", { newMessage: {
-        to: user_id,
+        to: userInfo.user_id,
         ...msg,
     } })
 }
