@@ -712,9 +712,9 @@ async function startServer() {
     plugins: [
       ApolloServerPluginLandingPageGraphQLPlayground()
     ],
-    context: contextMiddleware
+    context: contextMiddleware,
   });
-
+  server.graphqlPath = "/";
   await server.start();
 
   const app = express();
