@@ -35,7 +35,7 @@ const newMessage = {
         return pubsub.asyncIterator(['NEW_MESSAGE'])
     },({newMessage}, _, {userInfo}) => {
         if(!newMessage) throw new UserInputError('what is it error?');
-        return newMessage.from == userInfo.user_id || newMessage.to == userInfo.user_id
+        return (newMessage.from == userInfo.user_id || newMessage.to == userInfo.user_id)
     })
 }
 module.exports = {
