@@ -30,7 +30,6 @@ const newMessage = {
     subscribe: withFilter((_, __, { userInfo, pubsub }) => {
         if (!userInfo) throw new AuthenticationError('missing authorization');
         if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-
         return pubsub.asyncIterator(['NEW_MESSAGE'])
     },({newMessage}, _, {userInfo}) => {
         if(!newMessage) throw new UserInputError('what is it error?');

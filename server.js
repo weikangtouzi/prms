@@ -748,7 +748,7 @@ async function startServer() {
     onConnect: contextMiddleware,
   }, {
     server: httpServer,
-    path: server.graphqlPath
+    path: "/"
   });
   await new Promise(r => httpServer.listen({ port: 4000 }, r));
   mongo.init().then(() => {
