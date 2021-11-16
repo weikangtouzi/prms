@@ -65,13 +65,15 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: true
     },
-    birthdate: {
+    birth_date: {
       type: DataTypes.DATEONLY,
       allowNull: true,
       validate: {
         isAdult(value) {
-          if (new Date().getFullYear() - value.getFullYear() < 18) {
-            throw new Error('only allowed adults');
+          if(value) {
+            if (new Date().getFullYear() - this.dataValues.birthdate.getFullYear() < 18) {
+              throw new Error('only allowed adults');
+            }
           }
         }
       }
