@@ -28,6 +28,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
     },
+    abbreviation: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
     business_nature: {
       type: DataTypes.ENUM("ForeignVentures", "ForeignFundedEnterprises", "PrivateEnterprise", "StateOwnedEnterprises", "Extra"),
       allowNull: false

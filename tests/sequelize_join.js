@@ -1,4 +1,4 @@
-const {Province, City, County, Town} = require('../models');
+const {Province, City, County, Town, Enterprise, Worker} = require('../models');
 
 Province.findAll({
     attributes:["province_id", "name"],
@@ -51,3 +51,4 @@ Province.findAll({
     }
     console.log(JSON.stringify(res))
 })
+

@@ -35,10 +35,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATEONLY,
         allowNull: true
     },
-    gender: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false
-    },
     current_city: {
         type: DataTypes.STRING(64),
         allowNull: false

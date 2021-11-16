@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Worker.init({
     company_belonged: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: "enterprise",
         key: "id",
