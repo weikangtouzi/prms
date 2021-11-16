@@ -29,7 +29,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     is_attachment: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      allowNull: false,
+      defaultValue: false
     },
     path: {
       type: DataTypes.TEXT,
@@ -37,6 +38,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     is_public: {
       type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    skills: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     }
   }, {

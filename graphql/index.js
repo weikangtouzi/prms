@@ -10,7 +10,7 @@ const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
-const { sendMessage, newMessage } = require('./message')
+const { sendMessage, newMessage,UserGetMessages } = require('./message')
 const { editEnterpriseBasicInfo,
     editEnterpriseWorkTimeAndWelfare,
     editEnterpriseExtraData,
@@ -44,7 +44,7 @@ const resolvers = {
         ENTPrecheckForInviteWorkMate: precheckForInviteWorkMate,
         TestShowDatas: showDatas,
         UserVerifyCodeConsume,
-        
+        UserGetMessages
     },
     Mutation: {
         UserRegister: register,

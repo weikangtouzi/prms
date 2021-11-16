@@ -19,6 +19,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(12),
       allowNull: false,
       unique: true,
+      validate: {
+        len: [6, 12],
+      }
     },
     email: {
       type: DataTypes.STRING,
@@ -49,11 +52,29 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     image_url: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
+      validate: {
+        isUrl: { value: true, msg: "only allowed image_url" },
+      }
     },
     last_login_device_id: {
       type: DataTypes.STRING,
       defaultValue: "None"
+    },
+    gender: {
+      type: DataTypes.BOOLEAN,
+      allowNull: true
+    },
+    birthdate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+      validate: {
+        isAdult(value) {
+          if (new Date().getFullYear() - value.getFullYear() < 18) {
+            throw new Error('only allowed adults');
+          }
+        }
+      }
     }
   }, {
     sequelize,

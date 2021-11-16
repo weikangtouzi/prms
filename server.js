@@ -53,8 +53,6 @@ const typeDefs = gql`
     confirmPassword: String!
     "phoneNumber: required, unique, make sense by the name"
     phoneNumber: String!
-    "verifyCode: required, expiresIn 5 minutes, make sense by the name"
-    verifyCode: String!
   }
   "the return type of getUsers api, not stable now, just because the api not implement yet"
   type User {
@@ -598,6 +596,12 @@ const typeDefs = gql`
     verifyCode: String!,
     operation: String!
   }
+  type MessagePage {
+    messages: [Message]!,
+    count: Int!,
+    page: Int!,
+    pageSize: Int!,
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -639,6 +643,8 @@ const typeDefs = gql`
     "just tests"
     TestShowDatas(pageSize: Int, lastIndex: String): [PersonalDataView]!
     UserVerifyCodeConsume(info: VerifyInfo) : Void
+    "if page not provided it will be 0,for pageSize it will be 10"
+    UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
   }
   
   "most of mutations needed token for authorization"
@@ -663,7 +669,7 @@ const typeDefs = gql`
     "if wanted to send the online one, then don't need to pass resumeId"
     CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!): Void
+    HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!, username: String!, jobTitle: String!): Void
     HREndInterview(interviewId: Int!, ispassed:  Boolean!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
     CommoncancelInterview(interviewId: Int!): Void

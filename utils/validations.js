@@ -80,11 +80,12 @@ async function checkverified(phoneNumber,operation) {
                 operation
             })
         })
+        if (res.value) {
+            return true
+        }
     }
-    if (!res) {
-        return false
-    }
-    return true
+    return false
+    
 }
 
 

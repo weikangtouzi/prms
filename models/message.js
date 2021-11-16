@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false
     },
-    availiable: {
+    avaliable: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
@@ -53,8 +53,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Message',
-    tableName: 'message',
-    updatedAt: false,
+    tableName: 'message'
   });
   return Message;
 };

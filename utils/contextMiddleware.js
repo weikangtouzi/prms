@@ -4,7 +4,6 @@ const {PubSub} = require('graphql-subscriptions')
 const pubsub = new PubSub()
 
 module.exports = context => {
-    console.log("new client")
     let token
     if (context.req && context.req.headers.authorization) {
         token = context.req.headers.authorization;

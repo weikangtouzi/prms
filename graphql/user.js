@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker } = require('../models');
+const { User, Worker, Enterprise } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -19,7 +19,7 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
                 $set: {
                     phoneNumber,
                     verified: operation,
-                    createAt: new Date(),
+                    createdAt: new Date(),
                 }
             }, { upsert: true })
 
@@ -36,7 +36,7 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
                 $replaceWith: {
                     phoneNumber,
                     verified: operation,
-                    createAt: new Date(),
+                    createdAt: new Date(),
                 }
             }
         ])
@@ -56,7 +56,8 @@ const logIn = async (parent, args, context, info) => {
     let user;
     let token;
     if (!password) {
-        if (!await checkverified(account, info.fieldName)) {
+        let verified = await checkverified(account, info.fieldName);
+        if (!verified) {
             throw new AuthenticationError('needed verification for none password login')
         }
         user = await User.findOne({
@@ -125,10 +126,10 @@ const numberCheck = async (parent, args, context, info) => {
     }
 };
 const register = async (parent, args, context, info) => {
-    const { username, email, password, confirmPassword, imageUrl, phoneNumber, verifyCode } = args.info;
+    const { username, email, password, confirmPassword, imageUrl, phoneNumber } = args.info;
     let errors = {};
     try {
-        if (basic.email) {
+        if (email) {
             if (email.trim() === '') errors.email = 'email must not be empty'
         }
         if (password.trim() === '') errors.password = 'password must not be empty'
@@ -138,18 +139,9 @@ const register = async (parent, args, context, info) => {
         if (Object.keys(errors).length > 0) {
             throw errors
         }
-        await mongo.query("user_log_in_cache", async (collection) => {
-            let res = await collection.findOne({
-                phoneNumber: phoneNumber
-            });
-            if (res.code == undefined) {
-                errors.verifyCode = "verify code out of time"
-                return
-            }
-            if (res.code !== verifyCode) {
-                errors.verifyCode = "invaild verify code";
-            }
-        });
+        if (!await checkverified(phoneNumber, info.fieldName)) {
+            throw new AuthenticationError('needed verification for none password login')
+        }
         if (Object.keys(errors).length > 0) {
             throw errors
         }
@@ -188,6 +180,7 @@ const register = async (parent, args, context, info) => {
         } else if (e.name === 'SequelizeValidationError') {
             e.errors.forEach((err) => (errors[err.path] = err.message))
         }
+        console.log(e)
         throw new UserInputError('Bad input', { e })
     }
 };
@@ -202,7 +195,8 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
             let worker = await Worker.findOne({
                 where: {
                     user_binding: userInfo.user_id
-                }
+                },
+                include: Enterprise
             })
             if (!worker) {
                 throw new UserInputError('bad input', { identity: "it's not a enterprise user" })

@@ -289,18 +289,18 @@ const postJob = async (parent, args, { userInfo }, info) => {
   // }
 }
 
-const HRInviteInterview = async (parent, args, { userInfo }, info) => {
+const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) {
-    const {userId, jobId, time} = args;
+    const {userId, jobId, time, username, jobTitle} = args;
     let resume = await ResumeDeliveryRecord.findOne({
       user_id: userId,
       hr_id:userInfo.user_id,
       job_id: jobId
     });
     if(!resume) throw new UserInputError("could not invite the candidate that haven't sended resume to this job");
-    await Interview.create({
+    let interview = await Interview.create({
       user_id: userId,
       job_id: jobId,
       HR_id: userInfo.user_id,
@@ -308,6 +308,16 @@ const HRInviteInterview = async (parent, args, { userInfo }, info) => {
       ended_at: new Date(time[1]),
       comp_name: userInfo.identity.enterpriseId,
       status: "Waiting"
+    })
+    let msg = {
+      title: `${userInfo.username}`,
+      
+    }
+    await Message.create({
+      user_id: interview.user_id,
+      from: interview.HR_id,
+      message_type: "Other",
+      detail: ""
     })
   // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
