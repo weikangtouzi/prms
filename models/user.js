@@ -71,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         isAdult(value) {
           if(value) {
-            if (new Date().getFullYear() - this.dataValues.birthdate.getFullYear() < 18) {
+            if (new Date().getFullYear() - new Date(value).getFullYear() < 18) {
               throw new Error('only allowed adults');
             }
           }
