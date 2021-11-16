@@ -65,7 +65,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: true
     },
-    birthdate: {
+    birth_date: {
       type: DataTypes.DATEONLY,
       allowNull: true,
       validate: {

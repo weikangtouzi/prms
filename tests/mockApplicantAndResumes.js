@@ -625,7 +625,8 @@ async function mock(counter = 0, max = 150) {
         phone_number: "18800001" + (counter < 100 ? (counter < 10 ? "00" + counter : "0" + counter) : counter),
         identified: "None",
         gender: counter < 75,
-        real_name: getName(counter)
+        real_name: getName(counter),
+        birth_date: new Date(births[counter]),
     });
     let resume = await Resume.create({
         user_id: user.id,
@@ -634,7 +635,7 @@ async function mock(counter = 0, max = 150) {
     await ResumePersonalData.create({
         resume_id: resume.id,
         real_name: getName(counter),
-        birth_date: new Date(births[counter]),
+        birth_date: user.birth_date,
         first_time_working: new Date(ftws[counter]),
         current_city: "上饶",
         phone_number: user.phone_number,
