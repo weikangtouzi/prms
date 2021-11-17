@@ -84,6 +84,7 @@ async function checkverified(phoneNumber,operation) {
             return true
         }
     }
+    console.log(res)
     return false
     
 }

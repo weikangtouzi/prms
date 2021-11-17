@@ -8,7 +8,8 @@ const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
 const { basic } = require('../project.json');
 const serializers = require('../utils/serializers');
-const { checkverified } = require('../utils/validations')
+const { checkverified } = require('../utils/validations');
+const { error } = require('../utils/logger');
 const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
     if (verifyCode === "tested") {
@@ -18,7 +19,8 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
             }, {
                 $set: {
                     phoneNumber,
-                    verified: operation,
+                    verified: true,
+                    operation,
                     createdAt: new Date(),
                 }
             }, { upsert: true })
@@ -75,34 +77,31 @@ const logIn = async (parent, args, context, info) => {
 
     } else {
         let errors = {}
-        try {
-            if (account.trim() === '') errors.account = 'account must not be empty'
-            if (password.trim() === '') errors.password = 'password/verifyCode must not be empty'
-            if (Object.keys(errors).length > 0) {
-                throw new UserInputError('bad input', { errors })
-            }
-            user = await User.findOne({
-                where: {
-                    [Op.or]: [
-                        { email: account },
-                        { phone_number: account }
-                    ],
-                }
-            })
-            checkUser(user, errors);
-            const correctPassword = await bcrypt.compare(password, user.password);
-            if (!correctPassword) {
-                errors.password = 'password is incorrect'
-                throw new AuthenticationError('password is incorrect', { errors })
-            }
-            token = serializers.jwt({
-                user_id: user.id,
-                username: user.username
-            })
-        } catch (err) {
-            console.log(err)
-            throw err
+
+        if (account.trim() === '') errors.account = 'account must not be empty'
+        if (password.trim() === '') errors.password = 'password/verifyCode must not be empty'
+        if (Object.keys(errors).length > 0) {
+            throw new UserInputError('bad input', { errors })
         }
+        user = await User.findOne({
+            where: {
+                [Op.or]: [
+                    { email: account },
+                    { phone_number: account }
+                ],
+            }
+        })
+        checkUser(user, errors);
+        const correctPassword = await bcrypt.compare(password, user.password);
+        if (!correctPassword) {
+            errors.password = 'password is incorrect'
+            throw new AuthenticationError('password is incorrect', { errors })
+        }
+        token = serializers.jwt({
+            user_id: user.id,
+            username: user.username
+        })
+
     }
     return {
         ...user.toJSON(),
@@ -139,7 +138,9 @@ const register = async (parent, args, context, info) => {
         if (Object.keys(errors).length > 0) {
             throw errors
         }
-        if (!await checkverified(phoneNumber, info.fieldName)) {
+        let verified = await checkverified(phoneNumber, info.fieldName)
+        if (!verified) {
+            console.log(info.fieldName)
             throw new AuthenticationError('needed verification for none password login')
         }
         if (Object.keys(errors).length > 0) {
@@ -181,7 +182,7 @@ const register = async (parent, args, context, info) => {
             e.errors.forEach((err) => (errors[err.path] = err.message))
         }
         console.log(e)
-        throw new UserInputError('Bad input', { e })
+        throw new UserInputError(e)
     }
 };
 
