@@ -204,11 +204,11 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
             if (args.role) {
                 tokenObj = {
                     user_id: userInfo.user_id,
-                    username: userInfo.username,
+                    username: worker.real_name,
                     identity: {
                         role: args.role,
                         identity: args.targetIdentity,
-                        enterpriseId: worker.company_belonged
+                        entName: worker.Enterprise.dataValues.enterprise_name
                     }
                 }
             } else {

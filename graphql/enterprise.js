@@ -1,19 +1,19 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { Identity, EnterpriseNature, EnterpriseRole, EnterpriseCertificationStatus } = require('./types/')
-const { Enterprise, User, Worker, Job } = require('../models');
+const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo')
 
 function isvalidEnterpriseAdmin(userIdentity) {
-  if(!userIdentity) {
+  if (!userIdentity) {
     throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
   }
   return userIdentity.identity == "EnterpriseUser" && userIdentity.role && userIdentity.role == "Admin"
 }
 function isvalidJobPoster(userIdentity) {
-  if(!userIdentity) {
+  if (!userIdentity) {
     throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
   }
   return userIdentity.identity == "EnterpriseUser" && userIdentity.role && (userIdentity.role == "HR" || userIdentity.role == "Admin")
@@ -56,11 +56,11 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
       })
       return res
     })
-    if(!info) {
+    if (!info) {
       throw new AuthenticationError('your enterprise identify request is not passed or not applied')
     }
     const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
-    try{
+    try {
       await Enterprise.create({
         user_id: userInfo.user_id,
         enterprise_name: enterpriseName,
@@ -78,42 +78,42 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
         established_time: establishedDate,
         tel: tel
       });
-    }catch(e) {
-      throw new UserInputError({e})
+    } catch (e) {
+      throw new UserInputError({ e })
     }
-    
+
   }
 }
 const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
-    if(enterpriseName|| abbreviation|| enterpriseNature|| enterpriseLocation|| enterpriseProfile|| enterprisecCoordinate|| enterpriseIndustry|| enterpriseFinancing|| logo|| enterpriseSize|| establishedDate|| homepage|| tel) {
-      await Enterprise.update({
-        enterprise_name: enterpriseName,
-        abbreviation: abbreviation,
-        business_nature: enterpriseNature,
-        industry_involved: enterpriseIndustry,
-        enterprise_profile: enterpriseProfile,
-        enterprise_financing: enterpriseFinancing,
-        enterprise_size: enterpriseSize,
-        enterprise_logo: logo,
-        enterprise_loc_longtitude: enterprisecCoordinate[0],
-        enterprise_loc_latitude: enterprisecCoordinate[1],
-        enterprise_loc_detail: enterpriseLocation,
-        homepage,
-        established_time: establishedDate,
-        tel: tel
-      }, {
-        where: {
-          user_id
-        }
-      });
-    } else {
-      throw new UserInputError('you need at least one data to update')
-    }
-    
+  const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
+  if (enterpriseName || abbreviation || enterpriseNature || enterpriseLocation || enterpriseProfile || enterprisecCoordinate || enterpriseIndustry || enterpriseFinancing || logo || enterpriseSize || establishedDate || homepage || tel) {
+    await Enterprise.update({
+      enterprise_name: enterpriseName,
+      abbreviation: abbreviation,
+      business_nature: enterpriseNature,
+      industry_involved: enterpriseIndustry,
+      enterprise_profile: enterpriseProfile,
+      enterprise_financing: enterpriseFinancing,
+      enterprise_size: enterpriseSize,
+      enterprise_logo: logo,
+      enterprise_loc_longtitude: enterprisecCoordinate[0],
+      enterprise_loc_latitude: enterprisecCoordinate[1],
+      enterprise_loc_detail: enterpriseLocation,
+      homepage,
+      established_time: establishedDate,
+      tel: tel
+    }, {
+      where: {
+        user_id
+      }
+    });
+  } else {
+    throw new UserInputError('you need at least one data to update')
+  }
+
   // } else {
   //   throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   // }
@@ -122,30 +122,30 @@ const editEnterpriseWorkTimeAndWelfare = async (parent, args, { userInfo }, info
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    if (Object.keys(args.info).length == 0) {
-      throw new UserInputError("none of the information is providered")
+  if (Object.keys(args.info).length == 0) {
+    throw new UserInputError("none of the information is providered")
+  }
+  const { workRule, restRule, welfare, overtimeWorkDegree, customTags } = args.info;
+  if (isvalidTimeSection(workRule)) {
+    await Enterprise.update({
+      rest_rule: restRule,
+      work_time: workRule,
+      enterprise_welfare: welfare,
+      overtime_work_degree: overtimeWorkDegree,
+      tags: customTags
+    }, {
+      where: { user_id: userInfo.user_id }
+    })
+    if (userInfo.exp && userInfo.exp > new Date().getTime() / 1000 && userInfo.exp <= (new Date().getTime() - 60000) / 1000) {
+      return jwt.sign({
+        user_id: userInfo.user_id,
+        username: userInfo.username,
+        identity: userInfo.identity
+      }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
     }
-    const { workRule, restRule, welfare, overtimeWorkDegree, customTags } = args.info;
-    if (isvalidTimeSection(workRule)) {
-      await Enterprise.update({
-        rest_rule: restRule,
-        work_time: workRule,
-        enterprise_welfare: welfare,
-        overtime_work_degree: overtimeWorkDegree,
-        tags: customTags
-      }, {
-        where: { user_id: userInfo.user_id }
-      })
-      if (userInfo.exp && userInfo.exp > new Date().getTime() / 1000 && userInfo.exp <= (new Date().getTime() - 60000) / 1000) {
-        return jwt.sign({
-          user_id: userInfo.user_id,
-          username: userInfo.username,
-          identity: userInfo.identity
-        }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
-      }
-    } else {
-      throw new UserInputError("bad input", { workRule: `${workRule} is not a valid timesectiohn` })
-    }
+  } else {
+    throw new UserInputError("bad input", { workRule: `${workRule} is not a valid timesectiohn` })
+  }
   // } else {
   //   throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   // }
@@ -159,18 +159,18 @@ const editEnterpriseExtraData = async (parent, args, { userInfo }, info) => {
     throw new UserInputError(`${args.info} not a valid json value`)
   }
   // if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    await Enterprise.update({
-      extra_attribute: args.info,
-    }, {
-      where: { user_id: userInfo.user_id }
-    });
-    if (userInfo.exp && userInfo.exp > new Date().getTime() / 1000 && userInfo.exp <= (new Date().getTime() - 60000) / 1000) {
-      return jwt.sign({
-        user_id: userInfo.user_id,
-        username: userInfo.username,
-        identity: userInfo.identity
-      }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
-    }
+  await Enterprise.update({
+    extra_attribute: args.info,
+  }, {
+    where: { user_id: userInfo.user_id }
+  });
+  if (userInfo.exp && userInfo.exp > new Date().getTime() / 1000 && userInfo.exp <= (new Date().getTime() - 60000) / 1000) {
+    return jwt.sign({
+      user_id: userInfo.user_id,
+      username: userInfo.username,
+      identity: userInfo.identity
+    }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
+  }
   // } else {
   //   throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   // }
@@ -216,10 +216,10 @@ const precheckForInviteWorkMate = async (parent, args, { userInfo }, info) => {
       }
     });
     let user = res.dataValues;
-    if(!user) return "NotAUser"
-    if(!user.real_name) return "NotCertified"
-    if(user.Worker) {
-      if(user.Worker.company_belonged == userInfo.enterpriseId) {
+    if (!user) return "NotAUser"
+    if (!user.real_name) return "NotCertified"
+    if (user.Worker) {
+      if (user.Worker.company_belonged == userInfo.enterpriseId) {
         return "AlreadyWorkMate"
       } else {
         return "WorkingInAnotherCompany"
@@ -264,26 +264,26 @@ const postJob = async (parent, args, { userInfo }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) {
-    const {jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates} = args.info;
-    await Job.create({
-      worker_id: userInfo.user_id,
-      title: jobTitle,
-      detail: description,
-      adress_coordinate: {
-        type: 'Point',
-        coordinates: coordinates
-      },
-      adress_description: workingAddress,
-      min_salary: salary[0],
-      max_salary: salary[1],
-      min_experience: experience,
-      min_education: education,
-      required_num: requiredNum,
-      full_time_job: isFullTime,
-      tags: tags,
-      comp_id: userInfo.identity.enterpriseId,
-      expired_at: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
-    })
+  const { jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates } = args.info;
+  await Job.create({
+    worker_id: userInfo.user_id,
+    title: jobTitle,
+    detail: description,
+    adress_coordinate: {
+      type: 'Point',
+      coordinates: coordinates
+    },
+    adress_description: workingAddress,
+    min_salary: salary[0],
+    max_salary: salary[1],
+    min_experience: experience,
+    min_education: education,
+    required_num: requiredNum,
+    full_time_job: isFullTime,
+    tags: tags,
+    comp_id: userInfo.identity.enterpriseId,
+    expired_at: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+  })
   // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   // }
@@ -293,32 +293,42 @@ const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) {
-    const {userId, jobId, time, username, jobTitle} = args;
-    let resume = await ResumeDeliveryRecord.findOne({
-      user_id: userId,
-      hr_id:userInfo.user_id,
-      job_id: jobId
-    });
-    if(!resume) throw new UserInputError("could not invite the candidate that haven't sended resume to this job");
-    let interview = await Interview.create({
-      user_id: userId,
-      job_id: jobId,
-      HR_id: userInfo.user_id,
-      appointment_time: new Date(time[0]),
-      ended_at: new Date(time[1]),
-      comp_name: userInfo.identity.enterpriseId,
-      status: "Waiting"
-    })
-    let msg = {
-      title: `${userInfo.username}`,
-      
+  const { userId, jobId, time } = args;
+  let resume = await ResumeDeliveryRecord.findOne({
+    where:{
+    user_id: userId,
+    hr_id: userInfo.user_id,
+    job_id: jobId
+  }});
+  if (!resume) throw new UserInputError("could not invite the candidate that haven't sended resume to this job");
+  let interview = await Interview.create({
+    user_id: userId,
+    job_id: jobId,
+    hr_id: userInfo.user_id,
+    appointment_time: new Date(time[0]),
+    ended_at: new Date(time[1]),
+    comp_name: userInfo.identity.entName
+  });
+  let msg = {
+    title: `${userInfo.identity.entName}企业的${userInfo.username}向你发送了面试邀请，点击查看详情`,
+    body: {
+      ...interview.dataValues
     }
-    await Message.create({
-      user_id: interview.user_id,
-      from: interview.HR_id,
-      message_type: "Other",
-      detail: ""
-    })
+  }
+  let res = await Message.create({
+    user_id: interview.user_id,
+    from: interview.HR_name,
+    message_type: "Other",
+    detail: JSON.stringify(msg)
+  })
+  pubsub.publish("NEW_MESSAGE", {
+    newMessage: {
+      to: res.user_id,
+      messageType: res.message_type,
+      messageContent: res.detail,
+      ...res.toJSON()
+    }
+  })
   // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
@@ -327,20 +337,20 @@ const HREndInterview = async (parent, args, { userInfo }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) {
-    const {interviewId, isPassed} = args;
-    let updateed = await Interview.update({
-      status: isPassed? "Passed": "Failed",
-    },{
-      where: { 
-        id: interviewId,
-        ended_at: {
-          [Op.lt]: new Date()
-        }
+  const { interviewId, isPassed } = args;
+  let updateed = await Interview.update({
+    status: isPassed ? "Passed" : "Failed",
+  }, {
+    where: {
+      id: interviewId,
+      ended_at: {
+        [Op.lt]: new Date()
       }
-    },{
-      returning: true
-    })[0] >= 0;
-    if(!updateed) throw new UserInputError("interview not started or")
+    }
+  }, {
+    returning: true
+  })[0] >= 0;
+  if (!updateed) throw new UserInputError("interview not started or")
   // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
@@ -349,14 +359,14 @@ const HRRemoveJob = async (parent, args, { userInfo }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) {
-    const {jobbId} = args;
-    let feedback = await Job.update({
-      expired_at: new Date(),
-    },{
-      where: {id: jobbId}
-    },{returning: true});
-    if(!feedback || feedback[0] === 0) throw new UserInputError("job not found");
-    // } else {
+  const { jobbId } = args;
+  let feedback = await Job.update({
+    expired_at: new Date(),
+  }, {
+    where: { id: jobbId }
+  }, { returning: true });
+  if (!feedback || feedback[0] === 0) throw new UserInputError("job not found");
+  // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
 }
@@ -365,8 +375,8 @@ const ENTRecruitmentApply = async (parent, args, { userInfo }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) { 
-  let {recruitmentId, size} = args;
-  if(!size) {
+  let { recruitmentId, size } = args;
+  if (!size) {
     size = "small";
   }
   try {
@@ -374,17 +384,17 @@ const ENTRecruitmentApply = async (parent, args, { userInfo }, info) => {
       user_id: userInfo.user_id,
       recruitment_id: recruitmentId,
       canceled: false,
-      extra_datas: JSON.stringify({size})
-    },{
+      extra_datas: JSON.stringify({ size })
+    }, {
       where: {
         user_id: userInfo.user_id,
         recruitment_id: recruitmentId
       }
     })
-  }catch (err) {
-    throw new UserInputError({...err})
+  } catch (err) {
+    throw new UserInputError({ ...err })
   }
-  
+
   // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
