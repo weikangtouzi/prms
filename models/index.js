@@ -9,9 +9,16 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(process.env[config.use_env_variable],
+    {
+      logging: false,
+      ...config
+    });
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(config.database, config.username, config.password,  {
+    logging: false,
+    ...config
+  });
 }
 
 fs
@@ -60,5 +67,11 @@ db.County.hasMany(db.Town, {
 })
 db.Town.belongsTo(db.County, {
   foreignKey: 'county_id'
+})
+db.Job.hasMany(db.Interview, {
+  foreignKey: 'job_id'
+})
+db.Interview.belongsTo(db.Job, {
+  foreignKey: 'job_id'
 })
 module.exports = db;

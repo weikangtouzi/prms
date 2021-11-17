@@ -42,7 +42,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     readed: {
       type: DataTypes.BOOLEAN,
-      allowNull: false
+      allowNull: false,
+      defaultValue: false
     },
     avaliable: {
       type: DataTypes.BOOLEAN,

@@ -19,6 +19,8 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
 const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime } = require('./graphql/types')
+const {info} = require('./utils/logger')
+
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -558,12 +560,19 @@ const typeDefs = gql`
     messageType: MessageType!,
     messageContent: String!
   }
+  type MessageEntitySelectionString {
+    value: String
+  }
+  type MessageEntitySelectionInt {
+    value: Int
+  }
+  
   type Message {
     "0 for system message"
-    from: Int!,
+    from: String!,
     messageType: MessageType!,
     messageContent: String!
-    to: Int!,
+    to: String!,
     uuid: String!,
   }
   "same datas as the Insert one, but are all not required"
@@ -669,7 +678,7 @@ const typeDefs = gql`
     "if wanted to send the online one, then don't need to pass resumeId"
     CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
-    HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!, username: String!, jobTitle: String!): Void
+    HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!): Void
     HREndInterview(interviewId: Int!, ispassed:  Boolean!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
     CommoncancelInterview(interviewId: Int!): Void
@@ -736,7 +745,6 @@ async function startServer() {
       cert: fs.readFileSync('./ssl/1_chenzaozhao.com_bundle.crt'),
     }, app)
   } else {
-    console.log(env)
     httpServer = http.createServer(app);
   }
   const subscriptionServer = SubscriptionServer.create({
@@ -750,14 +758,14 @@ async function startServer() {
   });
   await new Promise(r => httpServer.listen({ port: 4000 }, r));
   mongo.init().then(() => {
-    console.log('mongo Connection has been established successfully');
+    info('mongo Connection has been established successfully');
   })
   sequelize
     .authenticate()
     .then(() => {
-      console.log('postgres Connection has been established successfully');
+      info('postgres Connection has been established successfully');
     })
-  console.log(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
+    info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
 
 }
 startServer();

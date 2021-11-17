@@ -3,7 +3,7 @@ const { AuthenticationError, UserInputError } = require('apollo-server')
 const mongo = require('../mongo')
 const { Message } = require('../models')
 const { withFilter } = require('graphql-subscriptions');
-const {Op} = require('sequelize')
+const { Op } = require('sequelize')
 const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -44,21 +44,25 @@ const newMessage = {
 const UserGetMessages = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    let {targetId, page, pageSize} = args;
-    if(!page) page = 0;
-    if(!pageSize) pageSize = 10;
+    let { targetId, page, pageSize } = args;
+    if (!page) page = 0;
+    if (!pageSize) pageSize = 10;
     let res = await Message.findAndCountAll({
         where: {
             [Op.and]: [
-                {[Op.or]: [
-                    {from: targetId},
-                    {user_id: targetId},
-                    {user_id: userInfo.user_id},
-                    {from: userInfo.user_id}
-                ]},
-                {avaliable: true}
+                {
+                    [Op.or]: [{
+                        [Op.and]: [
+                            { from: targetId },
+                            { user_id: userInfo.user_id }
+                        ]},
+                        {[Op.and]: [
+                            { from: userInfo.user_id },
+                            { user_id: targetId }
+                        ]}]
+                },
+                { avaliable: true }
             ]
-            
         },
         order: [
             ["createdAt", "DESC"]
@@ -67,7 +71,7 @@ const UserGetMessages = async (parent, args, { userInfo }, info) => {
         offset: page * pageSize
     });
     return {
-        page,pageSize, count: res.count,
+        page, pageSize, count: res.count,
         messages: res.rows.map(item => {
             return {
                 to: item.dataValues.user_id,
