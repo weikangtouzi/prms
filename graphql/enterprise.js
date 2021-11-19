@@ -313,11 +313,12 @@ const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
     title: `${userInfo.identity.entName}企业的${userInfo.username}向你发送了面试邀请，点击查看详情`,
     body: {
       ...interview.dataValues
-    }
+    },
+    type: "InterviewInvitation"
   }
   let res = await Message.create({
     user_id: interview.user_id,
-    from: interview.HR_name,
+    from: interview.hr_id,
     message_type: "Other",
     detail: JSON.stringify(msg)
   })
@@ -326,7 +327,7 @@ const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
       to: res.user_id,
       messageType: res.message_type,
       messageContent: res.detail,
-      ...res.toJSON()
+      ...res.dataValues
     }
   })
   // } else {

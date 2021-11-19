@@ -37,6 +37,10 @@ let job_titles = [
     "研发经理",
     "IT技术/研发总监"
 ];
+job_titles = job_titles.map(item => {return ["互联网/通信及硬件","软件研发",item]});
+console.log(job_titles[37 %29 + 0])
+console.log(job_titles[37 %29 + 1])
+console.log(job_titles[37 %29 + 2])
 const edu_requirements = ["Null", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"]
 const full_time_jobs = ["FullTime", "PartTime", "InterShip"]
 const tags = ["免费体检", "住房补贴", "餐补", "上市公司"];
@@ -114,7 +118,8 @@ async function mock(counter = {
                     let ts = Math.round(Math.random() * 3);
                     await Job.create({
                         worker_id: hr.id,
-                        title: job_titles[j],
+                        title: job_titles[j][2],
+                        category: job_titles[j],
                         detail: "keep it as a secret",
                         adress_coordinate: {
                             type: 'Point',

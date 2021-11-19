@@ -25,6 +25,7 @@ const { editEnterpriseBasicInfo,
     HRRemoveJob,
     ENTRecruitmentApply
 } = require('./enterprise');
+const {CandidateGetAllJobExpectations, CandidateGetJobListByExpectation} = require('./candidate');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
     Query: {
@@ -44,7 +45,9 @@ const resolvers = {
         ENTPrecheckForInviteWorkMate: precheckForInviteWorkMate,
         TestShowDatas: showDatas,
         UserVerifyCodeConsume,
-        UserGetMessages
+        UserGetMessages,
+        CandidateGetAllJobExpectations,
+        CandidateGetJobListByExpectation
     },
     Mutation: {
         UserRegister: register,
