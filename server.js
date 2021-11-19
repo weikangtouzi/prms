@@ -152,20 +152,30 @@ const typeDefs = gql`
   "for list query"
   type JobDataBriefly {
     id: Int!,
-    JobTitle: String!,
-    WorkingAddress: String!,
-    experience: String!,
-    education: String!,
-    requiredNum: Int!,
-    isFullTime: Boolean!,
-    createdAt: String!
+    job_id: Int!,
+    hr_name: String!,
+    hr_pos: String!,
+    title: String!,
+    category: [String]!,
+    adress_coordinate: String!,
+    min_salary: Int!,
+    max_salary: Int!,
+    min_experience: Int!,
+    min_education: String!,
+    ontop: Boolean,
+    full_time_job: String!,
+    tags: [String]!,
+    comp_name: String!,
+    comp_size: String!,
+    comp_financing: String!,
+    expired_at: String!,
+    logo: String!,
   }
-  "contains a array of jobid, and a cache id"
-  type JobQueryResult {
-    "just job ids"
-    data: [JobDataBriefly]!,
-    cacheId: String!,
-    
+  type JobSimpifiedDataPageView {
+    page: Int!,
+    pageSize: Int!,
+    count: Int!,
+    data: [JobDataBriefly]!
   }
   "enum {FullTime,\
         PartTime,\
@@ -611,6 +621,12 @@ const typeDefs = gql`
     page: Int!,
     pageSize: Int!,
   }
+  type JobExpectation {
+    job_category: [String]!,
+    aimed_city: String!,
+    min_salary_expectation: Int!,
+    max_salary_expectation: Int!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -628,9 +644,7 @@ const typeDefs = gql`
     "send a verify code to the given number, if phoneNumber not provider and has token in header, will send to the user's phone number"
     StaticSendSms(phoneNumber: String): String!
     "tags are those tags that hr added to a job. keyword stands for the input at search page. tags and keyword are not required. pageNumber and pageSize default value are 1 and 10"
-    CandidateGetJobs(filter: JobFilter): JobQueryResult!
-    "using cached jobid, need to query at least once before calling this"
-    CandidateGetJobsFromCache(cacheId: String): [JobDataBriefly]!
+    CandidateGetJobs(filter: JobFilter):  [JobDataBriefly]!
     "get job data by id"
     CandidateGetJob(jobid: Int): JobData!
     "get resume data, if cache id exists then will return the cache data, cache expired every 30 minutes"
@@ -654,6 +668,8 @@ const typeDefs = gql`
     UserVerifyCodeConsume(info: VerifyInfo) : Void
     "if page not provided it will be 0,for pageSize it will be 10"
     UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
+    CandidateGetAllJobExpectations: [JobExpectation]!
+    CandidateGetJobListByExpectation(jobCategory:[String]!, page: Int, pageSize: Int): JobSimpifiedDataPageView!
   }
   
   "most of mutations needed token for authorization"

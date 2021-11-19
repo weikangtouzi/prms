@@ -20,7 +20,8 @@ if (config.use_env_variable) {
     ...config
   });
 }
-
+var sql_string = fs.readFileSync('./postgres_only_sql_code.sql', 'utf8');
+sequelize.query(sql_string);
 fs
   .readdirSync(__dirname)
   .filter(file => {
@@ -73,5 +74,11 @@ db.Job.hasMany(db.Interview, {
 })
 db.Interview.belongsTo(db.Job, {
   foreignKey: 'job_id'
+})
+db.Worker.hasMany(db.Job, {
+  foreignKey: 'worker_id'
+})
+db.Job.belongsTo(db.Worker, {
+  foreignKey: 'worker_id'
 })
 module.exports = db;

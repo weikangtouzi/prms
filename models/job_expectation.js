@@ -24,11 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     job_category: {
-      type: DataTypes.STRING(40),
-      allowNull: false
-    },
-    industry: {
-      type: DataTypes.STRING(30),
+      type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     },
     aimed_city: {
@@ -43,7 +39,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false
     }
-    
   }, {
     sequelize,
     modelName: 'JobExpectation',
