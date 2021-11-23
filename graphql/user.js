@@ -53,7 +53,6 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
 }
 
 const logIn = async (parent, args, context, info) => {
-    console.log(context.req.connection.remoteAddress)
     const { account, password } = args.info;
     let user;
     let token;

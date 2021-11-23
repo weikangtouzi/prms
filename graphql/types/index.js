@@ -11,6 +11,17 @@ const EnterpriseNature = new GraphQLEnumType({
     }
 })
 
+const EnterpriseSize = new GraphQLEnumType({
+    name: 'EnterpriseNature',
+    values: {
+        LessThanFifteen: { value: 0 },
+        FifteenToFifty: { value: 1 },
+        FiftyToOneHundredFifty: { value: 2 },
+        OneHundredFiftyToFiveHundreds: { value: 3 },
+        FiveHundredsToTwoThousands: { value: 4 },
+        MoreThanTwoThousands: { value: 5 },
+    }
+})
 
 const Education = new GraphQLEnumType({
     name: 'Education',
@@ -51,7 +62,7 @@ const EnterpriseCertificationStatus = new GraphQLEnumType({
     name: 'EnterpriseCertificationStatus',
     values: {
         None: { value: 0 },
-        Failed: { value: 1},
+        Failed: { value: 1 },
         Passed: { value: 2 },
         Waiting: { value: 3 }
     }
@@ -81,11 +92,26 @@ const MessageType = new GraphQLEnumType({
 const FullTime = new GraphQLEnumType({
     name: 'FullTime',
     values: {
-        FullTime: { value: 0},
+        FullTime: { value: 0 },
         PartTime: { value: 1 },
         InternShip: { value: 2 },
     }
 })
+const EnterpriseFinancing = new GraphQLEnumType({
+    name: 'EnterpriseFinancing',
+    values: {
+        NotYet: { value: 0 },
+        AngelFinancing: { value: 1 },
+        A: { value: 2 },
+        B: { value: 3 },
+        C: { value: 4 },
+        D: { value: 5 },
+        Listed: { value: 6 },
+        NoNeed: { value: 7 }
+    }
+    
+})
+
 
 module.exports = {
     Education,
@@ -95,5 +121,7 @@ module.exports = {
     EnterpriseCertificationStatus,
     WorkerMatePrecheckResult,
     MessageType,
-    FullTime
+    FullTime,
+    EnterpriseSize,
+    EnterpriseFinancing
 }
