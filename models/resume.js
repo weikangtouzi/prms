@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     is_public: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false
+      defaultValue: true
     },
     skills: {
       type: DataTypes.ARRAY(DataTypes.STRING),

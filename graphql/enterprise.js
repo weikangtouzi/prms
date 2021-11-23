@@ -1,10 +1,10 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
-const { Identity, EnterpriseNature, EnterpriseRole, EnterpriseCertificationStatus } = require('./types/')
 const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
-const mongo = require('../mongo')
+const mongo = require('../mongo');
+const user = require('../models/user');
 
 function isvalidEnterpriseAdmin(userIdentity) {
   if (!userIdentity) {
@@ -288,7 +288,35 @@ const postJob = async (parent, args, { userInfo }, info) => {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   // }
 }
-
+const editJob = async (parent, args, { userInfo }, info) => {
+  // if (!userInfo) throw new AuthenticationError('missing authorization')
+  // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  // if(isvalidJobPoster(userInfo.identity)) {
+  const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates } = args.info;
+  await Job.update({
+    title: jobTitle,
+    detail: description,
+    adress_coordinate: {
+      type: 'Point',
+      coordinates: coordinates
+    },
+    adress_description: workingAddress,
+    min_salary: salary[0],
+    max_salary: salary[1],
+    min_experience: experience,
+    min_education: education,
+    required_num: requiredNum,
+    full_time_job: isFullTime,
+    tags: tags
+  }, {
+    where: {
+      id: jobId,
+    }
+  })
+  // } else {
+  //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
+  // }
+}
 const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -351,7 +379,43 @@ const HREndInterview = async (parent, args, { userInfo }, info) => {
   }, {
     returning: true
   })[0] >= 0;
-  if (!updateed) throw new UserInputError("interview not started or")
+  if (!updateed) throw new UserInputError("interview not started or canceled")
+  // } else {
+  //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  // }
+}
+const HRCancelInterview = async (parent, args, { userInfo }, info) => {
+  // if (!userInfo) throw new AuthenticationError('missing authorization')
+  // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  // if(isvalidJobPoster(userInfo.identity)) {
+  const { interviewId, reason, candidateId } = args;
+  let updateed = await Interview.update({
+    status: "Canceled",
+    description: reason
+  }, {
+    where: {
+      id: interviewId,
+      appointment_time: {
+        [Op.lt]: new Date(),
+      }
+    }
+  }, {
+    returning: true
+  })[0] >= 0;
+  if (!updateed) throw new UserInputError("interview is started or already ended")
+  let res = await Message.create({
+    user_id: candidateId,
+    message_type: "System",
+    detail: "你有一项面试已被取消"
+  });
+  pubsub.publish("NEW_MESSAGE", {
+    newMessage: {
+      to: candidateId,
+      messageType: res.message_type,
+      messageContent: res.detail,
+      ...res.dataValues
+    }
+  });
   // } else {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
@@ -360,11 +424,11 @@ const HRRemoveJob = async (parent, args, { userInfo }, info) => {
   // if (!userInfo) throw new AuthenticationError('missing authorization')
   // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   // if(isvalidJobPoster(userInfo.identity)) {
-  const { jobbId } = args;
+  const { jobId } = args;
   let feedback = await Job.update({
     expired_at: new Date(),
   }, {
-    where: { id: jobbId }
+    where: { id: jobId }
   }, { returning: true });
   if (!feedback || feedback[0] === 0) throw new UserInputError("job not found");
   // } else {
@@ -400,6 +464,27 @@ const ENTRecruitmentApply = async (parent, args, { userInfo }, info) => {
   //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   // }
 }
+const ENTRecruitmentCancel = async (parent, args, { userInfo }, info) => {
+  // if (!userInfo) throw new AuthenticationError('missing authorization')
+  // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  // if(isvalidJobPoster(userInfo.identity)) { 
+  let { recruitmentId} = args;
+    let reply = await RecruitmentRecord.update({
+      canceled: true,
+    }, {
+      where: {
+        user_id: userInfo.user_id,
+        recruitment_id: recruitmentId
+      },
+      returning: true
+    })
+    if (!reply || reply[0] === 0) throw new UserInputError("your may not apply this recruitment");
+  // } else {
+  //   throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  // }
+}
+
+
 
 module.exports = {
   editEnterpriseBasicInfo,
@@ -414,5 +499,8 @@ module.exports = {
   HRInviteInterview,
   HREndInterview,
   HRRemoveJob,
-  ENTRecruitmentApply
+  ENTRecruitmentApply,
+  HRCancelInterview,
+  editJob,
+  ENTRecruitmentCancel
 }

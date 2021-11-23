@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature } = require('./graphql/types')
 const {info} = require('./utils/logger')
 
 const Void = new GraphQLScalarType({
@@ -43,6 +43,17 @@ const Void = new GraphQLScalarType({
 const typeDefs = gql`
   scalar Upload
   scalar Void
+  "enum Education {\
+    LessThanPrime,\
+    Primary,\
+    Junior,\
+    High,\
+    JuniorCollege,\
+    RegularCollege,\
+    Postgraduate,\
+    Doctor\
+  }"
+  scalar Education
   # data used by register user
   input Register {
     "username: required, unique, make sense by the name"
@@ -93,17 +104,7 @@ const typeDefs = gql`
     password: String,
     deviceId: String
   }
-  "education for extra_data api"
-  enum Education {
-    LessThanPrime,
-    Primary,
-    Junior,
-    High,
-    JuniorCollege,
-    RegularCollege,
-    Postgraduate,
-    Doctor
-  }
+  
   "min education required for the job"
   enum EducationRequired {
     High,
@@ -144,7 +145,7 @@ const typeDefs = gql`
     JobDetail: String!,
     education: String!,
     requiredNum: Int!,
-    isFullTime: Boolean!,
+    isFullTime: FullTime!,
     tags: [String]!,
     createdAt: String!,
     updatedAt: String!,
@@ -161,15 +162,16 @@ const typeDefs = gql`
     min_salary: Int!,
     max_salary: Int!,
     min_experience: Int!,
-    min_education: String!,
+    min_education: Education!,
     ontop: Boolean,
-    full_time_job: String!,
+    full_time_job: FullTime!,
     tags: [String]!,
     comp_name: String!,
-    comp_size: String!,
-    comp_financing: String!,
+    comp_size: EnterpriseSize!,
+    comp_financing: EnterpriseFinancing!,
     expired_at: String!,
     logo: String!,
+    enmergency: Boolean!
   }
   type JobSimpifiedDataPageView {
     page: Int!,
@@ -417,31 +419,37 @@ const typeDefs = gql`
     password: String!,
     confirmPassword: String!,
   }
-  enum EnterpriseNature {
-    ForeignVentures,
-    ForeignFundedEnterprises, 
-    PrivateEnterprise, 
-    StateOwnedEnterprises, 
-    Extra
-  }
-  enum EnterpriseFinancing {
-    NotYet,
-    AngelFinancing,
-    A,
-    B,
-    C,
-    D,
-    Listed,
-    NoNeed
-  }
-  enum EnterpriseSize {
-    LessThanFifteen, 
-    FifteenToFifty, 
-    FiftyToOneHundredFifty, 
-    OneHundredFiftyToFiveHundreds, 
-    FiveHundredsToTwoThousands, 
-    MoreThanTwoThousands
-  }
+  "enum EnterpriseNature {\
+    ForeignVentures,\
+    ForeignFundedEnterprises, \
+    PrivateEnterprise, \
+    StateOwnedEnterprises, \
+    Extra\
+  }"
+  scalar EnterpriseNature
+  
+  "enum EnterpriseFinancing {\
+    NotYet,\
+    AngelFinancing,\
+    A,\
+    B,\
+    C,\
+    D,\
+    Listed,\
+    NoNeed\
+  }"
+  scalar EnterpriseFinancing 
+  
+  "enum EnterpriseSize {\
+    LessThanFifteen, \
+    FifteenToFifty, \
+    FiftyToOneHundredFifty, \
+    OneHundredFiftyToFiveHundreds, \
+    FiveHundredsToTwoThousands, \
+    MoreThanTwoThousands\
+  }"
+  scalar EnterpriseSize
+  
   enum EnterpriseRestRule {
     OneDayOffPerWeekend, 
     TwoDayOffPerWeekend, 
@@ -460,12 +468,12 @@ const typeDefs = gql`
     "longtitude and latitude"
     enterprisecCoordinate: [Float]!,
     "checkout EnterpriseNature type for value options"
-    enterpriseNature: String!,
+    enterpriseNature: EnterpriseNature!,
     enterpriseIndustry: [String]!,
     "checkout EnterpriseIndustry type for value options"
-    enterpriseFinancing: String!,
+    enterpriseFinancing: EnterpriseFinancing!,
     "checkout EnterpriseSize type for value options"
-    enterpriseSize: String!,
+    enterpriseSize: EnterpriseSize!,
     enterpriseProfile: String!,
     logo: String,
     establishedDate: String,
@@ -594,12 +602,12 @@ const typeDefs = gql`
     "longtitude and latitude"
     enterprisecCoordinate: [Float],
     "checkout EnterpriseNature type for value options"
-    enterpriseNature: String,
+    enterpriseNature: EnterpriseNature,
     enterpriseIndustry: [String],
     "checkout EnterpriseIndustry type for value options"
-    enterpriseFinancing: String,
+    enterpriseFinancing: EnterpriseFinancing,
     "checkout EnterpriseSize type for value options"
-    enterpriseSize: String,
+    enterpriseSize: EnterpriseSize,
     enterpriseProfile: String,
     logo: String,
     establishedDate: String,
