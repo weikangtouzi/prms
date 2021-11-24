@@ -37,6 +37,7 @@ const CandidateGetJobListByExpectation = async (parent, args, { userInfo }, info
         data: res.rows.map(row => {
             row.adress_coordinate = JSON.stringify(row.adress_coordinate);
             if (!row.logo) row.logo = "default_hr_logo";
+            if (!row.emergency) row.emergency = false;
             return row
         })
     }

@@ -171,7 +171,7 @@ const typeDefs = gql`
     comp_financing: EnterpriseFinancing!,
     expired_at: String!,
     logo: String!,
-    enmergency: Boolean!
+    emergency: Boolean!
   }
   type JobSimpifiedDataPageView {
     page: Int!,
