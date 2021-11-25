@@ -138,11 +138,11 @@ const typeDefs = gql`
   }
   "a job always contains these datas. these are formatted data, not exactly what is in database"
   type JobData {
-    JobTitle: String!,
+    jobTitle: String!,
     WorkingAddress: String!,
     experience: String!,
     "this data is a json data, to use it just parse json by this string"
-    JobDetail: String!,
+    jobDetail: String!,
     education: String!,
     requiredNum: Int!,
     isFullTime: FullTime!,
@@ -382,10 +382,16 @@ const typeDefs = gql`
     personalAdvantage: String!,
   }
   input JobFilter {
-    tags:[String],
-    pageNumber: Int, 
-    pageSize: Int, 
-    keyword: String
+    salaryExpected: [Int],
+    experience: Int,
+    education: Education,
+    enterpriseSize: EnterpriseSize,
+    enterpriseFinancing: EnterpriseFinancing,
+    sortWithDistance: [Float],
+    category: [String],
+    full_time_job: FullTime,
+    page: Int,
+    pageSize: Int
   }
   input ApplicantFilter {
     token:String!, 
@@ -677,7 +683,7 @@ const typeDefs = gql`
     "if page not provided it will be 0,for pageSize it will be 10"
     UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
     CandidateGetAllJobExpectations: [JobExpectation]!
-    CandidateGetJobListByExpectation(jobCategory:[String]!, page: Int, pageSize: Int): JobSimpifiedDataPageView!
+    CandidateGetJobList(filter:JobFilter): JobSimpifiedDataPageView!
   }
   
   "most of mutations needed token for authorization"

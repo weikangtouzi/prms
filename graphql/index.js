@@ -25,7 +25,7 @@ const { editEnterpriseBasicInfo,
     HRRemoveJob,
     ENTRecruitmentApply
 } = require('./enterprise');
-const {CandidateGetAllJobExpectations, CandidateGetJobListByExpectation} = require('./candidate');
+const {CandidateGetAllJobExpectations, CandidateGetJobList} = require('./candidate');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
     Query: {
@@ -47,7 +47,7 @@ const resolvers = {
         UserVerifyCodeConsume,
         UserGetMessages,
         CandidateGetAllJobExpectations,
-        CandidateGetJobListByExpectation
+        CandidateGetJobList
     },
     Mutation: {
         UserRegister: register,
