@@ -93,7 +93,11 @@ module.exports = (sequelize, DataTypes) => {
         logo: {
             type: DataTypes.TEXT,
             allowNull: true
-        }
+        },
+        updatedAt: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
     }, {
         sequelize,
         modelName: 'JobCache',
