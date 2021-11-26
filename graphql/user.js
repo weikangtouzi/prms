@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise } = require('../models');
+const { User, Worker, Enterprise, Resume, JobExpectation } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -167,7 +167,7 @@ const register = async (parent, args, context, info) => {
                 identified: "None"
             });
         }
-        return jwt.sign({
+        return serializers.jwt({
             user_id: user.id,
             username: user.username
         }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime });
@@ -188,10 +188,9 @@ const register = async (parent, args, context, info) => {
 const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (Identity.parseValue(args.targetIdentity)) {
+    if (args.targetIdentity) {
         let tokenObj
-        let identity = Identity.parseValue(args.targetIdentity);
-        if (identity == Identity.getValue("EnterpriseUser").value) {
+        if (args.targetIdentity == "EnterpriseUser") {
             let worker = await Worker.findOne({
                 where: {
                     user_binding: userInfo.user_id
@@ -214,11 +213,24 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
             } else {
                 throw new UserInputError('bad input', { role: "enterprise user needs specify role for using" })
             }
-        } else if (identity == Identity.getValue("PersonalUser").value) {
+        } else if (args.targetIdentity == "PersonalUser") {
+            let resume = await User.findOne({
+                where: {
+                    id: userInfo.user_id,
+                },
+                include: [{
+                    model: Resume,
+                    attributes: ["id"]
+                },{
+                    model: JobExpectation,
+                    attributes: ["job_category"]
+                }]
+            })
             tokenObj = {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
-                identity: { identity: args.targetIdentity }
+                identity: { identity: args.targetIdentity },
+                resume: resume != null
             }
         } else {
             throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })
@@ -255,7 +267,6 @@ const refreshToken = async (parent, args, context, info) => {
         if (userInfo.deadTime > new Date().getTime()) {
             return serializers.jwt(userInfo)
         } else {
-            console.log(userInfo)
             throw new AuthenticationError('this token is dead, you need to resign you account for a new token', { deadTime: userInfo.deadTime })
         }
     }
@@ -272,8 +283,6 @@ const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
     });
 
 }
-
-
 
 
 

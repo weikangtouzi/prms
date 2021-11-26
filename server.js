@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity } = require('./graphql/types')
 const {info} = require('./utils/logger')
 
 const Void = new GraphQLScalarType({
@@ -410,15 +410,13 @@ const typeDefs = gql`
     min_salary: Int,
     max_salary: Int,
   }
-  enum Identity {
-    "could be any personal user"
-    PersonalUser,
-    "not only hr"
-    EnterpriseUser,
-    Administrator,
-    Counselor,
-  }
-  
+  "enum {\
+    PersonalUser,\
+    EnterpriseUser,\
+    Administrator,\
+    Counselor,\
+  }"
+  scalar Identity
   "reset password means that user forget password"
   input ResetPassword {
     phoneNumber: String!,
@@ -782,6 +780,10 @@ async function startServer() {
     execute,
     subscribe,
     onConnect: contextMiddleware,
+    onDisconnect: (webSocket, context) => {
+      console.log(webSocket);
+      console.log(context);
+    }
   }, {
     server: httpServer,
     path: "/graphql"
