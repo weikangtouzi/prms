@@ -16,7 +16,7 @@ if (config.use_env_variable) {
     });
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password,  {
-    // logging: false,
+    logging: false,
     ...config
   });
 }
@@ -79,6 +79,21 @@ db.Worker.hasMany(db.Job, {
 })
 db.Job.belongsTo(db.Worker, {
   foreignKey: 'worker_id'
+})
+db.User.hasMany(db.JobExpectation, {
+  foreignKey: 'user_id',
+})
+db.JobExpectation.belongsTo(db.User, {
+  foreignKey: 'user_id'
+})
+db.User.hasMany(db.Resume, {
+  foreignKey: 'user_id'
+})
+db.Job.hasOne(db.JobCache, {
+  foreignKey: 'job_id',
+})
+db.JobCache.belongsTo(db.Job, {
+  foreignKey: 'job_id'
 })
 var sql_string = fs.readFileSync('./postgres_only_sql_code.sql', 'utf8');
 sequelize.query(sql_string);

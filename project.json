@@ -40,13 +40,13 @@
     },
     "basic": {
         "email": false,
-        "host": "dev.chenzaozhao.com:4000"
+        "host": "be.chenzaozhao.com/graphql"
     },
     "mongodb": {
         "url": "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
     },
     "uploadPath": "/uploadedFiles",
-    "domain": "dev.chenzaozhao.com",
+    "domain": "be.chenzaozhao.com",
     "env": "development",
     "defaultMessageDetails": {
         "resume": "你收到一份新的简历，请注意查看",

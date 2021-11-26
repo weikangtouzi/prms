@@ -28,9 +28,3 @@ CREATE TRIGGER trigger_generate_cache_for_new_inserted_job
     after INSERT ON job
     For each row
     EXECUTE PROCEDURE generate_cache_for_new_inserted_job();
-ALTER TABLE public.job_cache DROP CONSTRAINT job_cache_job_id_fkey;
-ALTER TABLE public.job_cache
-    ADD CONSTRAINT job_cache_job_id_fkey FOREIGN KEY (job_id)
-    REFERENCES public.job (id) MATCH SIMPLE
-    ON UPDATE CASCADE
-    ON DELETE CASCADE;

@@ -1,7 +1,10 @@
-const { JobExpectation, JobCache, Worker, sequelize } = require('../models');
+const { JobExpectation, JobCache, sequelize, Job } = require('../models');
+const {Op} = require('sequelize');
+const {AuthenticationError, UserInputError} = require('apollo-server')
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if(!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res = await JobExpectation.findAndCountAll({
         where: {
             user_id: userInfo.user_id
@@ -11,12 +14,12 @@ const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) 
             ["createdAt", "DESC"]
         ]
     })
-
     return res.rows
 }
 const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if(!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res;
     let page = 0;
     let pageSize = 10;
@@ -73,8 +76,46 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
         })
     }
 }
+const CandidateGetJob = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if(!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    const {jobid} = args;
+    let job = await Job.findOne({
+        where: {
+            id: jobid,
+            expired_at: {
+                [Op.gt]: new Date()
+            }
+        },
+        include:[{
+            model: Worker,
+            attributes: ["id","real_name", "pos"],
+            include:[{
+                model: Enterprise,
+                attributes: ["id", "enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo"]
+            },{
+                model: User,
+                attributes: ["image_url", ""]
+            }]
+        }]
+    });
+    if(!job) throw new UserInputError("job not found");
+    let res = {
+        ...job.dataValues
+    };
+    res.JobCache = null;
+    res = {
+        ...res,
+        ...job.JobCache.dataValues,
+    }
+    console.log(res)
+    return res
+    
+}
 
 module.exports = {
     CandidateGetAllJobExpectations,
-    CandidateGetJobList
+    CandidateGetJobList,
+    CandidateGetJob
 }

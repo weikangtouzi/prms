@@ -93,7 +93,7 @@ module.exports = (sequelize, DataTypes) => {
     expired_at: {
       type: DataTypes.DATEONLY,
       allowNull: false,
-      defaultValue: DataTypes.NOW
+      defaultValue: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     }
   }, {
     sequelize,
