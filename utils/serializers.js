@@ -10,7 +10,7 @@ module.exports = {
                 deadTime: new Date().getTime() + jwtConfig.deadTime,
             }, jwtConfig.secret)
         } else {
-            jwt.sign({
+            res = jwt.sign({
                 ...userInfo,
                 deadTime: new Date().getTime() + jwtConfig.deadTime,
             }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
