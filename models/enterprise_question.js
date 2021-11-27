@@ -5,7 +5,7 @@ const {
 const user = require('./user');
 const enterprise = require('./enterprise');
 module.exports = (sequelize, DataTypes) => {
-  class InterviewQuestion extends Model {
+  class EnterpriseQuestion extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
     }
   };
-  InterviewQuestion.init({
+  EnterpriseQuestion.init({
     user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -34,10 +34,6 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    target: {
-        type: DataTypes.ENUM("EnterpriseWorker", "Interviewee"),
-        allowNull: false
-    },
     question_description: {
       type: DataTypes.STRING,
       allowNull: false
@@ -52,8 +48,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     sequelize,
-    modelName: 'InterviewQuestion',
-    tableName: 'Interview_question'
+    modelName: 'EnterpriseQuestion',
+    tableName: 'enterprise_question'
   });
-  return InterviewQuestion;
+  return EnterpriseQuestion;
 };

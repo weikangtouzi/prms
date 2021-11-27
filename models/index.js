@@ -95,6 +95,24 @@ db.Job.hasOne(db.JobCache, {
 db.JobCache.belongsTo(db.Job, {
   foreignKey: 'job_id'
 })
+db.Enterprise.hasMany(db.EnterpriseQuestion, {
+  foreignKey: 'enterprise_id'
+})
+db.EnterpriseQuestion.belongsTo(db.Enterprise, {
+  foreignKey: 'enterprise_id'
+})
+db.EnterpriseQuestion.hasMany(db.EnterpriseAnswer, {
+  foreignKey: 'question_id'
+})
+db.EnterpriseAnswer.belongsTo(db.EnterpriseQuestion, {
+  foreignKey: 'question_id'
+})
+db.EnterpriseQuestion.belongsTo(db.User, {
+  foreignKey: 'user_id'
+})
+db.User.hasMany(db.EnterpriseQuestion, {
+  foreignKey: 'user_id'
+})
 var sql_string = fs.readFileSync('./postgres_only_sql_code.sql', 'utf8');
 sequelize.query(sql_string);
 module.exports = db;
