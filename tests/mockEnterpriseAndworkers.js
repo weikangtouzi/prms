@@ -125,7 +125,7 @@ async function mock(counter = {
                             type: 'Point',
                             coordinates: [counter.ent, counter.ent]
                         },
-                        adress_description: "",
+                        adress_description: [""],
                         min_salary: ms,
                         max_salary: ms + Math.round(Math.random() * 4 + 1) * 1000,
                         min_experience: Math.round(Math.random() * 5) + 1,

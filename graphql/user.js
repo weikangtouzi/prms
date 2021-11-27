@@ -102,6 +102,11 @@ const logIn = async (parent, args, context, info) => {
         })
 
     }
+    User.update({ last_log_out_time: null},{
+        where: {
+            id: user.id
+        }
+    })
     return {
         ...user.toJSON(),
         createdAt: user.createdAt.toISOString(),
