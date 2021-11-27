@@ -169,9 +169,9 @@ const typeDefs = gql`
     enterprise_logo: String!
   }
   type JobDetailPageReply {
-    job: JobDataForJobDetailPage,
-    hr: HRInfoForJobDetailPage,
-    company: CompInfoForJobDetailPage
+    job: JobDataForJobDetailPage!,
+    hr: HRInfoForJobDetailPage!,
+    company: CompInfoForJobDetailPage!
   } 
   "for list query"
   type JobDataBriefly {
@@ -186,7 +186,7 @@ const typeDefs = gql`
     max_salary: Int!,
     min_experience: Int!,
     min_education: Education!,
-    ontop: Boolean,
+    ontop: Boolean!,
     full_time_job: FullTime!,
     tags: [String]!,
     comp_name: String!,
@@ -662,6 +662,30 @@ const typeDefs = gql`
     min_salary_expectation: Int!,
     max_salary_expectation: Int!
   }
+  type EnterpriseInfoForEntDetail {
+    enterprise_name: String!,
+    business_nature: EnterpriseNature!,
+    industry_involved: String!,
+    enterprise_profile: String!,
+    enterprise_financing: EnterpriseFinancing!,
+    enterprise_size: EnterpriseSize,
+    enterprise_welfare:[String],
+    enterprise_logo: String,
+    tags: String!,
+    enterprise_coordinates: [Float]!,
+    enterprise_loc_detail: [String]!,
+    extra_attribute: String,
+    rest_rule: String,
+    overtime_work_degree: String,
+    homepage: String,
+    established_time: Int,
+    tel: Int,
+    work_time: Int,
+    createdAt: String!,
+  }
+  type EntDetailPageReply {
+    entInfo: EnterpriseInfoForEntDetail!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -703,6 +727,7 @@ const typeDefs = gql`
     UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
     CandidateGetAllJobExpectations: [JobExpectation]!
     CandidateGetJobList(filter:JobFilter): JobSimpifiedDataPageView!
+    CandidateGetEnterpriseDetail(entId: Int): EntDetailPageReply!
   }
   
   "most of mutations needed token for authorization"

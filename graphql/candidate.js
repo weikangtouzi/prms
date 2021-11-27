@@ -1,4 +1,4 @@
-const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User } = require('../models');
+const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer } = require('../models');
 const {Op} = require('sequelize');
 const {AuthenticationError, UserInputError} = require('apollo-server')
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
@@ -136,11 +136,36 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
         }
     };
     return res
-    
+}
+
+const CandidateGetEnterpriseDetail = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if(!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    let res = await Enterprise.findOne({
+        where: {
+            id: args.entId
+        },
+        include:[{
+            model: EnterpriseQuestion,
+            attributes: ["question_description"],
+            limit:1,
+            include: [{
+                model: EnterpriseAnswer,
+                attributes: ["content"],
+                limit: 1,
+            },{
+                model: User,
+                attributes: ["username", "real_name", "image_url"]
+            }]
+        }]
+    });
+    console.log(res.dataValues);
 }
 
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
-    CandidateGetJob
+    CandidateGetJob,
+    CandidateGetEnterpriseDetail
 }
