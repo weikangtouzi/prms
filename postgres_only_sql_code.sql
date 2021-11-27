@@ -28,3 +28,22 @@ CREATE TRIGGER trigger_generate_cache_for_new_inserted_job
     after INSERT ON job
     For each row
     EXECUTE PROCEDURE generate_cache_for_new_inserted_job();
+
+    
+CREATE OR REPLACE FUNCTION update_cache_when_origin_updated() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  DELETE FROM public.job_cache where job_id = NEW.id;
+  INSERT INTO public.job_cache(
+	job_id, title, category, adress_coordinate, min_salary, max_salary, min_experience, min_education, ontop, full_time_job, tags, expired_at, "updatedAt", hr_name, hr_pos, comp_name, comp_size, comp_financing, logo) 
+	SELECT "Job"."id","Job"."title", "Job"."category", "Job"."adress_coordinate", "Job"."min_salary", "Job"."max_salary", "Job"."min_experience", "Job"."min_education", "Job"."ontop", "Job"."full_time_job", "Job"."tags", "Job"."expired_at", "Job"."updatedAt", "Worker"."real_name" AS "Worker.real_name", "Worker"."pos" AS "Worker.pos", "Worker->Enterprise"."enterprise_name" AS "Worker.Enterprise.enterprise_name", "Worker->Enterprise"."enterprise_size" AS "Worker.Enterprise.enterprise_size", "Worker->Enterprise"."enterprise_financing" AS "Worker.Enterprise.enterprise_financing", "Worker->User"."image_url" AS "Worker.User.image_url" FROM "job" AS "Job" LEFT OUTER JOIN "worker" AS "Worker" ON "Job"."worker_id" = "Worker"."id" LEFT OUTER JOIN "enterprise" AS "Worker->Enterprise" ON "Worker"."company_belonged" = "Worker->Enterprise"."id" LEFT OUTER JOIN "users" AS "Worker->User" ON "Worker"."user_binding" = "Worker->User"."id" WHERE "Job"."id" = NEW.id;
+
+  RETURN NULL;
+END;
+$$;
+DROP TRIGGER IF EXISTS trigger_update_cache_when_origin_updated ON job;
+CREATE TRIGGER trigger_update_cache_when_origin_updated
+    after UPDATE ON job
+    For each row
+    EXECUTE PROCEDURE update_cache_when_origin_updated();

@@ -92,8 +92,8 @@ const MessageType = new GraphQLEnumType({
 const FullTime = new GraphQLEnumType({
     name: 'FullTime',
     values: {
-        FullTime: { value: 0 },
-        PartTime: { value: 1 },
+        Full: { value: 0 },
+        Part: { value: 1 },
         InternShip: { value: 2 },
     }
 })

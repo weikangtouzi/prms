@@ -1,4 +1,4 @@
-const { JobExpectation, JobCache, sequelize, Job } = require('../models');
+const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User } = require('../models');
 const {Op} = require('sequelize');
 const {AuthenticationError, UserInputError} = require('apollo-server')
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
@@ -84,32 +84,57 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
     let job = await Job.findOne({
         where: {
             id: jobid,
-            expired_at: {
-                [Op.gt]: new Date()
-            }
+            // expired_at: {
+            //     [Op.gt]: new Date()
+            // }
         },
         include:[{
             model: Worker,
-            attributes: ["id","real_name", "pos"],
+            attributes: ["real_name", "pos"],
             include:[{
                 model: Enterprise,
-                attributes: ["id", "enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo"]
+                attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail"]
             },{
                 model: User,
-                attributes: ["image_url", ""]
+                attributes: ["image_url", "last_log_out_time"]
             }]
         }]
     });
     if(!job) throw new UserInputError("job not found");
+    let data = job.dataValues;
     let res = {
-        ...job.dataValues
+        job: {
+            id: data.id,
+            title: data.title,
+            category: data.category,
+            detail: data.detail,
+            adress_coordinate: data.adress_coordinate.coordinates,
+            adress_description: data.adress_description,
+            salaryExpected: [data.min_salary, data.max_salary],
+            experience: data.min_experience,
+            education: data.education,
+            required_num: data.required_num,
+            full_time_job: data.full_time_job,
+            tags:data.tags,
+            updatedAt: data.updatedAt,
+        },
+        hr: {
+            id: data.worker_id,
+            name: data.Worker.real_name,
+            pos: data.Worker.pos,
+            last_log_out_time: data.Worker.User.last_log_out_time,
+            logo: data.Worker.User.image_url
+        },
+        company: {
+            id: data.comp_id,
+            name: data.Worker.Enterprise.enterprise_name,
+            address_coordinates: data.Worker.Enterprise.enterprise_coordinates.coordinates,
+            address_description: data.Worker.Enterprise.enterprise_loc_detail,
+            industry_involved: data.Worker.Enterprise.industry_involved,
+            business_nature: data.Worker.Enterprise.business_nature,
+            enterprise_logo: data.Worker.Enterprise.enterprise_logo
+        }
     };
-    res.JobCache = null;
-    res = {
-        ...res,
-        ...job.JobCache.dataValues,
-    }
-    console.log(res)
     return res
     
 }

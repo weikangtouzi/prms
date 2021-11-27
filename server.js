@@ -9,7 +9,7 @@ const {
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require('graphql-upload');
 const { resolvers } = require('./graphql');
-const { GraphQLScalarType, GraphQLUnionType, GraphQLInputObjectType, execute, subscribe,GraphQLString } = require('graphql');
+const { GraphQLScalarType, GraphQLUnionType, GraphQLInputObjectType, execute, subscribe, GraphQLString } = require('graphql');
 const mongo = require('./mongo');
 const fs = require('fs');
 const { env, uploadPath } = require('./project.json');
@@ -19,7 +19,7 @@ const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
 const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity } = require('./graphql/types')
-const {info} = require('./utils/logger')
+const { info } = require('./utils/logger');
 
 const Void = new GraphQLScalarType({
   name: 'Void',
@@ -137,19 +137,42 @@ const typeDefs = gql`
     data: PersonalDataDetail
   }
   "a job always contains these datas. these are formatted data, not exactly what is in database"
-  type JobData {
-    jobTitle: String!,
-    WorkingAddress: String!,
-    experience: String!,
-    "this data is a json data, to use it just parse json by this string"
-    jobDetail: String!,
-    education: String!,
-    requiredNum: Int!,
-    isFullTime: FullTime!,
-    tags: [String]!,
-    createdAt: String!,
+  type JobDataForJobDetailPage {
+    id: Int!,
+    title: String!,
+    category: [String]!,
+    detail: String!,
+    adress_coordinate: [Float]!,
+    adress_description: [String]!,
+    salaryExpected: [Int]!,
+    experience: Int,
+    education: Education,
+    required_num: Int!,
+    full_time_job: FullTime!,
+    tags: [String],
     updatedAt: String!,
   }
+  type HRInfoForJobDetailPage {
+    id: Int!,
+    name: String!,
+    pos: String!,
+    last_log_out_time: String,
+    logo: String!
+  }
+  type CompInfoForJobDetailPage {
+    id: Int!,
+    name: String!,
+    address_coordinates: [Float]!,
+    address_description: [String]!,
+    industry_involved: String!,
+    business_nature: EnterpriseNature!,
+    enterprise_logo: String!
+  }
+  type JobDetailPageReply {
+    job: JobDataForJobDetailPage,
+    hr: HRInfoForJobDetailPage,
+    company: CompInfoForJobDetailPage
+  } 
   "for list query"
   type JobDataBriefly {
     id: Int!,
@@ -179,8 +202,8 @@ const typeDefs = gql`
     count: Int!,
     data: [JobDataBriefly]!
   }
-  "enum {FullTime,\
-        PartTime,\
+  "enum {Full,\
+        Part,\
         InternShip}"
   scalar FullTime
   input JobPost {
@@ -655,10 +678,8 @@ const typeDefs = gql`
     StaticGetTowns(countyId: String!): [Town]!
     "send a verify code to the given number, if phoneNumber not provider and has token in header, will send to the user's phone number"
     StaticSendSms(phoneNumber: String): String!
-    "tags are those tags that hr added to a job. keyword stands for the input at search page. tags and keyword are not required. pageNumber and pageSize default value are 1 and 10"
-    CandidateGetJobs(filter: JobFilter):  [JobDataBriefly]!
     "get job data by id"
-    CandidateGetJob(jobid: Int): JobData!
+    CandidateGetJob(jobid: Int): JobDetailPageReply!
     "get resume data, if cache id exists then will return the cache data, cache expired every 30 minutes"
     CommonGetResume(resumeId: Int, cacheId: String): ResumeData!
     QNPhoneNumberCheck(phoneNumber: String, verifyCode: String): Int!
@@ -755,7 +776,7 @@ async function startServer() {
     plugins: [
       ApolloServerPluginLandingPageGraphQLPlayground()
     ],
-    context: contextMiddleware,
+    context: contextMiddleware.before,
   });
   server.graphqlPath = "/";
   await server.start();
@@ -764,7 +785,7 @@ async function startServer() {
 
   app.use(graphqlUploadExpress());
   app.use(uploadPath, express.static(uploadPath.split('/')[1]));
-  app.use('/preludeDatas',express.static('datas'));
+  app.use('/preludeDatas', express.static('datas'));
   server.applyMiddleware({ app });
   let httpServer;
   if (env == 'production') {
@@ -779,11 +800,8 @@ async function startServer() {
     schema,
     execute,
     subscribe,
-    onConnect: contextMiddleware,
-    onDisconnect: (webSocket, context) => {
-      console.log(webSocket);
-      console.log(context);
-    }
+    onConnect: contextMiddleware.before,
+    onDisconnect: contextMiddleware.ws_close
   }, {
     server: httpServer,
     path: "/graphql"
@@ -797,7 +815,7 @@ async function startServer() {
     .then(() => {
       info('postgres Connection has been established successfully');
     })
-    info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
+  info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
 
 }
 startServer();
