@@ -223,6 +223,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 where: {
                     id: userInfo.user_id,
                 },
+                attributes: ["id"],
                 include: [{
                     model: Resume,
                     attributes: ["id"]
@@ -235,7 +236,8 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
                 identity: { identity: args.targetIdentity },
-                resume: resume != null
+                resume: resume != null,
+                jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues})
             }
         } else {
             throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })

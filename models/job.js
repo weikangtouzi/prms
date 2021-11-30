@@ -35,11 +35,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.TEXT,
       allowNull: false
     },
-    adress_coordinate: {
+    address_coordinate: {
       type: DataTypes.GEOMETRY('POINT'),
       allowNull: false
     },
-    adress_description: {
+    address_description: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: true
     },

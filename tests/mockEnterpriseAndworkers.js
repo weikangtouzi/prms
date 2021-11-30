@@ -121,11 +121,11 @@ async function mock(counter = {
                         title: job_titles[j][2],
                         category: job_titles[j],
                         detail: "keep it as a secret",
-                        adress_coordinate: {
+                        address_coordinate: {
                             type: 'Point',
                             coordinates: [counter.ent, counter.ent]
                         },
-                        adress_description: [""],
+                        address_description: ["上饶", "德兴", ""],
                         min_salary: ms,
                         max_salary: ms + Math.round(Math.random() * 4 + 1) * 1000,
                         min_experience: Math.round(Math.random() * 5) + 1,

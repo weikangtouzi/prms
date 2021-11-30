@@ -1,6 +1,7 @@
 const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment } = require('../models');
 const { Op } = require('sequelize');
-const { AuthenticationError, UserInputError } = require('apollo-server')
+const { AuthenticationError, UserInputError } = require('apollo-server');
+const user = require('../models/user');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -181,7 +182,7 @@ const CandidateGetEnterpriseDetail_HRList = async (parent, args, { userInfo }, i
         final = {
             ...final,
             name: final.real_name,
-            logo: final.User.image_url? final.User.image_url: "default",
+            logo: final.User.image_url ? final.User.image_url : "default",
         }
         return final
     })
@@ -192,9 +193,9 @@ const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { u
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let counts = sequelize.query('select sum("HR")::float / count("id") as "HR", sum("comp_env")::float / count("id") as "comp_env", sum("description")::float / count("id") as "description", sum("comp_env" + "description" + "HR")::float / (3 * count("id")) as total from interview_recomment where comp_id = $1;',
-    {
-        bind: [args.entId]
-    });
+        {
+            bind: [args.entId]
+        });
     let rows = InterviewRecomment.findAndCountAll({
         where: {
             comp_id: args.entId,
@@ -206,7 +207,7 @@ const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { u
         }],
         limit: 2,
     })
-    
+
     counts = await counts;
     rows = await rows;
     res = {
@@ -215,11 +216,13 @@ const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { u
         description: counts[0][0].description,
         HR: counts[0][0].HR,
         count: rows.count,
-        recommends: rows.rows.map(item => { return {
-            ...item.dataValues,
-            logo: item.User.dataValues.image_url? item.User.dataValues.image_url : "",
-            user_name: item.User.dataValues.username
-        }})
+        recommends: rows.rows.map(item => {
+            return {
+                ...item.dataValues,
+                logo: item.User.dataValues.image_url ? item.User.dataValues.image_url : "",
+                user_name: item.User.dataValues.username
+            }
+        })
     }
     console.log(res)
     return res
@@ -243,7 +246,7 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
         }]
     });
     res = {
-        ...raw.rows.map((row) =>{
+        ...raw.rows.map((row) => {
             return {
                 question: row.dataValues.question_description,
                 answerCount: row.dataValues.answer_count,
@@ -252,8 +255,96 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
         })[0],
         questionCount: raw.count
     }
-    
+
     return res
+}
+const CandidateGetHRDetail_HRInfo = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    let res = await Worker.findOne({
+        where: {
+            id: args.hrId,
+        },
+        include: [{
+            model: Enterprise,
+            attributes: ["enterprise_name"],
+            required: true
+        }, {
+            model: User,
+            attributes: ["image_url", "last_log_out_time"],
+            required: true
+        }],
+        attributes: ["real_name", "pos"]
+    })
+    res = {
+        name: res.real_name,
+        pos: res.pos,
+        company_belonged: res.Enterprise.dataValues.enterprise_name,
+        logo: res.User.dataValues.image_url ? res.User.dataValues.image_url : "",
+        last_log_out_time: res.User.dataValues.last_log_out_time
+    }
+    return res
+}
+const CandidateGetHRDetail_RecommendationsList = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    let res = await Job.findAndCountAll({
+        where: {
+            [Op.and]: [
+                { worker_id: args.hrId },
+                {
+                    [Op.or]: userInfo.jobExpectation.map(item => {
+                        return {
+                            category: item.job_category
+                        }
+                    })
+                }
+            ]
+        }
+    })
+    res = {
+        count: res.count,
+        data: res.rows.map(item => {
+            return {
+                id: item.dataValues.id,
+                title: item.dataValues.title,
+                loc: item.dataValues.address_description[0] + "-" + item.dataValues.address_description[1],
+                experience: item.dataValues.min_experience,
+                education: item.dataValues.min_education,
+                salary: [item.dataValues.min_salary, item.dataValues.max_salary],
+                createdAt: item.dataValues.createdAt
+            }
+        })
+    }
+    return res
+}
+const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, info) => {
+    let { page, pageSize, hrId } = args;
+    if(!page) page = 0;
+    if(!pageSize) pageSize = 10;
+    let res = await Job.findAndCountAll({
+        where: {
+            worker_id: hrId,
+        },
+        limit: pageSize,
+        offset: pageSize * page,
+    });
+    return {
+        count: res.count,
+        data: res.rows.map(item => {
+            return {
+                id: item.dataValues.id,
+                title: item.dataValues.title,
+                loc: item.dataValues.address_description[0] + "-" + item.dataValues.address_description[1],
+                experience: item.dataValues.min_experience,
+                education: item.dataValues.min_education,
+                salary: [item.dataValues.min_salary, item.dataValues.max_salary],
+                createdAt: item.dataValues.createdAt
+            }
+        })
+    }
 }
 module.exports = {
     CandidateGetAllJobExpectations,
@@ -262,5 +353,8 @@ module.exports = {
     CandidateGetEnterpriseDetail_EntInfo,
     CandidateGetEnterpriseDetail_HRList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
-    CandidateGetEnterpriseDetail_QA
+    CandidateGetEnterpriseDetail_QA,
+    CandidateGetHRDetail_HRInfo,
+    CandidateGetHRDetail_RecommendationsList,
+    CandidateGetHRDetail_JobListPageView
 }
