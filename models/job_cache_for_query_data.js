@@ -39,10 +39,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.ARRAY(DataTypes.STRING),
             allowNull: false,
         },
-        adress_coordinate: {
+        address_coordinate: {
             type: DataTypes.GEOMETRY('POINT'),
             allowNull: false
         },
+        address_description: {
+            type: DataTypes.ARRAY(DataTypes.STRING),
+            allowNull: true
+          },
         min_salary: {
             type: DataTypes.INTEGER,
             allowNull: false

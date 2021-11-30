@@ -714,6 +714,30 @@ const typeDefs = gql`
     question: String!,
     answer: String!
   }
+  type JobDataForHRDetailPage {
+    id: Int!,
+    title: String!,
+    loc: String!,
+    experience: Int!,
+    education: Education!,
+    salary: [Int]!,
+    createdAt: String!,
+  }
+  type RecommendationsListForHRDetailPage {
+    data: [JobDataForHRDetailPage]!,
+    count: Int!,
+  }
+  type HRInfoForHRDetailPage {
+    name: String!,
+    pos: String!,
+    last_log_out_time: String,
+    company_belonged: String!,
+    logo: String!
+  }
+  type JobListForHRDetailPage {
+    count: Int!,
+    data: [JobDataForHRDetailPage]!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -759,6 +783,9 @@ const typeDefs = gql`
     CandidateGetEnterpriseDetail_HRList(entId: Int): [HRInfoForEntDetail]!
     CandidateGetEnterpriseDetail_InterviewRecomment(entId: Int): InterviewRecommentListForEntDetail!
     CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail!
+    CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
+    CandidateGetHRDetail_RecommendationsList(hrId: Int!): RecommendationsListForHRDetailPage!
+    CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPage!
   }
   
   "most of mutations needed token for authorization"

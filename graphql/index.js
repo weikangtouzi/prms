@@ -29,7 +29,10 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateGetEnterpriseDetail_EntInfo,
     CandidateGetEnterpriseDetail_HRList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
-    CandidateGetEnterpriseDetail_QA } = require('./candidate');
+    CandidateGetEnterpriseDetail_QA,
+    CandidateGetHRDetail_HRInfo,
+    CandidateGetHRDetail_RecommendationsList,
+    CandidateGetHRDetail_JobListPageView } = require('./candidate');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
     Query: {
@@ -56,7 +59,10 @@ const resolvers = {
         CandidateGetEnterpriseDetail_EntInfo,
         CandidateGetEnterpriseDetail_HRList,
         CandidateGetEnterpriseDetail_InterviewRecomment,
-        CandidateGetEnterpriseDetail_QA
+        CandidateGetEnterpriseDetail_QA,
+        CandidateGetHRDetail_HRInfo,
+        CandidateGetHRDetail_RecommendationsList,
+        CandidateGetHRDetail_JobListPageView
     },
     Mutation: {
         UserRegister: register,
