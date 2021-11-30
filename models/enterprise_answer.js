@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
+        model: "worker",
         key: "id",
         deferrable: Deferrable.NOT
       }
@@ -40,6 +40,11 @@ module.exports = (sequelize, DataTypes) => {
     anonymous: {
         type: DataTypes.BOOLEAN,
         allowNull: false
+    },
+    thumbs: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
     }
   }, {
     sequelize,
