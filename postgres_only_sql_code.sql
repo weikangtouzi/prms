@@ -47,3 +47,29 @@ CREATE TRIGGER trigger_update_cache_when_origin_updated
     after UPDATE ON job
     For each row
     EXECUTE PROCEDURE update_cache_when_origin_updated();
+CREATE OR REPLACE FUNCTION count_answers_when_new_answer_is_inserted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  update enterprise_question set answer_count = enterprise_question.answer_count + 1 where enterprise_question.id = NEW.question_id;
+  RETURN NULL;
+END;
+$$;
+DROP TRIGGER IF EXISTS trigger_count_answers_when_new_answer_is_inserted ON enterprise_answer;
+CREATE TRIGGER trigger_count_answers_when_new_answer_is_inserted
+    after INSERT ON enterprise_answer
+    For each row
+    EXECUTE PROCEDURE count_answers_when_new_answer_is_inserted();
+CREATE OR REPLACE FUNCTION count_answers_when_an_answer_is_deleted() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  update enterprise_question set answer_count = enterprise_question.answer_count - 1 where enterprise_question.id = NEW.question_id;
+  RETURN NULL;
+END;
+$$;
+DROP TRIGGER IF EXISTS trigger_count_answers_when_an_answer_is_deleted ON enterprise_answer;
+CREATE TRIGGER trigger_count_answers_when_an_answer_is_deleted
+    after delete ON enterprise_answer
+    For each row
+    EXECUTE PROCEDURE count_answers_when_an_answer_is_deleted();

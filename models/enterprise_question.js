@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         deferrable: Deferrable.NOT
       }
     },
-    comp_id: {
+    enterprise_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -45,6 +45,11 @@ module.exports = (sequelize, DataTypes) => {
     anonymous: {
       type: DataTypes.BOOLEAN,
       allowNull: false
+    },
+    answer_count: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     }
   }, {
     sequelize,

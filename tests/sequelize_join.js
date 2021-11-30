@@ -1,4 +1,4 @@
-const {Province, City, County, Town, Enterprise, Worker, Job, User} = require('../models');
+const {Province, City, County, Town, Enterprise, Worker, InterviewRecomment, User, sequelize} = require('../models');
 
 // Province.findAll({
 //     attributes:["province_id", "name"],
@@ -52,16 +52,13 @@ const {Province, City, County, Town, Enterprise, Worker, Job, User} = require('.
 //     console.log(JSON.stringify(res))
 // })
 
-Job.findAndCountAll({
-    include:[{
-        model:Worker,
-        attributes: ["real_name", "pos"],
-        include: [{
-            model: Enterprise,
-            attributes: ["enterprise_name", "enterprise_size", "enterprise_financing"],
-        },{
-            model: User,
-            attributes: ["image_url"]
-        }]
+InterviewRecomment.findAndCountAll({
+    where: {
+        comp_id: 1,
+    },
+    attributes: ["id", "job_name", "tags", "thumbs", "content", "createdAt", [sequelize.literal('("HR" + "description" + "comp_env") / 3.0'), "score"]],
+    include: [{
+        model: User,
+        attributes: ["image_url", "username"]
     }]
-}).then(res => console.log(res))
+}).then(res => console.log(JSON.stringify(res)))

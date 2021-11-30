@@ -683,8 +683,36 @@ const typeDefs = gql`
     work_time: Int,
     createdAt: String!,
   }
-  type EntDetailPageReply {
-    entInfo: EnterpriseInfoForEntDetail!
+  type HRInfoForEntDetail {
+    id: Int!,
+    name: String!,
+    logo: String!,
+    pos: String!
+  }
+  type InterviewRecommentInfoForEntDetail{
+    id: Int!,
+    user_name: String!,
+    score: Float!,
+    job_name: String!,
+    tags: [String]!,
+    content: String!,
+    thumbs: Int!,
+    createdAt: String!,
+    logo: String!,
+  }
+  type InterviewRecommentListForEntDetail {
+    total: Float!,
+    description: Float!,
+    comp_env: Float!,
+    HR: Float!,
+    count: Int!,
+    recommends: [InterviewRecommentInfoForEntDetail]!
+  }
+  type EnterpriseQAForEntDetail {
+    questionCount: Int!,
+    answerCount: Int!,
+    question: String!,
+    answer: String!
   }
   "for most of get query needed token for authorization"
   type Query {
@@ -727,7 +755,10 @@ const typeDefs = gql`
     UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
     CandidateGetAllJobExpectations: [JobExpectation]!
     CandidateGetJobList(filter:JobFilter): JobSimpifiedDataPageView!
-    CandidateGetEnterpriseDetail(entId: Int): EntDetailPageReply!
+    CandidateGetEnterpriseDetail_EntInfo(entId: Int): EnterpriseInfoForEntDetail!
+    CandidateGetEnterpriseDetail_HRList(entId: Int): [HRInfoForEntDetail]!
+    CandidateGetEnterpriseDetail_InterviewRecomment(entId: Int): InterviewRecommentListForEntDetail!
+    CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail!
   }
   
   "most of mutations needed token for authorization"

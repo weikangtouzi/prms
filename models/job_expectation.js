@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false
     },
+    industry_involved: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false
+    },
     aimed_city: {
       type: DataTypes.STRING(64),
       allowNull: false

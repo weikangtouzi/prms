@@ -113,6 +113,12 @@ db.EnterpriseQuestion.belongsTo(db.User, {
 db.User.hasMany(db.EnterpriseQuestion, {
   foreignKey: 'user_id'
 })
+db.User.hasMany(db.InterviewRecomment, {
+  foreignKey: 'user_id'
+})
+db.InterviewRecomment.belongsTo(db.User, {
+  foreignKey: 'user_id'
+})
 var sql_string = fs.readFileSync('./postgres_only_sql_code.sql', 'utf8');
 sequelize.query(sql_string);
 module.exports = db;

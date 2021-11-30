@@ -1,16 +1,16 @@
-const { logIn, 
-    numberCheck, 
-    register, 
-    chooseOrSwitchIdentity, 
-    resetPassword, 
-    refreshToken, 
-    UserVerifyCodeConsume, 
+const { logIn,
+    numberCheck,
+    register,
+    chooseOrSwitchIdentity,
+    resetPassword,
+    refreshToken,
+    UserVerifyCodeConsume,
     UserEditBasicInfo } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
-const { sendMessage, newMessage,UserGetMessages } = require('./message')
+const { sendMessage, newMessage, UserGetMessages } = require('./message')
 const { editEnterpriseBasicInfo,
     editEnterpriseWorkTimeAndWelfare,
     editEnterpriseExtraData,
@@ -25,7 +25,11 @@ const { editEnterpriseBasicInfo,
     HRRemoveJob,
     ENTRecruitmentApply
 } = require('./enterprise');
-const {CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob, CandidateGetEnterpriseDetail} = require('./candidate');
+const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
+    CandidateGetEnterpriseDetail_EntInfo,
+    CandidateGetEnterpriseDetail_HRList,
+    CandidateGetEnterpriseDetail_InterviewRecomment,
+    CandidateGetEnterpriseDetail_QA } = require('./candidate');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
     Query: {
@@ -49,7 +53,10 @@ const resolvers = {
         CandidateGetAllJobExpectations,
         CandidateGetJobList,
         CandidateGetJob,
-        CandidateGetEnterpriseDetail
+        CandidateGetEnterpriseDetail_EntInfo,
+        CandidateGetEnterpriseDetail_HRList,
+        CandidateGetEnterpriseDetail_InterviewRecomment,
+        CandidateGetEnterpriseDetail_QA
     },
     Mutation: {
         UserRegister: register,
