@@ -348,18 +348,13 @@ const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, 
 }
 const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, info) => {
     let {entId} = args;
-    let res = await Job.findAll({
-        where: {
-            comp_id: entId,
-        },
-        attributes: [sequelize.literal("category[1]")],
-        group: sequelize.literal("category[1]"),
-        
-    });
-    console.log(res);
-    return res.map(item => {
-        console.log(item.dataValues)
-        return item.dataValues.category
+    let res = await sequelize.query('SELECT category[1] FROM "job" AS "Job" WHERE "Job"."comp_id" = $1 GROUP BY category[1];',
+        {
+            bind: [entId]
+        });
+    
+    return res[0].map(item => {
+        return item.category
     })
 }
 
@@ -390,7 +385,6 @@ const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
             }
         })
     }
-    
 }
 module.exports = {
     CandidateGetAllJobExpectations,
