@@ -153,15 +153,16 @@ const CandidateGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, 
             comp_id: args.entId
         }
     });
+    entInfo = await entInfo;
     let res = {
-        entInfo: {}
-    }
-    return {
         jobCounter: await job_counter,
-        ...(await entInfo).toJSON(),
-        createdAt: (await entInfo).createdAt.toISOString(),
+        ...entInfo.toJSON(),
+        enterprise_coordinates: entInfo.dataValues.enterprise_coordinates.coordinates,
+        createdAt: entInfo.createdAt.toISOString(),
 
     }
+    console.log(res)
+    return res
 }
 const CandidateGetEnterpriseDetail_HRList = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
