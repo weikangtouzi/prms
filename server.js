@@ -665,13 +665,13 @@ const typeDefs = gql`
   type EnterpriseInfoForEntDetail {
     enterprise_name: String!,
     business_nature: EnterpriseNature!,
-    industry_involved: String!,
+    industry_involved: [String]!,
     enterprise_profile: String!,
     enterprise_financing: EnterpriseFinancing!,
     enterprise_size: EnterpriseSize,
     enterprise_welfare:[String],
     enterprise_logo: String,
-    tags: String!,
+    tags: String,
     enterprise_coordinates: [Float]!,
     enterprise_loc_detail: [String]!,
     extra_attribute: String,
@@ -714,7 +714,7 @@ const typeDefs = gql`
     question: String!,
     answer: String!
   }
-  type JobDataForHRDetailPage {
+  type JobDataForHRDetailPageOrEntJobList {
     id: Int!,
     title: String!,
     loc: String!,
@@ -724,7 +724,7 @@ const typeDefs = gql`
     createdAt: String!,
   }
   type RecommendationsListForHRDetailPage {
-    data: [JobDataForHRDetailPage]!,
+    data: [JobDataForHRDetailPageOrEntJobList]!,
     count: Int!,
   }
   type HRInfoForHRDetailPage {
@@ -734,9 +734,9 @@ const typeDefs = gql`
     company_belonged: String!,
     logo: String!
   }
-  type JobListForHRDetailPage {
+  type JobListForHRDetailPageOrEntJobList {
     count: Int!,
-    data: [JobDataForHRDetailPage]!
+    data: [JobDataForHRDetailPageOrEntJobList]!
   }
   "for most of get query needed token for authorization"
   type Query {
@@ -785,7 +785,9 @@ const typeDefs = gql`
     CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail!
     CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
     CandidateGetHRDetail_RecommendationsList(hrId: Int!): RecommendationsListForHRDetailPage!
-    CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPage!
+    CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPageOrEntJobList!
+    CandidateGetAllJobCategoriesByEntId(entId: Int): [String]!
+    CandidateGetJobListByEntId(entId: Int!, category: String): JobListForHRDetailPageOrEntJobList!
   }
   
   "most of mutations needed token for authorization"

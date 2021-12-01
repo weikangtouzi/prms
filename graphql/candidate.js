@@ -32,7 +32,7 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             enterpriseFinancing,
             sortWithDistance,
             full_time_job,
-            category,
+            category
         } = args.filter;
         if (args.filter.page) page = args.filter.page;
         if (args.filter.pageSize) pageSize = args.filter.pageSize;
@@ -224,7 +224,6 @@ const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { u
             }
         })
     }
-    console.log(res)
     return res
 }
 
@@ -346,6 +345,52 @@ const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, 
         })
     }
 }
+const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, info) => {
+    let {entId} = args;
+    let res = await Job.findAll({
+        where: {
+            comp_id: entId,
+        },
+        attributes: [sequelize.literal("category[1]")],
+        group: sequelize.literal("category[1]"),
+        
+    });
+    console.log(res);
+    return res.map(item => {
+        console.log(item.dataValues)
+        return item.dataValues.category
+    })
+}
+
+const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
+    let {page, pageSize, entId, category} = args;
+    if(!page) page = 0;
+    if(!pageSize) pageSize = 10;
+    let where = {
+        comp_id: entId,
+    };
+    if(category) where[category] = sequelize.literal(`category[1] = '${category}'`);
+    let res = await Job.findAndCountAll({
+        where,
+        limit: pageSize,
+        offset: pageSize * page,
+    });
+    return {
+        count: res.count,
+        data: res.rows.map(item => {
+            return {
+                id: item.dataValues.id,
+                title: item.dataValues.title,
+                loc: item.dataValues.address_description[0] + "-" + item.dataValues.address_description[1],
+                experience: item.dataValues.min_experience,
+                education: item.dataValues.min_education,
+                salary: [item.dataValues.min_salary, item.dataValues.max_salary],
+                createdAt: item.dataValues.createdAt
+            }
+        })
+    }
+    
+}
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -356,5 +401,7 @@ module.exports = {
     CandidateGetEnterpriseDetail_QA,
     CandidateGetHRDetail_HRInfo,
     CandidateGetHRDetail_RecommendationsList,
-    CandidateGetHRDetail_JobListPageView
+    CandidateGetHRDetail_JobListPageView,
+    CandidateGetAllJobCategoriesByEntId,
+    CandidateGetJobListByEntId
 }
