@@ -43,11 +43,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     skills: {
       type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false
+      allowNull: true
     },
     personal_advantage: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
   }, {
     sequelize,
