@@ -387,7 +387,6 @@ const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     }
 }
 
-const Candidate
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
