@@ -70,13 +70,33 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true,
       validate: {
         isAdult(value) {
-          if(value) {
+          if (value) {
             if (new Date().getFullYear() - new Date(value).getFullYear() < 18) {
               throw new Error('only allowed adults');
             }
           }
         }
       }
+    },
+    current_city: {
+      type: DataTypes.STRING(64),
+      allowNull: true
+    },
+    first_time_working: {
+      type: DataTypes.DATEONLY,
+      allowNull: true
+    },
+    job_status: {
+      type: DataTypes.ENUM("NoJobButNoJob", "NoJobButWantJob", "OnTheJob", "OnTheJobButLookingForAJob", "GraduatingStudent"),
+      allowNull: true
+    },
+    employment_nature: {
+      type: DataTypes.ENUM("Anytime", "LessThanTwoDays", "LessThanOneWeek", "LessThanTwoWeeks", "LessThanOneMonth", "MoreThanOneMonth"),
+      allowNull: true
+    },
+    education: {
+      type: DataTypes.ENUM("LessThanPrime", "Primary", "Junior", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"),
+      allowNull: true
     },
     last_log_out_time: {
       type: DataTypes.DATE,

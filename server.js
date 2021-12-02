@@ -219,18 +219,16 @@ const typeDefs = gql`
     tags: [String]!,
     coordinates: [Float]!
   }
-  "because the personal data is already exists, I choos this for the name"
+  "because the personal data is already exists, I choose this for the name"
   input BasicData {
     "a link to the file"
-    logo: String!,
-    realName: String!,
-    username: String!,
-    birthday: Int!,
-    gender: Boolean!,
-    currentCity: String!,
-    phoneNumber: String!,
-    education: Education!,
-    firstTimeWorking: String!,
+    logo: String,
+    username: String,
+    birthday: Int,
+    gender: Boolean,
+    currentCity: String,
+    education: Education,
+    firstTimeWorking: String,
   }
   input WorkExperience {
     "for edit you need pass this data"
@@ -800,7 +798,7 @@ const typeDefs = gql`
     CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
     HRPostJob(info: JobPost): Void
     "insert or edit a personal data"
-    UserEditBasicInfo(info: BasicData): Void
+    UserEditBasicInfo(info: BasicData!): Void
     "insert or edit a personal advantage"
     CandidateEditPersonalAdvantage(advantage: String!): Void
     "insert or edit a work experience"
@@ -813,11 +811,10 @@ const typeDefs = gql`
     CandidateSendResume(resumeId:Int, targetUser: Int): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
     HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!): Void
-    HREndInterview(interviewId: Int!, ispassed:  Boolean!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"
     CommoncancelInterview(interviewId: Int!): Void
     "end a iterview with the description, need to tell the interview is passed or not, most of time the description is about some special situation"
-    HREndIterview(interviewId: Int!, ispassed: Boolean!, description: String): Void
+    HREndInterview(interviewId: Int!, ispassed: Boolean!, description: String): Void
     "accept or reject an interview by id"
     CandidateAcceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
     "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
