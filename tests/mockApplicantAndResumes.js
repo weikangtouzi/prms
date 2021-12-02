@@ -686,6 +686,10 @@ async function mock(counter = 0, max = 150) {
         current_city: "上饶",
         job_status: job_statuss[counter % 4],
         employment_nature: ens[counter % 6],
+    }, {
+        where: {
+            id: user.id,
+        }
     });
     await ResumeWorkExp.create({
         resume_id: resume.id,
