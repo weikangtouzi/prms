@@ -282,13 +282,25 @@ const refreshToken = async (parent, args, context, info) => {
 const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { username, imageUrl } = args.info;
-    User.update({ username, image_url: imageUrl }, {
-        where: {
-            id: userInfo.user_id
-        }
-    });
-
+    const { username, logo, gender, birthday, currentCity, firstTimeWorking, education } = args.info;
+    let update = {};
+    if(username) update.username = username;
+    if(logo) update.image_url = logo;
+    if(gender) update.gender = gender;
+    if(birthday) update.birth_date = birthday;
+    if(currentCity) update.current_city = currentCity;
+    if(firstTimeWorking) update.first_time_working = firstTimeWorking;
+    if(education) update.education = education;
+    if(Object.keys(update).length == 0) throw new UserInputError("you need submit at least one field to update");
+    try {
+        await User.update(update, {
+            where: {
+                id: userInfo.user_id
+            }
+        });
+    } catch (e) {
+        throw e
+    }
 }
 
 
