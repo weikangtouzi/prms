@@ -433,7 +433,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
             end_at: endAt,
             working_detail: workDetail
         }, {
-            resume_id: id
+            id: id
         });
     }
     else {
@@ -458,7 +458,6 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
             keyword: compName,
         })
     })
-
 }
 
 module.exports = {
@@ -474,5 +473,6 @@ module.exports = {
     CandidateGetHRDetail_JobListPageView,
     CandidateGetAllJobCategoriesByEntId,
     CandidateGetJobListByEntId,
-    CandidateEditPersonalAdvantage
+    CandidateEditPersonalAdvantage,
+    CandidateEditWorkExprience
 }
