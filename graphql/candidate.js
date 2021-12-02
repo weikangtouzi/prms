@@ -2,6 +2,7 @@ const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, Ente
 const { Op } = require('sequelize');
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const user = require('../models/user');
+const mongo = require('../mongo');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -53,7 +54,7 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             where,
             limit: pageSize,
             offset: page * pageSize,
-            order: sortWithDistance ? [[sequelize.fn("ST_Distance", sequelize.col("adress_coordinate"), sequelize.fn("ST_GeomFromGeoJSON", JSON.stringify({
+            order: sortWithDistance ? [[sequelize.fn("ST_Distance", sequelize.col("address_coordinate"), sequelize.fn("ST_GeomFromGeoJSON", JSON.stringify({
                 type: "POINT",
                 coordinates: sortWithDistance
             })))], ["ontop", "DESC"], ["updatedAt", "DESC"]] : [["ontop", "DESC"], ["updatedAt", "DESC"]]
@@ -63,14 +64,14 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             limit: pageSize,
             offset: page * pageSize,
             order: [["ontop", "DESC"], ["updatedAt", "DESC"]]
-
         })
     }
     return {
         page, pageSize,
         count: res.count,
         data: res.rows.map(row => {
-            row.adress_coordinate = JSON.stringify(row.adress_coordinate);
+            console.log(row.address_coordinates)
+            row.address_coordinate = JSON.stringify(row.address_coordinate);
             if (!row.logo) row.logo = "default_hr_logo";
             if (!row.emergency) row.emergency = false;
             return row
@@ -109,8 +110,8 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
             title: data.title,
             category: data.category,
             detail: data.detail,
-            adress_coordinate: data.adress_coordinate.coordinates,
-            adress_description: data.adress_description,
+            address_coordinate: data.address_coordinate.coordinates,
+            address_description: data.address_description,
             salaryExpected: [data.min_salary, data.max_salary],
             experience: data.min_experience,
             education: data.education,
@@ -321,9 +322,12 @@ const CandidateGetHRDetail_RecommendationsList = async (parent, args, { userInfo
     return res
 }
 const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let { page, pageSize, hrId } = args;
-    if(!page) page = 0;
-    if(!pageSize) pageSize = 10;
+    if (!page) page = 0;
+    if (!pageSize) pageSize = 10;
     let res = await Job.findAndCountAll({
         where: {
             worker_id: hrId,
@@ -347,25 +351,31 @@ const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, 
     }
 }
 const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, info) => {
-    let {entId} = args;
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    let { entId } = args;
     let res = await sequelize.query('SELECT category[1] FROM "job" AS "Job" WHERE "Job"."comp_id" = $1 GROUP BY category[1];',
         {
             bind: [entId]
         });
-    
+
     return res[0].map(item => {
         return item.category
     })
 }
 
 const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
-    let {page, pageSize, entId, category} = args;
-    if(!page) page = 0;
-    if(!pageSize) pageSize = 10;
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    let { page, pageSize, entId, category } = args;
+    if (!page) page = 0;
+    if (!pageSize) pageSize = 10;
     let where = {
         comp_id: entId,
     };
-    if(category) where[category] = sequelize.literal(`category[1] = '${category}'`);
+    if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
     let res = await Job.findAndCountAll({
         where,
         limit: pageSize,
@@ -387,6 +397,70 @@ const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     }
 }
 
+const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const { content } = args;
+    try {
+        await Resume.update({
+            personal_advantage: content
+        }, {
+            where: {
+                user_id: userInfo.user_id
+            }
+        });
+    } catch (err) {
+        throw err;
+    }
+}
+
+const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
+    const { id, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
+    if (id) {
+        let update = {};
+        if (compName) update.comp_name = compName;
+        if (posName) update.pos_name = posName;
+        if (department) update.department = department;
+        if (startAt) update.start_at = startAt;
+        if (endAt) update.end_at = endAt;
+        if (workDetail) update.work_detail = workDetail;
+        if (Object.keys(update).length == 0) throw new UserInputError("needed at least one data");
+        await ResumeWorkExp.update({
+            comp_name: compName,
+            pos_name: posName,
+            department: department,
+            start_at: startAt,
+            end_at: endAt,
+            working_detail: workDetail
+        }, {
+            resume_id: id
+        });
+    }
+    else {
+        if (!compName) throw new UserInputError("compName is required when no id specified");
+        if (!posName) throw new UserInputError("posName is required when no id specified");
+        if (!department) throw new UserInputError("department is required when no id specified");
+        if (!startAt) throw new UserInputError("startAt is required when no id specified");
+        if (!endAt) throw new UserInputError("endAt is required when no id specified");
+        if (!workDetail) throw new UserInputError("workDetail is required when no id specified");
+        await ResumeWorkExp.create({
+            comp_name: compName,
+            pos_name: posName,
+            department: department,
+            start_at: startAt,
+            end_at: endAt,
+            working_detail: workDetail
+        })
+    }
+    if (hideFromThisCompany) mongo.query("blacklist", async (collection) => {
+        await collection.insert({
+            user_id: userInfo.user_id,
+            keyword: compName,
+        })
+    })
+
+}
+
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -399,5 +473,6 @@ module.exports = {
     CandidateGetHRDetail_RecommendationsList,
     CandidateGetHRDetail_JobListPageView,
     CandidateGetAllJobCategoriesByEntId,
-    CandidateGetJobListByEntId
+    CandidateGetJobListByEntId,
+    CandidateEditPersonalAdvantage
 }

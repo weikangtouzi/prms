@@ -142,7 +142,7 @@ const typeDefs = gql`
     title: String!,
     category: [String]!,
     detail: String!,
-    adress_coordinate: [Float]!,
+    address_coordinate: [Float]!,
     adress_description: [String]!,
     salaryExpected: [Int]!,
     experience: Int,
@@ -181,7 +181,7 @@ const typeDefs = gql`
     hr_pos: String!,
     title: String!,
     category: [String]!,
-    adress_coordinate: String!,
+    address_coordinate: String!,
     min_salary: Int!,
     max_salary: Int!,
     min_experience: Int!,
@@ -269,7 +269,7 @@ const typeDefs = gql`
     gender: Boolean!,
     phoneNumber: String!,
     education: Education!,
-    WorkExperienceTime: Int!,
+    workExperienceTime: Int!,
   }
   enum ResumeJobStatus {
     "不想找工作的无业游民"
