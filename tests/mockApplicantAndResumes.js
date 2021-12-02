@@ -676,18 +676,16 @@ async function mock(counter = 0, max = 150) {
 
     let resume = await Resume.create({
         user_id: user.id,
+        personal_advantage: "",
         skills: [skills_selections[counter % 8]]
     });
-    await ResumePersonalData.create({
-        resume_id: resume.id,
+    await User.update({
         real_name: getName(counter),
         birth_date: user.birth_date,
         first_time_working: new Date(ftws[counter]),
         current_city: "上饶",
-        phone_number: user.phone_number,
         job_status: job_statuss[counter % 4],
         employment_nature: ens[counter % 6],
-        personal_advantage: "",
     });
     await ResumeWorkExp.create({
         resume_id: resume.id,
