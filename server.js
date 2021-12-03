@@ -167,6 +167,7 @@ const typeDefs = gql`
     industry_involved: [String]!,
     business_nature: EnterpriseNature!,
     enterprise_logo: String!
+    enterprise_size: EnterpriseSize!
   }
   type JobDetailPageReply {
     job: JobDataForJobDetailPage!,
