@@ -143,7 +143,7 @@ const typeDefs = gql`
     category: [String]!,
     detail: String!,
     address_coordinate: [Float]!,
-    adress_description: [String]!,
+    address_description: [String]!,
     salaryExpected: [Int]!,
     experience: Int,
     education: Education,
@@ -164,7 +164,7 @@ const typeDefs = gql`
     name: String!,
     address_coordinates: [Float]!,
     address_description: [String]!,
-    industry_involved: String!,
+    industry_involved: [String]!,
     business_nature: EnterpriseNature!,
     enterprise_logo: String!
   }

@@ -34,7 +34,9 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateGetHRDetail_RecommendationsList,
     CandidateGetHRDetail_JobListPageView,
     CandidateGetAllJobCategoriesByEntId,
-    CandidateGetJobListByEntId } = require('./candidate');
+    CandidateGetJobListByEntId,
+    CandidateEditPersonalAdvantage,
+    CandidateEditWorkExprience } = require('./candidate');
 const { getCensorList, setCensoredForAnItem } = require('./admin');
 const resolvers = {
     Query: {
@@ -88,7 +90,9 @@ const resolvers = {
         HREndInterview,
         UserEditBasicInfo,
         HRRemoveJob,
-        ENTRecruitmentApply
+        ENTRecruitmentApply,
+        CandidateEditPersonalAdvantage,
+        CandidateEditWorkExprience
     },
     Subscription: {
         newMessage

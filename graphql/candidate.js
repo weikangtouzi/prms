@@ -134,7 +134,8 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
             address_description: data.Worker.Enterprise.enterprise_loc_detail,
             industry_involved: data.Worker.Enterprise.industry_involved,
             business_nature: data.Worker.Enterprise.business_nature,
-            enterprise_logo: data.Worker.Enterprise.enterprise_logo
+            enterprise_logo: data.Worker.Enterprise.enterprise_logo,
+            enterprise_size: data.Worker.Enterprise.enterprise_size,
         }
     };
     return res
@@ -433,11 +434,11 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
             end_at: endAt,
             working_detail: workDetail
         }, {
-            resume_id: id
+            id: id
         });
     }
     else {
-        if (!compName) throw new UserInputError("compName is required when no id specified");
+        if (!compName || compName.trim() == '') throw new UserInputError("compName is required when no id specified");
         if (!posName) throw new UserInputError("posName is required when no id specified");
         if (!department) throw new UserInputError("department is required when no id specified");
         if (!startAt) throw new UserInputError("startAt is required when no id specified");
@@ -458,7 +459,6 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
             keyword: compName,
         })
     })
-
 }
 
 module.exports = {
@@ -474,5 +474,6 @@ module.exports = {
     CandidateGetHRDetail_JobListPageView,
     CandidateGetAllJobCategoriesByEntId,
     CandidateGetJobListByEntId,
-    CandidateEditPersonalAdvantage
+    CandidateEditPersonalAdvantage,
+    CandidateEditWorkExprience
 }
