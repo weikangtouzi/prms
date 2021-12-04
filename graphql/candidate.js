@@ -1,4 +1,4 @@
-const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment } = require('../models');
+const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment, Resume, ResumeWorkExp, ResumeEduExp, ResumeProjectExp } = require('../models');
 const { Op } = require('sequelize');
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const user = require('../models/user');
@@ -416,7 +416,9 @@ const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) 
 }
 
 const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
-    const { id, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const { id, resumeId, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
     if (id) {
         let update = {};
         if (compName) update.comp_name = compName;
@@ -426,18 +428,12 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
         if (endAt) update.end_at = endAt;
         if (workDetail) update.work_detail = workDetail;
         if (Object.keys(update).length == 0) throw new UserInputError("needed at least one data");
-        await ResumeWorkExp.update({
-            comp_name: compName,
-            pos_name: posName,
-            department: department,
-            start_at: startAt,
-            end_at: endAt,
-            working_detail: workDetail
-        }, {
+        await ResumeWorkExp.update(update, {
             id: id
         });
     }
     else {
+        if (!resumeId) throw new UserInputError("resumeId is required");
         if (!compName || compName.trim() == '') throw new UserInputError("compName is required when no id specified");
         if (!posName) throw new UserInputError("posName is required when no id specified");
         if (!department) throw new UserInputError("department is required when no id specified");
@@ -450,7 +446,8 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
             department: department,
             start_at: startAt,
             end_at: endAt,
-            working_detail: workDetail
+            working_detail: workDetail,
+            resume_id: resumeId
         })
     }
     if (hideFromThisCompany) mongo.query("blacklist", async (collection) => {
@@ -461,6 +458,97 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
     })
 }
 
+const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const { id,
+        resumeId,
+        schoolName,
+        education,
+        isFullTime,
+        major,
+        time,
+        exp_at_school } = args;
+    if (id) {
+        let update = {};
+        if (schoolName) update.school_name = schoolName;
+        if (education) update.education = education;
+        if (isFullTime) update.is_all_time = isFullTime;
+        if (major) update.major = major;
+        if (time) update.time = time;
+        if (exp_at_school) update.exp_at_school = exp_at_school;
+        await ResumeEduExp.update(update, {
+            where: {
+                id: id
+            }
+        });
+    } else {
+        if (!resumeId) throw new UserInputError("resumeId is required");
+        if (!schoolName) throw new UserInputError("schoolName is required");
+        if (!education) throw new UserInputError("education is required");
+        if (!isFullTime) throw new UserInputError("isFullTime is required");
+        if (!major) throw new UserInputError("major is required");
+        if (!time) throw new UserInputError("time is required");
+        if (!exp_at_school) throw new UserInputError("exp_at_school is required");
+        await ResumeEduExp.create({
+            resume_id: resumeId,
+            school_name: schoolName,
+            education: education,
+            is_all_time: isFullTime,
+            major: major,
+            time: time,
+            exp_at_school: exp_at_school
+        })
+    }
+}
+
+const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {id, resumeId, projectName, role, startAt, endAt, description, performance} = args.info;
+    if (id) {
+        let update = {};
+        if (projectName) update.project_name = projectName;
+        if (role) update.role = role;
+        if (startAt) update.start_at = startAt;
+        if (endAt) update.end_at = endAt;
+        if (description) update.description = description;
+        if (performance) update.performance = performance;
+        await ResumeProjectExp.update(update, {
+            where: {
+                id: id,
+            }
+        })
+    } else {
+        if(!resumeId) throw new UserInputError("resumeId is required");
+        if(!projectId) throw new UserInputError("projectId is required");
+        if(!role) throw new UserInputError("role is required");
+        if(!startAt) throw new UserInputError("startAt is required");
+        if(!endAt) throw new UserInputError("endAt is required");
+        if(!description) throw new UserInputError("startAt is required");
+        if(!performance) throw new UserInputError("endAt is required");
+        await ResumeProjectExp.create({
+            resume_id: resumeId,
+            project_name: projectName,
+            role: role,
+            startAt: startAt,
+            endAt: endAt,
+            description: description,
+            performance: performance
+        })
+    }
+}
+
+const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {resumeId, skills} = args;
+    await Resume.update({
+        skills: skills
+    }, {
+        id: resumeId,
+    })
+}
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -475,5 +563,8 @@ module.exports = {
     CandidateGetAllJobCategoriesByEntId,
     CandidateGetJobListByEntId,
     CandidateEditPersonalAdvantage,
-    CandidateEditWorkExprience
+    CandidateEditWorkExprience,
+    CandidateEditEduExp,
+    CandidateEditProExp,
+    CandidateEditSkills
 }
