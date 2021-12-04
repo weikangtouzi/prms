@@ -234,32 +234,35 @@ const typeDefs = gql`
   input WorkExperience {
     "for edit you need pass this data"
     id: Int,
-    compName: String!,
-    posName: String!,
-    department: String!,
-    startAt: String!,
-    endAt: String!,
-    workDetail: String!,
+    resumeId: Int,
+    compName: String,
+    posName: String,
+    department: String,
+    startAt: String,
+    endAt: String,
+    workDetail: String,
     hideFromThisCompany: Boolean!
   }
   input EduExp {
     "for edit you need pass this data"
     id: Int,
-    schoolName: String!,
-    education: Education!,
-    isFullTime: Boolean!,
-    major: String!,
-    time: String!,
+    resumeId: Int,
+    schoolName: String,
+    education: Education,
+    isFullTime: Boolean,
+    major: String,
+    time: String,
     exp_at_school: String!
   }
   input ProExp {
     "for edit you need pass this data"
     id: Int,
-    projectName: String!,
-    role: String!,
-    startAt: String!,
-    endAt: String!,
-    description: String!,
+    resumeId: Int,
+    projectName: String,
+    role: String,
+    startAt: String,
+    endAt: String,
+    description: String,
     performance: String
   }
   type ResumePersonalData {
