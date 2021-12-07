@@ -10,8 +10,29 @@
             "endpoint": "dysmsapi.aliyuncs.com"
         },
         "tencent": {
-            "appId": "",
-            "sercetKeyId": ""
+            "credential": {
+                "secretId": "AKID5B1cx2qOghRv96lAJBm69wShfNoyrVsy",
+                "secretKey": "qPhiSv84j7F6gyzkDPK4Y8RVHmzvb07x"
+            },
+            "region": "ap-nanjing",
+            "signMethod": "HmacSHA256",
+            "httpProfile": {
+                "reqMethod": "POST",
+                "reqTimeout": 30,
+                "endpoint": "sms.tencentcloudapi.com"
+            },
+            "SmsSdkAppId": "1400567071",
+            "SignName": "微康投资",
+            "Templates": {
+                "verifyCode": {
+                    "id": "1131845",
+                    "argsCount": 1
+                },
+                "notification": {
+                    "id": "1229196",
+                    "argsCount": 3
+                }
+            }
         },
         "common": {
             "verifyCode": {
@@ -22,7 +43,8 @@
             "notification": {
                 
             }
-        }
+        },
+        "current_sdk": "tencent"
     },
     "email": {
         "host": "",

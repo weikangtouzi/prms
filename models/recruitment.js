@@ -59,12 +59,14 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: 0,
     },
     start_at: {
-      type: DataTypes.TIME,
-      allowNull: false
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: new Date(),
     },
     end_at: {
-      type: DataTypes.TIME,
-      allowNull: false
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: new Date(new Date().getTime() + 6 * 60 * 60 * 1000)
     }
   }, {
     sequelize,
