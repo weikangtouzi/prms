@@ -842,6 +842,7 @@ const typeDefs = gql`
     UserSendMessage(info: SendMessage!): Void
     HRRemoveJob(jobId: Int!): Void
     ENTRecruitmentApply(recruitmentId: Int!, size: String): Void
+    CandidateEditSkills(resumeId: Int!, skills: [String]!): Void
   }
   type Subscription {
     newMessage: Message!

@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
         comment: "could be a personal user or enterprise user",
+        primaryKey: true,
     },
     recruitment_id: {
         type: DataTypes.INTEGER,
@@ -27,7 +28,12 @@ module.exports = (sequelize, DataTypes) => {
             model: 'recruitment',
             key: "id",
             deferrable: Deferrable.NOT
-        }
+        },
+        primaryKey: true,
+    },
+    is_comp: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
     },
     canceled: {
       type: DataTypes.BOOLEAN,

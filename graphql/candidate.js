@@ -1,4 +1,4 @@
-const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment, Resume, ResumeWorkExp, ResumeEduExp, ResumeProjectExp } = require('../models');
+const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment, Resume, ResumeWorkExp, ResumeEduExp, ResumeProjectExp, JobReadRecord } = require('../models');
 const { Op } = require('sequelize');
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const user = require('../models/user');
@@ -95,7 +95,7 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
             attributes: ["real_name", "pos"],
             include: [{
                 model: Enterprise,
-                attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail"]
+                attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail", "enterprise_financing"]
             }, {
                 model: User,
                 attributes: ["image_url", "last_log_out_time"]
@@ -103,7 +103,21 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
         }]
     });
     if (!job) throw new UserInputError("job not found");
+
     let data = job.dataValues;
+    JobReadRecord.create({
+        user_id: userInfo.user_id,
+        job_name: data.title,
+        job_salary: `${data.min_salary}-${data.max_salary}`,
+        job_exp: `${data.experience}年`,
+        job_edu: data.education,
+        job_address: data.address_description[0],
+        tags: data.tags,
+        comp_name: data.Worker.Enterprise.enterprise_name,
+        comp_financing: data.Worker.Enterprise.enterprise_financing,
+        hr_name: data.Worker.real_name,
+        hr_position: data.Worker.pos,
+    })
     let res = {
         job: {
             id: data.id,
@@ -505,7 +519,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const {id, resumeId, projectName, role, startAt, endAt, description, performance} = args.info;
+    const { id, resumeId, projectName, role, startAt, endAt, description, performance } = args.info;
     if (id) {
         let update = {};
         if (projectName) update.project_name = projectName;
@@ -520,13 +534,13 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
             }
         })
     } else {
-        if(!resumeId) throw new UserInputError("resumeId is required");
-        if(!projectId) throw new UserInputError("projectId is required");
-        if(!role) throw new UserInputError("role is required");
-        if(!startAt) throw new UserInputError("startAt is required");
-        if(!endAt) throw new UserInputError("endAt is required");
-        if(!description) throw new UserInputError("startAt is required");
-        if(!performance) throw new UserInputError("endAt is required");
+        if (!resumeId) throw new UserInputError("resumeId is required");
+        if (!projectId) throw new UserInputError("projectId is required");
+        if (!role) throw new UserInputError("role is required");
+        if (!startAt) throw new UserInputError("startAt is required");
+        if (!endAt) throw new UserInputError("endAt is required");
+        if (!description) throw new UserInputError("startAt is required");
+        if (!performance) throw new UserInputError("endAt is required");
         await ResumeProjectExp.create({
             resume_id: resumeId,
             project_name: projectName,
@@ -542,13 +556,44 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
     // if (!userInfo) throw new AuthenticationError('missing authorization')
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const {resumeId, skills} = args;
+    const { resumeId, skills } = args;
     await Resume.update({
         skills: skills
     }, {
         id: resumeId,
     })
 }
+
+const CandidateSendResume = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    const { jobId, resumeId, hrId, compId } = args;
+    let record = await ResumeDeliveryRecord.findOne({
+        where: {
+            user_id: userInfo.user_id,
+            job_id: jobId,
+        }
+    })
+    if (record) throw new UserInputError("you already send your resume to this job");
+    await ResumeDeliveryRecord.create({
+        user_id: userInfo.user_id,
+        job_id: jobId,
+        resume_id: resumeId,
+        comp_id: compId,
+        hr_id: hrId
+    });
+
+}
+
+const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    const { recruitmentId } = args;
+    
+}
+
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -566,5 +611,7 @@ module.exports = {
     CandidateEditWorkExprience,
     CandidateEditEduExp,
     CandidateEditProExp,
-    CandidateEditSkills
+    CandidateEditSkills,
+    CandidateSendResume
 }
+

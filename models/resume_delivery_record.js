@@ -25,6 +25,15 @@ module.exports = (sequelize, DataTypes) => {
             deferrable: Deferrable.NOT
         }
     },
+    resume_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "resume",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
+    },
     job_id: {
         type: DataTypes.INTEGER,
         allowNull: false,

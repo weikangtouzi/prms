@@ -1,10 +1,10 @@
-const { Config } = require('@alicloud/openapi-client');
-const Client = require('@alicloud/dysmsapi20170525');
+const smsClient = require('tencentcloud-sdk-nodejs').sms.v20210111.Client;
 const mongo = require('../mongo');
 const { UserInputError } = require('apollo-server-errors');
 const { isvaildNum } = require('../utils/validations');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models')
+const {message} = require('../project.json');
 const sendSms = async (parent, args, context, info) => {
     let { phoneNumber } = args;
     let error = {};
@@ -22,26 +22,24 @@ const sendSms = async (parent, args, context, info) => {
     if (Object.keys(error).length > 0) {
         throw new UserInputError('bad input', { error })
     }
-    let config = new Config({
-        accessKeyId: 'LTAI5tSoCesdP9NwSjWgC1Wb',
-        accessKeySecret: 'FgfTSTvuQmnXERQ0uWcP7FDeDu2D7u'
-    });
-    config.endpoint = 'dysmsapi.aliyuncs.com';
-    let client = new Client.default(config);
+    const client = new smsClient({
+        credential: message.tencent.credential,
+        region: message.tencent.region,
+        profile: {
+            signMethod: message.tencent.signMethod,
+            httpProfile: message.tencent.httpProfile,
+        }
+    })
     let code = (Math.random() * (999999 - 100000) + 100000).toFixed();
-    let req = new Client.SendSmsRequest({
-        phoneNumbers: phoneNumber,
-        signName: "德兴在线",
-        templateCode: 'SMS_214980009',
-        templateParam: JSON.stringify({ code: code }),
-    });
-    try {
-        let res = await client.sendSms(req);
-        saveVerifyCode(phoneNumber, code);
-        return JSON.stringify(res)
-    } catch (err) {
-        throw new err
+    const params = {
+        SmsSdkAppId: message.tencent.SmsSdkAppId,
+        SignName: message.tencent.SignName,
+        TemplateId: message.tencent.Templates.verifyCode.id,
+        PhoneNumberSet: [`+86${phoneNumber}`],
+        TemplateParamSet: [code]
     }
+    let res = await client.SendSms(params)
+    return JSON.stringify(res);
 }
 
 function saveVerifyCode(phoneNumber, code) {

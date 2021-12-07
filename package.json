@@ -30,7 +30,8 @@
     "sequelize": "^6.6.5",
     "sequelize-auto-migrations": "^1.0.3",
     "sequelize-cli": "^6.2.0",
-    "subscriptions-transport-ws": "^0.9.19"
+    "subscriptions-transport-ws": "^0.9.19",
+    "tencentcloud-sdk-nodejs": "^4.0.251"
   },
   "devDependencies": {
     "graphql-upload": "^12.0.0",
