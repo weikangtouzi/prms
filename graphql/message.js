@@ -186,6 +186,7 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
         },
         include: include_gen(isPersonal),
     });
+    console.log(res);
     res = res.map(item => {
         return {
             id: userInfo.user_id == item.user_id ? item.target : item.user_id,
@@ -204,7 +205,6 @@ function include_gen(isPersonal) {
     include.push({
         model: User,
         attributes: ["image_url", "username"],
-
     });
     if (isPersonal) {
         include[0].include = [{
@@ -216,6 +216,7 @@ function include_gen(isPersonal) {
             }]
         }]
     }
+    return include;
 }
 module.exports = {
     sendMessage,
