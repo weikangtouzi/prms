@@ -10,7 +10,7 @@ const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
-const { sendMessage, newMessage, UserGetMessages } = require('./message')
+const { sendMessage, newMessage, UserGetMessages, UserGetContractList, newContract } = require('./message')
 const { editEnterpriseBasicInfo,
     editEnterpriseWorkTimeAndWelfare,
     editEnterpriseExtraData,
@@ -68,7 +68,8 @@ const resolvers = {
         CandidateGetHRDetail_RecommendationsList,
         CandidateGetHRDetail_JobListPageView,
         CandidateGetAllJobCategoriesByEntId,
-        CandidateGetJobListByEntId
+        CandidateGetJobListByEntId,
+        UserGetContractList
     },
     Mutation: {
         UserRegister: register,
@@ -95,7 +96,8 @@ const resolvers = {
         CandidateEditWorkExprience
     },
     Subscription: {
-        newMessage
+        newMessage,
+        newContract
     }
 };
 module.exports = {

@@ -49,12 +49,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
-    },
-    
+    }
   }, {
     sequelize,
     modelName: 'Message',
     tableName: 'message'
-  });
+  })
   return Message;
 };

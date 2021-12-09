@@ -1,15 +1,40 @@
-const {Message} = require('../models')
-Message.destroy({force: true, where:{}})
+const { Message, ContractList } = require('../models')
 
-let messages =[];
-for(let i = 0; i < 500000; i++) {
-    messages.push({
-        user_id: Math.round(Math.random() * 35) + 1,
-        from:  Math.round(Math.random() * 149) + 37,
+
+async function insert(counter = 0) {
+    let to = Math.round(Math.random() * 35) + 1;
+    let from = Math.round(Math.random() * 149) + 37;
+    let msg = await Message.create({
+        user_id: to,
+        from: from,
         message_type: "Normal",
-        detail: "testing message: "+ i,
+        detail: "testing message: " + counter,
         readed: false,
-        avaliable: i % 2 == 0? true: false
+        avaliable: counter % 2 == 0 ? true : false
     });
+    await ContractList.upsert({
+        user_id: from,
+        identity: true,
+        target: to,
+        last_msg: msg.detail
+    }, {
+        user_id: from
+    })
+    await ContractList.upsert({
+        user_id: to,
+        identity: false,
+        target: from,
+        last_msg: msg.detail
+    }, {
+        where: {
+            user_id: to
+        }
+    })
+    counter += 1;
+    process.stdout.write(`mocking messages:${counter}/500000\n`)
+    if(counter < 500000) {
+        return insert(counter);
+    }
+    return;
 }
-Message.bulkCreate(messages)
+insert();

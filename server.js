@@ -740,6 +740,15 @@ const typeDefs = gql`
     count: Int!,
     data: [JobDataForHRDetailPageOrEntJobList]!
   }
+  type Contract {
+    id: Int!,
+    logo: String!
+    name: String!,
+    pos: String,
+    ent: String,
+    last_msg: String!,
+    last_msg_time: String!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -790,6 +799,7 @@ const typeDefs = gql`
     CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPageOrEntJobList!
     CandidateGetAllJobCategoriesByEntId(entId: Int): [String]!
     CandidateGetJobListByEntId(entId: Int!, category: String): JobListForHRDetailPageOrEntJobList!
+    UserGetContractList: [Contract]!
   }
   
   "most of mutations needed token for authorization"
@@ -846,6 +856,7 @@ const typeDefs = gql`
   }
   type Subscription {
     newMessage: Message!
+    newContract: Contract!
   }
 `;
 
@@ -900,6 +911,8 @@ async function startServer() {
   sequelize
     .authenticate()
     .then(() => {
+      var sql_string = fs.readFileSync('./postgres_only_sql_code.sql', 'utf8');
+      sequelize.query(sql_string);
       info('postgres Connection has been established successfully');
     })
   info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);

@@ -73,3 +73,22 @@ CREATE TRIGGER trigger_count_answers_when_an_answer_is_deleted
     after delete ON enterprise_answer
     For each row
     EXECUTE PROCEDURE count_answers_when_an_answer_is_deleted();
+
+CREATE OR REPLACE FUNCTION count_unreaded_msg_for_contract_list() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  update contract_list set unreaded_count = (select count(user_id) from message where user_id = NEW.user_id and message."from" = NEW."from" and readed = false) where user_id = NEW.user_id;
+  RETURN NULL;
+END;
+$$;
+DROP TRIGGER IF EXISTS trigger_count_unreaded_msg_for_contract_list_on_insert ON message;
+DROP TRIGGER IF EXISTS trigger_count_unreaded_msg_for_contract_list_on_update ON message;
+CREATE TRIGGER trigger_count_unreaded_msg_for_contract_list_on_insert
+    after insert ON message
+    For each row
+    EXECUTE PROCEDURE count_unreaded_msg_for_contract_list();
+CREATE TRIGGER trigger_count_unreaded_msg_for_contract_list_on_update
+    after update ON message
+    For each row
+    EXECUTE PROCEDURE count_unreaded_msg_for_contract_list();

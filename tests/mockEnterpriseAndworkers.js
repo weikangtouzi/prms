@@ -38,9 +38,6 @@ let job_titles = [
     "IT技术/研发总监"
 ];
 job_titles = job_titles.map(item => {return ["互联网/通信及硬件","软件研发",item]});
-console.log(job_titles[37 %29 + 0])
-console.log(job_titles[37 %29 + 1])
-console.log(job_titles[37 %29 + 2])
 const edu_requirements = ["Null", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"]
 const full_time_jobs = ["FullTime", "PartTime", "InterShip"]
 const tags = ["免费体检", "住房补贴", "餐补", "上市公司"];
@@ -53,6 +50,7 @@ async function mock(counter = {
     worker: 36,
     user: 36
 }) {
+    process.stdout.write(`mocking ent: ${counter.ent}/${max.ent}\nmocking worker: ${counter.worker}/${max.worker}\nmocking user: ${counter.user}/${counter.user}\n`)
     if (counter.ent >= max.ent) {
         return
     } else {
@@ -143,7 +141,6 @@ async function mock(counter = {
             counter.worker = counter.worker + 1
         }
         counter.ent = counter.ent + 1
-        console.log(counter)
         return mock(counter, max)
     }
 
