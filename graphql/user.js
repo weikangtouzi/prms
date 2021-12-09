@@ -302,8 +302,21 @@ const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
         throw e
     }
 }
-
-
+const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization');
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    let res = await User.findOne({
+        where: {
+            id: userInfo.user_id
+        },
+        attributes: ["username", "image_url", "gender", "birth_date", "current_city", "first_time_working", "education"]
+    })
+    return {
+        ...res.toJSON(),
+        birth_date: res.birth_date,
+        first_time_working: res.first_time_working,
+    }
+}
 
 function checkUser(user, errors) {
     if (!user) {
@@ -321,5 +334,6 @@ module.exports = {
     resetPassword,
     refreshToken,
     UserVerifyCodeConsume,
-    UserEditBasicInfo
+    UserEditBasicInfo,
+    UserGetBasicInfo
 }

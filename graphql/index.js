@@ -5,7 +5,8 @@ const { logIn,
     resetPassword,
     refreshToken,
     UserVerifyCodeConsume,
-    UserEditBasicInfo } = require('./user');
+    UserEditBasicInfo,
+    UserGetBasicInfo } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -69,7 +70,8 @@ const resolvers = {
         CandidateGetHRDetail_JobListPageView,
         CandidateGetAllJobCategoriesByEntId,
         CandidateGetJobListByEntId,
-        UserGetContractList
+        UserGetContractList,
+        UserGetBasicInfo
     },
     Mutation: {
         UserRegister: register,

@@ -749,6 +749,15 @@ const typeDefs = gql`
     last_msg: String!,
     last_msg_time: String!
   }
+  type UserBasicInfo {
+    username: String!,
+    image_url: String!, 
+    gender: Boolean, 
+    birth_date: String, 
+    current_city: String, 
+    first_time_working: String, 
+    education: Education
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -800,6 +809,7 @@ const typeDefs = gql`
     CandidateGetAllJobCategoriesByEntId(entId: Int): [String]!
     CandidateGetJobListByEntId(entId: Int!, category: String): JobListForHRDetailPageOrEntJobList!
     UserGetContractList: [Contract]!
+    UserGetBasicInfo: UserBasicInfo!
   }
   
   "most of mutations needed token for authorization"
