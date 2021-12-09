@@ -591,7 +591,21 @@ const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
     // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     const { recruitmentId } = args;
-    
+    try {
+        await RecruitmentRecord.upsert({
+          user_id: userInfo.user_id,
+          recruitment_id: recruitmentId,
+          is_comp: false,
+          canceled: false,
+        }, {
+          where: {
+            user_id: userInfo.user_id,
+            recruitment_id: recruitmentId
+          }
+        })
+      } catch (err) {
+        throw new UserInputError({ ...err })
+      }
 }
 
 module.exports = {
@@ -612,6 +626,7 @@ module.exports = {
     CandidateEditEduExp,
     CandidateEditProExp,
     CandidateEditSkills,
-    CandidateSendResume
+    CandidateSendResume,
+    CandidateRecruitmentApply
 }
 
