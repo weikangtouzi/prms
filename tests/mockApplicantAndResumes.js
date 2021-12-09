@@ -649,6 +649,7 @@ for (let i = 0; i < 150; i++) {
     passwords[i] = bcrypt.hashSync("word_" + i, 2)
 }
 async function mock(counter = 0, max = 150) {
+    process.stdout.write(`mocking candidates: ${counter}/${max}\n`)
     if (counter == max) {
         return
     }
@@ -663,7 +664,6 @@ async function mock(counter = 0, max = 150) {
     });
     let ms = Math.round(Math.random() * 10 + 1) * 1000;
     for (let i = 0; i < 3; i++) {
-        console.log(((counter % 29 + i) < 28) ? (counter % 29 + i) : i)
         await JobExpectation.create({
             user_id: user.id,
             job_category: job_titles[((counter % 29 + i) < 28) ? (counter % 29 + i) : i],
