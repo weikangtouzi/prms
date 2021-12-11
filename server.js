@@ -684,6 +684,7 @@ const typeDefs = gql`
     tel: Int,
     work_time: Int,
     createdAt: String!,
+    job_counter: Int,
   }
   type HRInfoForEntDetail {
     id: Int!,
