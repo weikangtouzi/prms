@@ -6,7 +6,8 @@ const { logIn,
     refreshToken,
     UserVerifyCodeConsume,
     UserEditBasicInfo,
-    UserGetBasicInfo } = require('./user');
+    UserGetBasicInfo,
+    UserGetEnterpriseDetail_EntInfo } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -27,7 +28,6 @@ const { editEnterpriseBasicInfo,
     ENTRecruitmentApply
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
-    CandidateGetEnterpriseDetail_EntInfo,
     CandidateGetEnterpriseDetail_HRList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
     CandidateGetEnterpriseDetail_QA,
@@ -62,7 +62,7 @@ const resolvers = {
         CandidateGetAllJobExpectations,
         CandidateGetJobList,
         CandidateGetJob,
-        CandidateGetEnterpriseDetail_EntInfo,
+        UserGetEnterpriseDetail_EntInfo,
         CandidateGetEnterpriseDetail_HRList,
         CandidateGetEnterpriseDetail_InterviewRecomment,
         CandidateGetEnterpriseDetail_QA,
