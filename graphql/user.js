@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise, Resume, JobExpectation } = require('../models');
+const { User, Worker, Enterprise, Resume, JobExpectation, Job } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -318,6 +318,35 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
     }
 }
 
+const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info) => {
+    // if (!userInfo) throw new AuthenticationError('missing authorization')
+    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume && (userInfo.identity.identity != "EnterpriseUser")) throw new AuthenticationError('need resume and job expectation for this operation');
+    if (userInfo.resume && !args.entId) throw new UserInputError("need to specify entId for personal user query");
+    let where = {};
+    if(args.entId) where.id = args.entId;
+    else where.enterprise_name = userInfo.identity.entName;
+    let entInfo = Enterprise.findOne({
+        where
+    });
+    let job_counter
+    if(args.entId) {
+        job_counter = Job.count({
+            where: {
+                comp_id: args.entId
+            }
+        });
+    }
+    entInfo = await entInfo;
+    let res = {
+        ...entInfo.toJSON(),
+        enterprise_coordinates: entInfo.dataValues.enterprise_coordinates.coordinates,
+        createdAt: entInfo.createdAt.toISOString(),
+    }
+    if(job_counter) res.job_counter = job_counter;
+    return res
+}
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -335,5 +364,6 @@ module.exports = {
     refreshToken,
     UserVerifyCodeConsume,
     UserEditBasicInfo,
-    UserGetBasicInfo
+    UserGetBasicInfo,
+    UserGetEnterpriseDetail_EntInfo
 }

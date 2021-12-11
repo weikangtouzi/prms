@@ -799,7 +799,7 @@ const typeDefs = gql`
     UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
     CandidateGetAllJobExpectations: [JobExpectation]!
     CandidateGetJobList(filter:JobFilter): JobSimpifiedDataPageView!
-    CandidateGetEnterpriseDetail_EntInfo(entId: Int): EnterpriseInfoForEntDetail!
+    UserGetEnterpriseDetail_EntInfo(entId: Int): EnterpriseInfoForEntDetail!
     CandidateGetEnterpriseDetail_HRList(entId: Int): [HRInfoForEntDetail]!
     CandidateGetEnterpriseDetail_InterviewRecomment(entId: Int): InterviewRecommentListForEntDetail!
     CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail!
