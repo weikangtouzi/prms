@@ -4,8 +4,8 @@ const { AuthenticationError, UserInputError } = require('apollo-server');
 const user = require('../models/user');
 const mongo = require('../mongo');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res = await JobExpectation.findAndCountAll({
         where: {
@@ -19,8 +19,8 @@ const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) 
     return res.rows
 }
 const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res;
     let page = 0;
@@ -79,8 +79,8 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
     }
 }
 const CandidateGetJob = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     const { jobid } = args;
     let job = await Job.findOne({
@@ -157,8 +157,8 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
 
 
 const CandidateGetEnterpriseDetail_HRList = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res = await Worker.findAll({
         where: {
@@ -182,8 +182,8 @@ const CandidateGetEnterpriseDetail_HRList = async (parent, args, { userInfo }, i
     return res;
 }
 const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let counts = sequelize.query('select sum("HR")::float / count("id") as "HR", sum("comp_env")::float / count("id") as "comp_env", sum("description")::float / count("id") as "description", sum("comp_env" + "description" + "HR")::float / (3 * count("id")) as total from interview_recomment where comp_id = $1;',
         {
@@ -221,8 +221,8 @@ const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { u
 }
 
 const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let raw = await EnterpriseQuestion.findAndCountAll({
         where: {
@@ -251,8 +251,8 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
     return res
 }
 const CandidateGetHRDetail_HRInfo = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res = await Worker.findOne({
         where: {
@@ -279,8 +279,8 @@ const CandidateGetHRDetail_HRInfo = async (parent, args, { userInfo }, info) => 
     return res
 }
 const CandidateGetHRDetail_RecommendationsList = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let res = await Job.findAndCountAll({
         where: {
@@ -313,8 +313,8 @@ const CandidateGetHRDetail_RecommendationsList = async (parent, args, { userInfo
     return res
 }
 const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let { page, pageSize, hrId } = args;
     if (!page) page = 0;
@@ -342,8 +342,8 @@ const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, 
     }
 }
 const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let { entId } = args;
     let res = await sequelize.query('SELECT category[1] FROM "job" AS "Job" WHERE "Job"."comp_id" = $1 GROUP BY category[1];',
@@ -357,8 +357,8 @@ const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, i
 }
 
 const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     let { page, pageSize, entId, category } = args;
     if (!page) page = 0;
@@ -389,8 +389,8 @@ const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
 }
 
 const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { content } = args;
     try {
         await Resume.update({
@@ -406,8 +406,8 @@ const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) 
 }
 
 const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { id, resumeId, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
     if (id) {
         let update = {};
@@ -449,8 +449,8 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
 }
 
 const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { id,
         resumeId,
         schoolName,
