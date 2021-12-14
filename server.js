@@ -759,6 +759,18 @@ const typeDefs = gql`
     first_time_working: String, 
     education: Education
   }
+  type AdminLogInResult {
+    token: String!,
+    rights: String!,
+  }
+  input UserListFilter {
+    id: Int,
+    keyword: String,
+    phoneNumber: String,
+    currentCity: String,
+    registerTime: [String],
+    isAvaliable: Boolean,
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -811,6 +823,8 @@ const typeDefs = gql`
     CandidateGetJobListByEntId(entId: Int!, category: String): JobListForHRDetailPageOrEntJobList!
     UserGetContractList: [Contract]!
     UserGetBasicInfo: UserBasicInfo!
+    AdminLogIn(account: String!, password: String!): AdminLogInResult!
+    AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
   }
   
   "most of mutations needed token for authorization"
@@ -843,7 +857,7 @@ const typeDefs = gql`
     "accept or reject an interview by id"
     CandidateAcceptOrRejectInterview(interviewId: Int!, accept: Boolean!): Void
     "switch to another indentity if exists, should pass indetity and role, Identity and role types are enums, checkout their type definitions, return token"
-    UserChooseOrSwitchIdentity(targetIdentity: String!, role: String): Void
+    UserChooseOrSwitchIdentity(targetIdentity: Identity!, role: EnterpriseRole): Void
     "use phone number to reset password"
     UserResetPassword(info: ResetPassword!): Void
     "enterprise certification need censor"

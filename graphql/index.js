@@ -39,7 +39,7 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateEditPersonalAdvantage,
     CandidateEditWorkExprience,
     CandidateRecruitmentApply } = require('./candidate');
-const { getCensorList, setCensoredForAnItem } = require('./admin');
+const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     Query: {
         UserLogIn: logIn,
@@ -72,7 +72,9 @@ const resolvers = {
         CandidateGetAllJobCategoriesByEntId,
         CandidateGetJobListByEntId,
         UserGetContractList,
-        UserGetBasicInfo
+        UserGetBasicInfo,
+        AdminLogIn,
+        AdminGetUserList
     },
     Mutation: {
         UserRegister: register,

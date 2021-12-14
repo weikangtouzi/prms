@@ -15,7 +15,7 @@ const singleUpload = async (parent, args, context, info) => {
     if (context.req && context.req.headers.authorization) {
         try {
             const stream = createReadStream();
-            let usernameHashed = await bcrypt.hash(userInfo.username);
+            let usernameHashed = await bcrypt.hash(userInfo.username, 5);
             let path = `${uploadPath}/${usernameHashed}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}`
             if (!fs.existsSync(fs.realpathSync(".") + "/" + uploadPath)) {
                 fs.mkdirSync(fs.realpathSync(".") + "/" + uploadPath);

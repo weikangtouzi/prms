@@ -263,7 +263,6 @@ const resetPassword = async (parent, args, { userInfo }, info) => {
     } catch (e) {
         throw new UserInputError('bad input', { e })
     }
-
 }
 
 
@@ -319,8 +318,8 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
 }
 
 const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume && (userInfo.identity.identity != "EnterpriseUser")) throw new AuthenticationError('need resume and job expectation for this operation');
     if (userInfo.resume && !args.entId) throw new UserInputError("need to specify entId for personal user query");
     let where = {};
