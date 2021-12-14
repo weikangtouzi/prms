@@ -4,33 +4,31 @@ const { basic,uploadPath } = require('../project.json')
 const { AuthenticationError } = require('apollo-server')
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
-const bcrypt = require('bcrypt');
-
+const {} = require('uuid');
 const singleUpload = async (parent, args, context, info) => {
-    const { createReadStream, filename, mimetype, encoding } = await args.file;
+    let { createReadStream, filename, mimetype, encoding } = await args.file;
     const { extraAttributes } = args;
     let domain = basic.host;
     let userInfo = jwt.decode(context.req.headers.authorization);
-    
+    filename = new Date().getTime() + '-' + filename;
     if (context.req && context.req.headers.authorization) {
         try {
             const stream = createReadStream();
-            let usernameHashed = await bcrypt.hash(userInfo.username, 5);
-            let path = `${uploadPath}/${usernameHashed}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}`
+            let path = `${uploadPath}/${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}`
             if (!fs.existsSync(fs.realpathSync(".") + "/" + uploadPath)) {
                 fs.mkdirSync(fs.realpathSync(".") + "/" + uploadPath);
             }
-            if (!fs.existsSync(fs.realpathSync(".") + "/" + `${uploadPath}/${usernameHashed}/`)) {
-                fs.mkdirSync(fs.realpathSync(".") + "/" + `${uploadPath}/${usernameHashed}/`);
+            if (!fs.existsSync(fs.realpathSync(".") + "/" + `${uploadPath}/${userInfo.username}/`)) {
+                fs.mkdirSync(fs.realpathSync(".") + "/" + `${uploadPath}/${userInfo.username}/`);
             }
             if (!fs.existsSync(fs.realpathSync(".") + "/" + path)) {
                 fs.mkdirSync(fs.realpathSync(".") + "/" + path);
             }
-            const out = fs.createWriteStream(`${path}/${filename}`);
+            const out = fs.createWriteStream(`./${path}/${filename}`);
             stream.pipe(out);
             await finished(out);
-            let url = domain + uploadPath + `${usernameHashed}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}/${filename}`;
-            Upload.create({
+            let url = "https://" + domain + uploadPath + `${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}/${filename}`;
+            await Upload.create({
                 filename: filename,
                 fileType: mimetype,
                 url: url,

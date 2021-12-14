@@ -535,9 +535,6 @@ const typeDefs = gql`
   type SearchApplicantsResult {
     data: [ApplicantData],
   }
-  type FileLink {
-    link: String!,
-  }
   input EnterpriseCharterSencorRequest {
     enterpriseName: String!,
     charter: String!,
@@ -834,7 +831,7 @@ const typeDefs = gql`
     "this api need you to pass the provider's phone number as the authorization header"
     QNInsertPersonalData(info: PersonalData!): Int!
     "leave extraAttributes null for default upload options"
-    CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): FileLink!
+    CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): String!
     HRPostJob(info: JobPost): Void
     "insert or edit a personal data"
     UserEditBasicInfo(info: BasicData!): Void
