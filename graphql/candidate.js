@@ -2,6 +2,7 @@ const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, Ente
 const { Op } = require('sequelize');
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const user = require('../models/user');
+const jwt = require('jsonwebtoken');
 const mongo = require('../mongo');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
