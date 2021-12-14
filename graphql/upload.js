@@ -28,6 +28,7 @@ const singleUpload = async (parent, args, context, info) => {
             await finished(out);
             let url = "https://" + domain + uploadPath + `/${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}/${filename}`;
             await Upload.create({
+                user_id: userInfo.user_id,
                 filename: filename,
                 fileType: mimetype,
                 url: url,
