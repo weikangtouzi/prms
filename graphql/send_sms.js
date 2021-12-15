@@ -18,7 +18,7 @@ const sendSms = async (parent, args, context, info) => {
             throw new AuthenticationError('this api needs at least a phone number of your account token');
         }
     }
-    isvaildNum(error, phoneNumber);
+    // isvaildNum(error, phoneNumber);
     if (Object.keys(error).length > 0) {
         throw new UserInputError('bad input', { error })
     }

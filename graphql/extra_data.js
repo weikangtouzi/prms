@@ -14,7 +14,7 @@ const insertPersonalData = async (parent, args, context, info) => {
         let { name, number, idCardNum, education, skills, city } = args.info;
         if (name.trim() == "") { throw new UserInputError('真实姓名不能为空') }
         if (number.trim() == "") { throw new UserInputError('手机号不能为空') }
-        isvaildNum(error, pro_number, true);
+        // isvaildNum(error, pro_number, true);
         if (idCardNum.trim() == "") { throw new UserInputError('身份证号不能为空') }
         isvaildidCardNum(error, idCardNum, true);
         if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
@@ -44,7 +44,7 @@ const insertPersonalData = async (parent, args, context, info) => {
 const phoneNumberCheck = async (parent, args, context, info) => {
     let errors = {};
     const {phoneNumber, verifyCode} = args;
-    isvaildNum(errors, phoneNumber);
+    // isvaildNum(errors, phoneNumber);
     if(Object.keys(errors).length > 0) {
         throw new UserInputError('bad input', { errors });
     }
