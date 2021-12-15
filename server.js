@@ -658,8 +658,16 @@ const typeDefs = gql`
   type JobExpectation {
     job_category: [String]!,
     aimed_city: String!,
+    industry_involved: [String]!,
     min_salary_expectation: Int!,
     max_salary_expectation: Int!
+  }
+  input EditJobExpectation {
+    job_category: [String],
+    industry_involved: [String],
+    aimed_city: String,
+    min_salary_expectation: Int,
+    max_salary_expectation: Int
   }
   type EnterpriseInfoForEntDetail {
     enterprise_name: String!,
@@ -875,6 +883,7 @@ const typeDefs = gql`
     HRRemoveJob(jobId: Int!): Void
     ENTRecruitmentApply(recruitmentId: Int!, size: String): Void
     CandidateEditSkills(resumeId: Int!, skills: [String]!): Void
+    CandidateEditJobExpectations(info:EditJobExpectation!): Void
   }
   type Subscription {
     newMessage: Message!

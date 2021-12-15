@@ -494,8 +494,8 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
 }
 
 const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { id, resumeId, projectName, role, startAt, endAt, description, performance } = args.info;
     if (id) {
         let update = {};
@@ -531,8 +531,8 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
 }
 
 const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { resumeId, skills } = args;
     await Resume.update({
         skills: skills
@@ -542,8 +542,8 @@ const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
 }
 
 const CandidateSendResume = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     const { jobId, resumeId, hrId, compId } = args;
     let record = await ResumeDeliveryRecord.findOne({
@@ -564,25 +564,63 @@ const CandidateSendResume = async (parent, args, { userInfo }, info) => {
 }
 
 const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
-    // if (!userInfo) throw new AuthenticationError('missing authorization')
-    // if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     const { recruitmentId } = args;
     try {
         await RecruitmentRecord.upsert({
-          user_id: userInfo.user_id,
-          recruitment_id: recruitmentId,
-          is_comp: false,
-          canceled: false,
-        }, {
-          where: {
             user_id: userInfo.user_id,
-            recruitment_id: recruitmentId
-          }
+            recruitment_id: recruitmentId,
+            is_comp: false,
+            canceled: false,
+        }, {
+            where: {
+                user_id: userInfo.user_id,
+                recruitment_id: recruitmentId
+            }
         })
-      } catch (err) {
+    } catch (err) {
         throw new UserInputError({ ...err })
-      }
+    }
+}
+
+const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    const { id, job_category, aimed_city, industry_involved, min_salary_expectation, max_salary_expectation } = args.info;
+    let input = {};
+    if (job_category) input.job_category = job_category;
+    if (aimed_city) input.aimed_city = aimed_city;
+    if (min_salary_expectation) input.min_salary_expectation = min_salary_expectation;
+    if (max_salary_expectation) input.max_salary_expectation = max_salary_expectation;
+    if (industry_involved) input.industry_involved = industry_involved;
+    if (id) {
+        if (Object.keys(input).length == 0) throw new UserInputError("empty mutation is not expected");
+
+        await JobExpectation.update({
+            ...input
+        }, {
+            id: id,
+        })
+    } else {
+        let count = await JobExpectation.count({
+            where: {
+                user_id: userInfo.user_id,
+            }
+        })
+        if(count >= 3) throw new UserInputError("already have 3 job expectations");
+        if (!job_category) throw new UserInputError("job_category is required");
+        if (!aimed_city) throw new UserInputError("aimed_city is required");
+        if (!min_salary_expectation) throw new UserInputError("min_salary_expectation is required");
+        if (!max_salary_expectation) throw new UserInputError("max_salary_expectation is required");
+        if (!industry_involved) throw new UserInputError("industry_involved is required");
+        await JobExpectation.create({
+            user_id: userInfo.user_id,
+            ...input
+        })
+    }
 }
 
 module.exports = {
@@ -603,6 +641,7 @@ module.exports = {
     CandidateEditProExp,
     CandidateEditSkills,
     CandidateSendResume,
-    CandidateRecruitmentApply
+    CandidateRecruitmentApply,
+    CandidateEditJobExpectations
 }
 

@@ -38,7 +38,8 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateGetJobListByEntId,
     CandidateEditPersonalAdvantage,
     CandidateEditWorkExprience,
-    CandidateRecruitmentApply } = require('./candidate');
+    CandidateRecruitmentApply,
+    CandidateEditJobExpectations } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     Query: {
@@ -99,7 +100,8 @@ const resolvers = {
         ENTRecruitmentApply,
         CandidateEditPersonalAdvantage,
         CandidateEditWorkExprience,
-        CandidateRecruitmentApply
+        CandidateRecruitmentApply,
+        CandidateEditJobExpectations
     },
     Subscription: {
         newMessage,
