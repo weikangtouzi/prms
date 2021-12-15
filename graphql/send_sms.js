@@ -38,7 +38,13 @@ const sendSms = async (parent, args, context, info) => {
         PhoneNumberSet: [`+86${phoneNumber}`],
         TemplateParamSet: [code]
     }
-    let res = await client.SendSms(params)
+    let res
+    try {
+        res = await client.SendSms(params);
+    } catch (err){
+        throw new err;
+    }
+    saveVerifyCode(phoneNumber, code);
     return JSON.stringify(res);
 }
 
