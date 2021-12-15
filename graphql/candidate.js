@@ -623,6 +623,7 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
     }
 }
 
+
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,

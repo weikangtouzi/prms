@@ -42,6 +42,11 @@ module.exports = (sequelize, DataTypes) => {
     max_salary_expectation: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    full_time_job: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "Full",
     }
   }, {
     sequelize,
