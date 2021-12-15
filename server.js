@@ -660,14 +660,16 @@ const typeDefs = gql`
     aimed_city: String!,
     industry_involved: [String]!,
     min_salary_expectation: Int!,
-    max_salary_expectation: Int!
+    max_salary_expectation: Int!,
+    full_time_job: FullTime!,
   }
   input EditJobExpectation {
     job_category: [String],
     industry_involved: [String],
     aimed_city: String,
     min_salary_expectation: Int,
-    max_salary_expectation: Int
+    max_salary_expectation: Int,
+    full_time_job: FullTime,
   }
   type EnterpriseInfoForEntDetail {
     enterprise_name: String!,

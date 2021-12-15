@@ -12,6 +12,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.identity) throw new AuthenticationError('missing identity');
     const { to, messageType, messageContent } = args.info;
+    if(to == userInfo.user_id) throw new UserInputError("could not send message to yourself");
     checkBlackList(to, userInfo.user_id);
     let isPersonal = (userInfo.identity.identity == 'PersonalUser');
     let include;
