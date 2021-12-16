@@ -226,9 +226,6 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 },
                 attributes: ["id"],
                 include: [{
-                    model: Resume,
-                    attributes: ["id"]
-                },{
                     model: JobExpectation,
                     attributes: ["job_category"]
                 }]
@@ -237,7 +234,6 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
                 identity: { identity: args.targetIdentity },
-                resume: resume != null,
                 jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues})
             }
         } else {
