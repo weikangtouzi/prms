@@ -588,7 +588,6 @@ const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
 const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
     const { id, job_category, aimed_city, industry_involved, min_salary_expectation, max_salary_expectation } = args.info;
     let input = {};
     if (job_category) input.job_category = job_category;

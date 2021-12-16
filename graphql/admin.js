@@ -148,15 +148,48 @@ const AdminGetUserList = async (parent, args, { userInfo }, info) => {
             limit: pageSize,
             offset: page * pageSize,
             order: [["createdAt", "DESC"]]
-        })
+        }).map(item =>{ return item.dataVaules});
         return res;
     }
-
 }
+const AdminGetEntList = async ( parent, args, { userInfo }, info) => {
+    const {id, fullName, phoneNumber, identitifyTime, isAvaliable} = args.info;
+    let {page, pageSize} = args;
+    let res;
+    if(id) {
+        res =[ await Enterprise.findOne({
+            where: {
+                id,
+            }
+        })]
+    }else {
+        if(!pageSize) pageSize = 10;
+        if(!page) page = 0;
+        let where = {};
+        if(fullName) where.fullName = {
+            [Op.substring]: fullName
+        };
+        if(phoneNumber) where.phoneNumber = phoneNumber;
+        if(identitifyTime && identitifyTime.length == 2) where.identitifyTime = {
+            [Op.gte]: new Date(registerTime[0]),
+            [Op.lte]: new Date(registerTime[1])
+        }
+        if(isAvaliable) where.isAvaliable = isAvaliable;
+        res = await Enterprise.findAll({
+            where,
+            limit: pageSize,
+            offset: pageSize * page,
+            order: [["createdAt", "DESC"]]
+        }).map(item =>{ return item.dataVaules});
+    }
+    return res;
+}
+
 
 module.exports = {
     getCensorList,
     setCensoredForAnItem,
     AdminLogIn,
-    AdminGetUserList
+    AdminGetUserList,
+    AdminGetEntList
 }
