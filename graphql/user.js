@@ -8,7 +8,7 @@ const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
 const { basic } = require('../project.json');
 const serializers = require('../utils/serializers');
-const { checkverified } = require('../utils/validations');
+const { checkverified, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { error } = require('../utils/logger');
 const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
@@ -211,9 +211,10 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                     username: userInfo.username,
                     real_name: worker.real_name,
                     identity: {
+                        work_id: worker.work_id,
                         role: args.role,
                         identity: args.targetIdentity,
-                        entName: worker.Enterprise.dataValues.enterprise_name
+                        entId: worker.Enterprise.dataValues.id
                     }
                 }
             } else {
@@ -321,7 +322,7 @@ const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info)
     if (userInfo.resume && !args.entId) throw new UserInputError("need to specify entId for personal user query");
     let where = {};
     if(args.entId) where.id = args.entId;
-    else where.enterprise_name = userInfo.identity.entName;
+    else where.id = userInfo.identity.entId;
     let entInfo = Enterprise.findOne({
         where
     });
@@ -343,6 +344,55 @@ const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info)
     return res
 }
 
+const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    let { entId } = args;
+    let work_id;
+    if (entId) {
+        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+        where.expiredAt = {
+            [Op.gte]: new Date()
+        }
+    } else {
+        if(isvalidJobPoster(userInfo.identity)) {
+            if(isvalidEnterpriseAdmin(userInfo.identity)) {
+                entId = userInfo.identity.entId
+            } else {
+                work_id = userInfo.identity.work_id;
+            }
+        }
+    }
+    let where = {};
+    if(entId) where.entId = entId;
+    if(work_id) where.work_id = work_id;
+    let { page, pageSize,category } = args;
+    if (!page) page = 0;
+    if (!pageSize) pageSize = 10;
+    
+    if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
+    let res = await Job.findAndCountAll({
+        where,
+        limit: pageSize,
+        offset: pageSize * page,
+        order: [["ontop", "DESC"], ["updatedAt", "DESC"]]
+    });
+    return {
+        count: res.count,
+        data: res.rows.map(item => {
+            return {
+                id: item.dataValues.id,
+                title: item.dataValues.title,
+                loc: item.dataValues.address_description[0] + "-" + item.dataValues.address_description[1],
+                experience: item.dataValues.min_experience,
+                education: item.dataValues.min_education,
+                salary: [item.dataValues.min_salary, item.dataValues.max_salary],
+                createdAt: item.dataValues.createdAt
+            }
+        })
+    }
+}
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -361,5 +411,6 @@ module.exports = {
     UserVerifyCodeConsume,
     UserEditBasicInfo,
     UserGetBasicInfo,
-    UserGetEnterpriseDetail_EntInfo
+    UserGetEnterpriseDetail_EntInfo,
+    UserGetJobListByEntId
 }
