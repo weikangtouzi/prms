@@ -833,8 +833,7 @@ const typeDefs = gql`
     CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
     CandidateGetHRDetail_RecommendationsList(hrId: Int!): RecommendationsListForHRDetailPage!
     CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPageOrEntJobList!
-    CandidateGetAllJobCategoriesByEntId(entId: Int): [String]!
-    CandidateGetJobListByEntId(entId: Int!, category: String): JobListForHRDetailPageOrEntJobList!
+    UserGetJobListByEntId(entId: Int, pageSize: Int, page: Int, category: [String]): JobListForHRDetailPageOrEntJobList!
     UserGetContractList: [Contract]!
     UserGetBasicInfo: UserBasicInfo!
     AdminLogIn(account: String!, password: String!): AdminLogInResult!

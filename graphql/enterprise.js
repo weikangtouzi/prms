@@ -1,23 +1,13 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message } = require('../models');
 const jwt = require('jsonwebtoken');
-const { isvalidTimeSection } = require('../utils/validations');
+const { isvalidTimeSection, isvalidEnterpriseAdmin } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo');
 const user = require('../models/user');
 
-function isvalidEnterpriseAdmin(userIdentity) {
-  if (!userIdentity) {
-    throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
-  }
-  return userIdentity.identity == "EnterpriseUser" && userIdentity.role && userIdentity.role == "Admin"
-}
-function isvalidJobPoster(userIdentity) {
-  if (!userIdentity) {
-    throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
-  }
-  return userIdentity.identity == "EnterpriseUser" && userIdentity.role && (userIdentity.role == "HR" || userIdentity.role == "Admin")
-}
+
+
 const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })

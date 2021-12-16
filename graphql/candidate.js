@@ -357,38 +357,7 @@ const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, i
     })
 }
 
-const CandidateGetJobListByEntId = async (parent, args, { userInfo }, info) => {
-    if (!userInfo) throw new AuthenticationError('missing authorization')
-    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
 
-    let { page, pageSize, entId, category } = args;
-    if (!page) page = 0;
-    if (!pageSize) pageSize = 10;
-    let where = {
-        comp_id: entId,
-    };
-    if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
-    let res = await Job.findAndCountAll({
-        where,
-        limit: pageSize,
-        offset: pageSize * page,
-    });
-    return {
-        count: res.count,
-        data: res.rows.map(item => {
-            return {
-                id: item.dataValues.id,
-                title: item.dataValues.title,
-                loc: item.dataValues.address_description[0] + "-" + item.dataValues.address_description[1],
-                experience: item.dataValues.min_experience,
-                education: item.dataValues.min_education,
-                salary: [item.dataValues.min_salary, item.dataValues.max_salary],
-                createdAt: item.dataValues.createdAt
-            }
-        })
-    }
-}
 
 const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
@@ -545,7 +514,7 @@ const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
 const CandidateSendResume = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
     const { jobId, resumeId, hrId, compId } = args;
     let record = await ResumeDeliveryRecord.findOne({
         where: {
@@ -610,7 +579,7 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
                 user_id: userInfo.user_id,
             }
         })
-        if(count >= 3) throw new UserInputError("already have 3 job expectations");
+        if (count >= 3) throw new UserInputError("already have 3 job expectations");
         if (!job_category) throw new UserInputError("job_category is required");
         if (!aimed_city) throw new UserInputError("aimed_city is required");
         if (!min_salary_expectation) throw new UserInputError("min_salary_expectation is required");
@@ -635,7 +604,6 @@ module.exports = {
     CandidateGetHRDetail_RecommendationsList,
     CandidateGetHRDetail_JobListPageView,
     CandidateGetAllJobCategoriesByEntId,
-    CandidateGetJobListByEntId,
     CandidateEditPersonalAdvantage,
     CandidateEditWorkExprience,
     CandidateEditEduExp,

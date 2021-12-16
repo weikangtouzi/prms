@@ -70,7 +70,7 @@ function isvalidTimeSection(input) {
     return true
 }
 
-async function checkverified(phoneNumber,operation) {
+async function checkverified(phoneNumber, operation) {
     let res
     if (phoneNumber) {
         res = await mongo.query('user_log_in_cache', async (collection) => {
@@ -86,13 +86,25 @@ async function checkverified(phoneNumber,operation) {
     }
     console.log(res)
     return false
-    
+
 }
-
-
+function isvalidEnterpriseAdmin(userIdentity) {
+    if (!userIdentity) {
+        throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
+    }
+    return userIdentity.identity == "EnterpriseUser" && userIdentity.role && userIdentity.role == "Admin"
+}
+function isvalidJobPoster(userIdentity) {
+    if (!userIdentity) {
+        throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
+    }
+    return userIdentity.identity == "EnterpriseUser" && userIdentity.role && (userIdentity.role == "HR" || userIdentity.role == "Admin")
+}
 module.exports = {
     isvaildNum,
     isvaildidCardNum,
     isvalidTimeSection,
-    checkverified
+    checkverified,
+    isvalidEnterpriseAdmin,
+    isvalidJobPoster
 }
