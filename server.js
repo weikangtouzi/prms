@@ -778,6 +778,13 @@ const typeDefs = gql`
     registerTime: [String],
     isAvaliable: Boolean,
   }
+  input EntListFilter {
+    id: Int,
+    fullName: String,
+    phoneNumber: String,
+    identitifyTime: [String],
+    isAvaliable: Boolean,
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
