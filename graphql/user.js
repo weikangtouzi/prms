@@ -393,6 +393,34 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     }
 }
 
+const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    let res = await Worker.findAll({
+        where: {
+            company_belonged: args.entId,
+            role: args.role,
+        },
+        attributes: ["id", "real_name", "pos"],
+        include: [{
+            model: User,
+            attributes: ["image_url"]
+        }]
+    });
+    res = res.map(origin => {
+        let final = origin.dataValues;
+        final = {
+            ...final,
+            name: final.real_name,
+            logo: final.User.image_url ? final.User.image_url : "default",
+        }
+        return final
+    })
+    return res;
+}
+
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -412,5 +440,6 @@ module.exports = {
     UserEditBasicInfo,
     UserGetBasicInfo,
     UserGetEnterpriseDetail_EntInfo,
-    UserGetJobListByEntId
+    UserGetJobListByEntId,
+    UserGetEnterpriseDetail_WorkerList
 }
