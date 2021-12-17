@@ -301,11 +301,6 @@ const typeDefs = gql`
     "大于一个月" 
     MoreThanOneMonth
   }
-  type JobExpectation {
-    jobCategory: [String]!,
-    aimedCity: String!,
-    salary: String!
-  }
   type ResumeWorkExp {
     enterpriseName: String!,
     positionName: String!,
@@ -692,6 +687,7 @@ const typeDefs = gql`
     work_time: Int,
     createdAt: String!,
     job_counter: Int,
+    abbreviation: String!,
   }
   type HRInfoForEntDetail {
     id: Int!,
@@ -827,7 +823,7 @@ const typeDefs = gql`
     CandidateGetAllJobExpectations: [JobExpectation]!
     CandidateGetJobList(filter:JobFilter): JobSimpifiedDataPageView!
     UserGetEnterpriseDetail_EntInfo(entId: Int): EnterpriseInfoForEntDetail!
-    CandidateGetEnterpriseDetail_HRList(entId: Int): [HRInfoForEntDetail]!
+    UserGetEnterpriseDetail_WorkerList(entId: Int, role: EnterpriseRole!): [HRInfoForEntDetail]!
     CandidateGetEnterpriseDetail_InterviewRecomment(entId: Int): InterviewRecommentListForEntDetail!
     CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail!
     CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
@@ -838,6 +834,7 @@ const typeDefs = gql`
     UserGetBasicInfo: UserBasicInfo!
     AdminLogIn(account: String!, password: String!): AdminLogInResult!
     AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
+    CandidateGetAllJobCategoriesByEntId(entId:Int): [[String]]!
   }
   
   "most of mutations needed token for authorization"
@@ -848,7 +845,7 @@ const typeDefs = gql`
     QNInsertPersonalData(info: PersonalData!): Int!
     "leave extraAttributes null for default upload options"
     CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): String!
-    HRPostJob(info: JobPost): Void
+    HRPostJob(info: JobPost!): Void
     "insert or edit a personal data"
     UserEditBasicInfo(info: BasicData!): Void
     "insert or edit a personal advantage"
@@ -892,6 +889,8 @@ const typeDefs = gql`
     ENTRecruitmentApply(recruitmentId: Int!, size: String): Void
     CandidateEditSkills(resumeId: Int!, skills: [String]!): Void
     CandidateEditJobExpectations(info:EditJobExpectation!): Void
+    ENTRemoveWorker(workerId: Int!): Void
+    HRHideJob(jobId: Int!): Void
   }
   type Subscription {
     newMessage: Message!

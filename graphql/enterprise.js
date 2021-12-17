@@ -1,7 +1,7 @@
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message } = require('../models');
 const jwt = require('jsonwebtoken');
-const { isvalidTimeSection, isvalidEnterpriseAdmin } = require('../utils/validations');
+const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo');
 const user = require('../models/user');
@@ -476,8 +476,35 @@ const ENTRecruitmentCancel = async (parent, args, { userInfo }, info) => {
   }
 }
 
+const ENTRemoveWorker = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidEnterpriseAdmin(userInfo.identity)) {
+    Worker.destroy({
+      where: {
+        id: args.workerId,
+      }
+    })
+  } else {
+    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
 
-
+const HRHideJob = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidJobPoster(userInfo.identity)) {
+    await Job.update({
+      expired_at: new Date()
+    },{
+      where: {
+        id: jobId,
+      }
+    });
+  } else {
+    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,
@@ -494,5 +521,7 @@ module.exports = {
   ENTRecruitmentApply,
   HRCancelInterview,
   editJob,
-  ENTRecruitmentCancel
+  ENTRecruitmentCancel,
+  ENTRemoveWorker,
+  HRHideJob
 }

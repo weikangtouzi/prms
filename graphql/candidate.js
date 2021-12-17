@@ -157,31 +157,7 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
 }
 
 
-const CandidateGetEnterpriseDetail_HRList = async (parent, args, { userInfo }, info) => {
-    if (!userInfo) throw new AuthenticationError('missing authorization')
-    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
-    let res = await Worker.findAll({
-        where: {
-            company_belonged: args.entId
-        },
-        attributes: ["id", "real_name", "pos"],
-        include: [{
-            model: User,
-            attributes: ["image_url"]
-        }]
-    });
-    res = res.map(origin => {
-        let final = origin.dataValues;
-        final = {
-            ...final,
-            name: final.real_name,
-            logo: final.User.image_url ? final.User.image_url : "default",
-        }
-        return final
-    })
-    return res;
-}
+
 const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -597,7 +573,6 @@ module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
     CandidateGetJob,
-    CandidateGetEnterpriseDetail_HRList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
     CandidateGetEnterpriseDetail_QA,
     CandidateGetHRDetail_HRInfo,

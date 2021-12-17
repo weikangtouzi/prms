@@ -7,7 +7,9 @@ const { logIn,
     UserVerifyCodeConsume,
     UserEditBasicInfo,
     UserGetBasicInfo,
-    UserGetEnterpriseDetail_EntInfo } = require('./user');
+    UserGetEnterpriseDetail_EntInfo,
+    UserGetEnterpriseDetail_WorkerList,
+    UserGetJobListByEntId } = require('./user');
 const { sendSms } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -25,17 +27,17 @@ const { editEnterpriseBasicInfo,
     HRInviteInterview,
     HREndInterview,
     HRRemoveJob,
-    ENTRecruitmentApply
+    ENTRecruitmentApply,
+    ENTRemoveWorker,
+    HRHideJob
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
-    CandidateGetEnterpriseDetail_HRList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
     CandidateGetEnterpriseDetail_QA,
     CandidateGetHRDetail_HRInfo,
     CandidateGetHRDetail_RecommendationsList,
     CandidateGetHRDetail_JobListPageView,
     CandidateGetAllJobCategoriesByEntId,
-    CandidateGetJobListByEntId,
     CandidateEditPersonalAdvantage,
     CandidateEditWorkExprience,
     CandidateRecruitmentApply,
@@ -64,14 +66,14 @@ const resolvers = {
         CandidateGetJobList,
         CandidateGetJob,
         UserGetEnterpriseDetail_EntInfo,
-        CandidateGetEnterpriseDetail_HRList,
+        UserGetEnterpriseDetail_WorkerList,
         CandidateGetEnterpriseDetail_InterviewRecomment,
         CandidateGetEnterpriseDetail_QA,
         CandidateGetHRDetail_HRInfo,
         CandidateGetHRDetail_RecommendationsList,
         CandidateGetHRDetail_JobListPageView,
         CandidateGetAllJobCategoriesByEntId,
-        CandidateGetJobListByEntId,
+        UserGetJobListByEntId,
         UserGetContractList,
         UserGetBasicInfo,
         AdminLogIn,
@@ -101,7 +103,9 @@ const resolvers = {
         CandidateEditPersonalAdvantage,
         CandidateEditWorkExprience,
         CandidateRecruitmentApply,
-        CandidateEditJobExpectations
+        CandidateEditJobExpectations,
+        ENTRemoveWorker,
+        HRHideJob
     },
     Subscription: {
         newMessage,
