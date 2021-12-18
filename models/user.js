@@ -101,6 +101,11 @@ module.exports = (sequelize, DataTypes) => {
     last_log_out_time: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,
