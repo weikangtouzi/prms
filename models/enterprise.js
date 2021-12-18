@@ -104,6 +104,11 @@ module.exports = (sequelize, DataTypes) => {
     work_time: {
       type: DataTypes.STRING(12),
       allowNull: true
+    },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,

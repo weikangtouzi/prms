@@ -2,9 +2,9 @@ const jwt = require('jsonwebtoken')
 const { jwtConfig } = require('../project.json')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
-const { User } = require('../models')
+const { User, Worker } = require('../models')
 module.exports = {
-    before: context => {
+    before:async context => {
         let token
         if (context.req && context.req.headers.authorization) {
             token = context.req.headers.authorization;
@@ -18,7 +18,21 @@ module.exports = {
             } catch (err) {
                 userInfo = err
             }
-            context.userInfo = userInfo;
+            context.suerInfo = userInfo;
+            if(userInfo.identity && userInfo.identity.identity == 'EnterpriseUser') {
+                let isAvaliable = await Worker.findOne({
+                    user_binding: userInfo.user_id,
+                    disabled: false,
+                    disabled_by_ent: false
+                })
+                if(!isAvaliable) throw new AuthenticationError('account is banned');
+            } else {
+                let isAvaliable = await User.findOne({
+                    user_id: userInfo.user_id,
+                    disabled: false,
+                })
+                if(!isAvaliable) throw new AuthenticationError('account is banned');
+            }
         }
         context.pubsub = pubsub
         return context;

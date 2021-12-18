@@ -47,6 +47,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     phone_number: {
       type: DataTypes.STRING,
+    },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    disabled_by_ent: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
   }, {
     sequelize,

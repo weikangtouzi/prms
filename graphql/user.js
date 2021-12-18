@@ -10,6 +10,7 @@ const { basic } = require('../project.json');
 const serializers = require('../utils/serializers');
 const { checkverified, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { error } = require('../utils/logger');
+const { user } = require('pg/lib/defaults');
 const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
     if (verifyCode === "tested") {
