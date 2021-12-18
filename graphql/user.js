@@ -399,6 +399,7 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const {entId, role} = args;
     let where = {};
+    let attributes;
     if(entId) {
         if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
         where.company_belonged = entId;
@@ -409,6 +410,7 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
                 [Op.ne]: "Admin"
             }
         }
+        attributes = ["id", "real_name", "pos"]
     } else {
         if (!isvalidEnterpriseAdmin(userInfo.identity)) {
             throw new AuthenticationError('should specify the enterprise id for this operation');
@@ -416,11 +418,12 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         if(role) {
             where.role = role;
         }
+        attributes = ["id", "real_name", "pos", "createdAt", "role", "disabled"]
     }
     
     let res = await Worker.findAll({
         where,
-        attributes: ["id", "real_name", "pos"],
+        attributes,
         include: [{
             model: User,
             attributes: ["image_url"]
