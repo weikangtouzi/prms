@@ -689,11 +689,14 @@ const typeDefs = gql`
     job_counter: Int,
     abbreviation: String!,
   }
-  type HRInfoForEntDetail {
+  type WorkerInfoForWorkerList {
     id: Int!,
     name: String!,
     logo: String!,
-    pos: String!
+    pos: String!,
+    createdAt: String,
+    role: EnterpriseRole,
+    disabled: Boolean
   }
   type InterviewRecommentInfoForEntDetail{
     id: Int!,
