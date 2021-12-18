@@ -4,7 +4,7 @@ const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 const { User, Worker } = require('../models')
 module.exports = {
-    before:async context => {
+    before: context => {
         let token
         if (context.req && context.req.headers.authorization) {
             token = context.req.headers.authorization;
@@ -15,24 +15,28 @@ module.exports = {
             let userInfo
             try {
                 userInfo = jwt.verify(token, jwtConfig.secret);
+                if (userInfo.identity && userInfo.identity.identity == 'EnterpriseUser') {
+                    let isAvaliable = Worker.findOne({
+                        where: {
+                            user_binding: userInfo.user_id,
+                            disabled: false,
+                            disabled_by_ent: false
+                        }
+                    })
+                    if (!isAvaliable) throw new AuthenticationError('account is banned');
+                } else {
+                    let isAvaliable = User.findOne({
+                        where: {
+                            id: userInfo.user_id,
+                            disabled: false,
+                        }
+                    })
+                    if (!isAvaliable) throw new AuthenticationError('account is banned');
+                }
             } catch (err) {
                 userInfo = err
             }
-            context.suerInfo = userInfo;
-            if(userInfo.identity && userInfo.identity.identity == 'EnterpriseUser') {
-                let isAvaliable = await Worker.findOne({
-                    user_binding: userInfo.user_id,
-                    disabled: false,
-                    disabled_by_ent: false
-                })
-                if(!isAvaliable) throw new AuthenticationError('account is banned');
-            } else {
-                let isAvaliable = await User.findOne({
-                    user_id: userInfo.user_id,
-                    disabled: false,
-                })
-                if(!isAvaliable) throw new AuthenticationError('account is banned');
-            }
+            context.userInfo = userInfo;
         }
         context.pubsub = pubsub
         return context;

@@ -111,7 +111,7 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
         job_name: data.title,
         job_salary: `${data.min_salary}-${data.max_salary}`,
         job_exp: `${data.experience}年`,
-        job_edu: data.education,
+        job_edu: data.min_education,
         job_address: data.address_description[0],
         tags: data.tags,
         comp_name: data.Worker.Enterprise.enterprise_name,
