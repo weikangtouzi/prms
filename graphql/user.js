@@ -397,12 +397,29 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
 const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    const {entId, role} = args;
+    let where = {};
+    if(entId) {
+        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+        where.company_belonged = entId;
+        if(role) {
+            where.role = role;
+        } else {
+            where.role = {
+                [Op.ne]: "Admin"
+            }
+        }
+    } else {
+        if (!isvalidEnterpriseAdmin(userInfo.identity)) {
+            throw new AuthenticationError('should specify the enterprise id for this operation');
+        }
+        if(role) {
+            where.role = role;
+        }
+    }
+    
     let res = await Worker.findAll({
-        where: {
-            company_belonged: args.entId,
-            role: args.role,
-        },
+        where,
         attributes: ["id", "real_name", "pos"],
         include: [{
             model: User,
