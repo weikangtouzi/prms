@@ -98,7 +98,7 @@ mongo.init().then(() => {
                             charter: `https://be.chenzaozhao.com/${user.dataValues.username}/image/${ent.dataValues.enterprise_name}.jpg`,
                             phoneNumber: null,
                             editable: false,
-                            passed: false,
+                            passed: true,
                             time: new Date(),
                             description: null
                         })
