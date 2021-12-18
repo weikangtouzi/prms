@@ -823,7 +823,7 @@ const typeDefs = gql`
     CandidateGetAllJobExpectations: [JobExpectation]!
     CandidateGetJobList(filter:JobFilter): JobSimpifiedDataPageView!
     UserGetEnterpriseDetail_EntInfo(entId: Int): EnterpriseInfoForEntDetail!
-    UserGetEnterpriseDetail_WorkerList(entId: Int, role: EnterpriseRole!): [HRInfoForEntDetail]!
+    UserGetEnterpriseDetail_WorkerList(entId: Int, role: EnterpriseRole): [HRInfoForEntDetail]!
     CandidateGetEnterpriseDetail_InterviewRecomment(entId: Int): InterviewRecommentListForEntDetail!
     CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail!
     CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
