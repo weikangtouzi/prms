@@ -274,22 +274,22 @@ const editJob = async (parent, args, { userInfo }, info) => {
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
     const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates } = args.info;
-    await Job.update({
-      title: jobTitle,
-      detail: description,
-      adress_coordinate: {
-        type: 'Point',
-        coordinates: coordinates
-      },
-      adress_description: workingAddress,
-      min_salary: salary[0],
-      max_salary: salary[1],
-      min_experience: experience,
-      min_education: education,
-      required_num: requiredNum,
-      full_time_job: isFullTime,
-      tags: tags
-    }, {
+    let update = {};
+    if(jobTitle) update.title = jobTitle;
+    if(workingAddress) update.adress_description = workingAddress;
+    if(experience) update.min_experience = experience;
+    if(salary) {
+      update.min_salary = salary[0]
+      update.max_salary = salary[1]
+    }
+    if(education) update.min_education = education;
+    if(description) update.detail = description;
+    if(requiredNum) update.required_num = requiredNum;
+    if(isFullTime) update.full_time_job = isFullTime;
+    if(tags) update.tags = tags;
+    if(coordinates) update.adress_coordinate = coordinates;
+    if(Object.keys(update).length == 0) throw new UserInputError("at least need one field");
+    await Job.update(update, {
       where: {
         id: jobId,
       }
