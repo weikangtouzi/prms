@@ -79,23 +79,25 @@ const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
     const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
-    if (enterpriseName || abbreviation || enterpriseNature || enterpriseLocation || enterpriseProfile || enterprisecCoordinate || enterpriseIndustry || enterpriseFinancing || logo || enterpriseSize || establishedDate || homepage || tel) {
-      await Enterprise.update({
-        enterprise_name: enterpriseName,
-        abbreviation: abbreviation,
-        business_nature: enterpriseNature,
-        industry_involved: enterpriseIndustry,
-        enterprise_profile: enterpriseProfile,
-        enterprise_financing: enterpriseFinancing,
-        enterprise_size: enterpriseSize,
-        enterprise_logo: logo,
-        enterprise_loc_longtitude: enterprisecCoordinate[0],
-        enterprise_loc_latitude: enterprisecCoordinate[1],
-        enterprise_loc_detail: enterpriseLocation,
-        homepage,
-        established_time: establishedDate,
-        tel: tel
-      }, {
+    let update = {};
+    if (enterpriseName) update.enterprise_name = enterpriseName;
+    if (abbreviation) update.abbreviation = abbreviation;
+    if (enterpriseFinancing) update.enterprise_financing = enterpriseFinancing;
+    if (enterprisecCoordinate) update.enterprise_coordinates = {
+      type: 'Point',
+      coordinates: enterprisecCoordinate
+    }
+    if (enterpriseNature) update.business_nature = enterpriseNature;
+    if (enterpriseLocation) update.enterprise_loc_detail = enterpriseLocation;
+    if (enterpriseIndustry) update.industry_involved = enterpriseIndustry;
+    if (enterpriseSize) update.enterprise_size = enterpriseSize;
+    if (homepage) update.homepage = homepage;
+    if (establishedDate) update.established_time = establishedDate;
+    if (tel) update.tel = tel;
+    if (enterpriseProfile) update.enterprise_profile;
+    if (logo) update.enterprise_logo = logo;
+    if (Object.keys(update).length > 0) {
+      await Enterprise.update(update, {
         where: {
           user_id
         }
@@ -103,7 +105,6 @@ const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
     } else {
       throw new UserInputError('you need at least one data to update')
     }
-
   } else {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
@@ -116,26 +117,16 @@ const editEnterpriseWorkTimeAndWelfare = async (parent, args, { userInfo }, info
       throw new UserInputError("none of the information is providered")
     }
     const { workRule, restRule, welfare, overtimeWorkDegree, customTags } = args.info;
-    if (isvalidTimeSection(workRule)) {
-      await Enterprise.update({
-        rest_rule: restRule,
-        work_time: workRule,
-        enterprise_welfare: welfare,
-        overtime_work_degree: overtimeWorkDegree,
-        tags: customTags
-      }, {
-        where: { user_id: userInfo.user_id }
-      })
-      if (userInfo.exp && userInfo.exp > new Date().getTime() / 1000 && userInfo.exp <= (new Date().getTime() - 60000) / 1000) {
-        return jwt.sign({
-          user_id: userInfo.user_id,
-          username: userInfo.username,
-          identity: userInfo.identity
-        }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
-      }
-    } else {
-      throw new UserInputError("bad input", { workRule: `${workRule} is not a valid timesectiohn` })
-    }
+    let update = {};
+    if (workRule && isvalidTimeSection(workRule)) update.work_time = workRule;
+    if (restRule) update.rest_rule = restRule;
+    if (welfare) update.enterprise_welfare = welfare;
+    if (overtimeWorkDegree) update.overtime_work_degree = overtimeWorkDegree;
+    if (customTags) update.tags = customTags;
+    await Enterprise.update(update, {
+      where: { user_id: userInfo.user_id }
+    })
+
   } else {
     throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
@@ -496,7 +487,7 @@ const HRHideJob = async (parent, args, { userInfo }, info) => {
   if (isvalidJobPoster(userInfo.identity)) {
     await Job.update({
       expired_at: new Date()
-    },{
+    }, {
       where: {
         id: jobId,
       }
