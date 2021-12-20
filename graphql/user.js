@@ -365,7 +365,7 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
         }
     }
     let where = {};
-    if (entId) where.entId = entId;
+    if (entId) where.comp_id = entId;
     if (work_id) where.work_id = work_id;
     let { page, pageSize, category } = args;
     if (!page) page = 0;
