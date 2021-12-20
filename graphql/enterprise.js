@@ -471,11 +471,25 @@ const ENTRemoveWorker = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    Worker.destroy({
-      where: {
-        id: args.workerId,
-      }
-    })
+    switch(args.role) {
+      case 'Admin':
+        throw new UserInputError("could not delete admin user");
+      case 'HR':
+        await Job.update({
+          workerId: userInfo.identity.worker_id,
+        }, {
+          where: {
+            worker_id: args.workerId
+          }
+        })
+        Worker.destroy({
+          where: {
+            id: args.workerId,
+          }
+        })
+      default:
+        throw new UserInputError(`${args.role} is not supported yet`);
+    }
   } else {
     throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
