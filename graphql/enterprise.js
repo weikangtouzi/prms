@@ -99,7 +99,7 @@ const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
     if (Object.keys(update).length > 0) {
       await Enterprise.update(update, {
         where: {
-          user_id
+          user_id: userInfo.user_id
         }
       });
     } else {
