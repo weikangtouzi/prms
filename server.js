@@ -439,7 +439,7 @@ const typeDefs = gql`
   scalar Identity
   "reset password means that user forget password"
   input ResetPassword {
-    phoneNumber: String!,
+    phoneNumber: String,
     password: String!,
     confirmPassword: String!,
   }
