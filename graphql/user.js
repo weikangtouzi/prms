@@ -416,6 +416,7 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
             throw new AuthenticationError('should specify the enterprise id for this operation');
         }
         if(role) {
+            where.company_belonged = userInfo.identity.entId;
             where.role = role;
         }
         attributes = ["id", "real_name", "pos", "createdAt", "role", "disabled"]
