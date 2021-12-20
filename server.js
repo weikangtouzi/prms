@@ -892,7 +892,7 @@ const typeDefs = gql`
     ENTRecruitmentApply(recruitmentId: Int!, size: String): Void
     CandidateEditSkills(resumeId: Int!, skills: [String]!): Void
     CandidateEditJobExpectations(info:EditJobExpectation!): Void
-    ENTRemoveWorker(workerId: Int!): Void
+    ENTRemoveWorker(workerId: Int!, role: EnterpriseRole!): Void
     HRHideJob(jobId: Int!): Void
   }
   type Subscription {

@@ -421,7 +421,6 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         }
         attributes = ["id", "real_name", "pos", "createdAt", "role", "disabled"]
     }
-
     let res = await Worker.findAll({
         where,
         attributes,
