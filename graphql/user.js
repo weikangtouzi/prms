@@ -103,7 +103,7 @@ const logIn = async (parent, args, context, info) => {
         })
 
     }
-    User.update({ last_log_out_time: null},{
+    User.update({ last_log_out_time: null }, {
         where: {
             id: user.id
         }
@@ -236,7 +236,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
                 identity: { identity: args.targetIdentity },
-                jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues})
+                jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues })
             }
         } else {
             throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })
@@ -282,14 +282,14 @@ const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { username, logo, gender, birthday, currentCity, firstTimeWorking, education } = args.info;
     let update = {};
-    if(username) update.username = username;
-    if(logo) update.image_url = logo;
-    if(gender) update.gender = gender;
-    if(birthday) update.birth_date = birthday;
-    if(currentCity) update.current_city = currentCity;
-    if(firstTimeWorking) update.first_time_working = firstTimeWorking;
-    if(education) update.education = education;
-    if(Object.keys(update).length == 0) throw new UserInputError("you need submit at least one field to update");
+    if (username) update.username = username;
+    if (logo) update.image_url = logo;
+    if (gender) update.gender = gender;
+    if (birthday) update.birth_date = birthday;
+    if (currentCity) update.current_city = currentCity;
+    if (firstTimeWorking) update.first_time_working = firstTimeWorking;
+    if (education) update.education = education;
+    if (Object.keys(update).length == 0) throw new UserInputError("you need submit at least one field to update");
     try {
         await User.update(update, {
             where: {
@@ -322,13 +322,13 @@ const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info)
     if (!userInfo.resume && (userInfo.identity.identity != "EnterpriseUser")) throw new AuthenticationError('need resume and job expectation for this operation');
     if (userInfo.resume && !args.entId) throw new UserInputError("need to specify entId for personal user query");
     let where = {};
-    if(args.entId) where.id = args.entId;
+    if (args.entId) where.id = args.entId;
     else where.id = userInfo.identity.entId;
     let entInfo = Enterprise.findOne({
         where
     });
     let job_counter
-    if(args.entId) {
+    if (args.entId) {
         job_counter = Job.count({
             where: {
                 comp_id: args.entId
@@ -341,7 +341,7 @@ const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info)
         enterprise_coordinates: entInfo.dataValues.enterprise_coordinates.coordinates,
         createdAt: entInfo.createdAt.toISOString(),
     }
-    if(job_counter) res.job_counter = job_counter;
+    if (job_counter) res.job_counter = job_counter;
     return res
 }
 
@@ -356,8 +356,8 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
             [Op.gte]: new Date()
         }
     } else {
-        if(isvalidJobPoster(userInfo.identity)) {
-            if(isvalidEnterpriseAdmin(userInfo.identity)) {
+        if (isvalidJobPoster(userInfo.identity)) {
+            if (isvalidEnterpriseAdmin(userInfo.identity)) {
                 entId = userInfo.identity.entId
             } else {
                 work_id = userInfo.identity.work_id;
@@ -365,12 +365,12 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
         }
     }
     let where = {};
-    if(entId) where.entId = entId;
-    if(work_id) where.work_id = work_id;
-    let { page, pageSize,category } = args;
+    if (entId) where.entId = entId;
+    if (work_id) where.work_id = work_id;
+    let { page, pageSize, category } = args;
     if (!page) page = 0;
     if (!pageSize) pageSize = 10;
-    
+
     if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
     let res = await Job.findAndCountAll({
         where,
@@ -397,13 +397,13 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
 const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const {entId, role} = args;
+    const { entId, role } = args;
     let where = {};
     let attributes;
-    if(entId) {
+    if (entId) {
         if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
         where.company_belonged = entId;
-        if(role) {
+        if (role) {
             where.role = role;
         } else {
             where.role = {
@@ -415,13 +415,13 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         if (!isvalidEnterpriseAdmin(userInfo.identity)) {
             throw new AuthenticationError('should specify the enterprise id for this operation');
         }
-        if(role) {
-            where.company_belonged = userInfo.identity.entId;
+        where.company_belonged = userInfo.identity.entId;
+        if (role) {
             where.role = role;
         }
         attributes = ["id", "real_name", "pos", "createdAt", "role", "disabled"]
     }
-    
+
     let res = await Worker.findAll({
         where,
         attributes,
