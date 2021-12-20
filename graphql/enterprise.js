@@ -4,8 +4,7 @@ const jwt = require('jsonwebtoken');
 const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo');
-const user = require('../models/user');
-
+const {Op} = require('sequelize');
 
 
 const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
@@ -289,11 +288,16 @@ const editJob = async (parent, args, { userInfo }, info) => {
     if(tags) update.tags = tags;
     if(coordinates) update.adress_coordinate = coordinates;
     if(Object.keys(update).length == 0) throw new UserInputError("at least need one field");
-    await Job.update(update, {
+    let res = await Job.update(update, {
       where: {
         id: jobId,
-      }
+        expired_at: {
+          [Op.lt]: new Date()
+        }
+      },
+      returning: true
     })
+    if(!res || res[0] === 0) throw new UserInputError("could not remove the job that is recruiting");
   } else {
     throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
