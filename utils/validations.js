@@ -73,15 +73,21 @@ function isvalidTimeSection(input) {
 async function checkverified(phoneNumber, operation) {
     let res
     if (phoneNumber) {
-        res = await mongo.query('user_log_in_cache', async (collection) => {
-            return await collection.findOneAndDelete({
-                phoneNumber,
-                verified: true,
-                operation
+        try {
+            res = await mongo.query('user_log_in_cache', async (collection) => {
+                return await collection.findOneAndDelete({
+                    phoneNumber,
+                    verified: true,
+                    operation
+                })
             })
-        })
-        if (res.value) {
-            return true
+            if (res.value) {
+                return true
+            } else {
+                return false
+            }
+        } catch (e) {
+            throw e
         }
     }
     console.log(res)
