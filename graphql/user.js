@@ -1,6 +1,6 @@
 const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
-const { UserInputError, AuthenticationError } = require('apollo-server');
+const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
 const { User, Worker, Enterprise, Resume, JobExpectation, Job } = require('../models');
 const { Op } = require('sequelize');
