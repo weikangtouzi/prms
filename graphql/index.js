@@ -10,7 +10,7 @@ const { logIn,
     UserGetEnterpriseDetail_EntInfo,
     UserGetEnterpriseDetail_WorkerList,
     UserGetJobListByEntId } = require('./user');
-const { sendSms } = require('./send_sms');
+const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
@@ -77,7 +77,8 @@ const resolvers = {
         UserGetContractList,
         UserGetBasicInfo,
         AdminLogIn,
-        AdminGetUserList
+        AdminGetUserList,
+        StaticSendEmail: sendEmail
     },
     Mutation: {
         UserRegister: register,

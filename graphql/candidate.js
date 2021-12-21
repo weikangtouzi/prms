@@ -1,13 +1,13 @@
 const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment, Resume, ResumeWorkExp, ResumeEduExp, ResumeProjectExp, JobReadRecord } = require('../models');
 const { Op } = require('sequelize');
-const { AuthenticationError, UserInputError } = require('apollo-server');
+const { AuthenticationError, UserInputError, ForbiddenError } = require('apollo-server');
 const user = require('../models/user');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let res = await JobExpectation.findAndCountAll({
         where: {
             user_id: userInfo.user_id
@@ -22,7 +22,7 @@ const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) 
 const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let res;
     let page = 0;
     let pageSize = 10;
@@ -82,7 +82,7 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
 const CandidateGetJob = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     const { jobid } = args;
     let job = await Job.findOne({
         where: {
@@ -108,9 +108,10 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
     let data = job.dataValues;
     JobReadRecord.create({
         user_id: userInfo.user_id,
+        job_id: jobid,
         job_name: data.title,
         job_salary: `${data.min_salary}-${data.max_salary}`,
-        job_exp: `${data.experience}年`,
+        job_exp: data.min_experience !== 0?`${data.min_experience}年`: "无",
         job_edu: data.min_education,
         job_address: data.address_description[0],
         tags: data.tags,
@@ -118,6 +119,13 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
         comp_financing: data.Worker.Enterprise.enterprise_financing,
         hr_name: data.Worker.real_name,
         hr_position: data.Worker.pos,
+    })
+    JobCache.update({
+        views: sequelize.literal('"views" + 1')
+    }, {
+        where: {
+            job_id: jobid
+        }
     })
     let res = {
         job: {
@@ -161,7 +169,7 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
 const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let counts = sequelize.query('select sum("HR")::float / count("id") as "HR", sum("comp_env")::float / count("id") as "comp_env", sum("description")::float / count("id") as "description", sum("comp_env" + "description" + "HR")::float / (3 * count("id")) as total from interview_recomment where comp_id = $1;',
         {
             bind: [args.entId]
@@ -200,7 +208,7 @@ const CandidateGetEnterpriseDetail_InterviewRecomment = async (parent, args, { u
 const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let raw = await EnterpriseQuestion.findAndCountAll({
         where: {
             enterprise_id: args.entId
@@ -230,7 +238,7 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
 const CandidateGetHRDetail_HRInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let res = await Worker.findOne({
         where: {
             id: args.hrId,
@@ -258,7 +266,7 @@ const CandidateGetHRDetail_HRInfo = async (parent, args, { userInfo }, info) => 
 const CandidateGetHRDetail_RecommendationsList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let res = await Job.findAndCountAll({
         where: {
             [Op.and]: [
@@ -292,7 +300,7 @@ const CandidateGetHRDetail_RecommendationsList = async (parent, args, { userInfo
 const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let { page, pageSize, hrId } = args;
     if (!page) page = 0;
     if (!pageSize) pageSize = 10;
@@ -321,7 +329,7 @@ const CandidateGetHRDetail_JobListPageView = async (parent, args, { userInfo }, 
 const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     let { entId } = args;
     let res = await sequelize.query('SELECT category[1] FROM "job" AS "Job" WHERE "Job"."comp_id" = $1 GROUP BY category[1];',
         {
@@ -490,7 +498,7 @@ const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
 const CandidateSendResume = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     const { jobId, resumeId, hrId, compId } = args;
     let record = await ResumeDeliveryRecord.findOne({
         where: {
@@ -512,7 +520,7 @@ const CandidateSendResume = async (parent, args, { userInfo }, info) => {
 const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.resume) throw new AuthenticationError('need resume and job expectation for this operation');
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     const { recruitmentId } = args;
     try {
         await RecruitmentRecord.upsert({
@@ -543,7 +551,6 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
     if (industry_involved) input.industry_involved = industry_involved;
     if (id) {
         if (Object.keys(input).length == 0) throw new UserInputError("empty mutation is not expected");
-
         await JobExpectation.update({
             ...input
         }, {
@@ -567,6 +574,7 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
         })
     }
 }
+
 
 
 module.exports = {

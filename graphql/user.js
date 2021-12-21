@@ -60,7 +60,7 @@ const logIn = async (parent, args, context, info) => {
     if (!password) {
         let verified = await checkverified(account, info.fieldName);
         if (!verified) {
-            throw new AuthenticationError('needed verification for none password login')
+            throw new ForbiddenError('needed verification for none password login')
         }
         user = await User.findOne({
             where: {
@@ -95,7 +95,7 @@ const logIn = async (parent, args, context, info) => {
         const correctPassword = await bcrypt.compare(password, user.password);
         if (!correctPassword) {
             errors.password = 'password is incorrect'
-            throw new AuthenticationError('password is incorrect', { errors })
+            throw new UserInputError('password is incorrect', { errors })
         }
         token = serializers.jwt({
             user_id: user.id,
@@ -247,7 +247,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
     }
 }
 const resetPassword = async (parent, args, { userInfo }, info) => {
-    const { phoneNumber, password, confirmPassword } = args.info;
+    let { phoneNumber, password, confirmPassword } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
     if (!phoneNumber) phoneNumber = await User.findOne({
@@ -257,7 +257,7 @@ const resetPassword = async (parent, args, { userInfo }, info) => {
         attributes: ["phone_number"]
     })
     if (!await checkverified(phoneNumber, info.fieldName)) {
-        throw new AuthenticationError('needed verification for this api')
+        throw new ForbiddenError('needed verification for this api')
     }
     try {
         await User.update({
@@ -278,7 +278,7 @@ const refreshToken = async (parent, args, context, info) => {
         if (userInfo.deadTime > new Date().getTime()) {
             return serializers.jwt(userInfo)
         } else {
-            throw new AuthenticationError('this token is dead, you need to resign you account for a new token', { deadTime: userInfo.deadTime })
+            throw new ForbiddenError('this token is dead, you need to resign you account for a new token', { deadTime: userInfo.deadTime })
         }
     }
 }
@@ -295,7 +295,7 @@ const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
     if (currentCity) update.current_city = currentCity;
     if (firstTimeWorking) update.first_time_working = firstTimeWorking;
     if (education) update.education = education;
-    if (Object.keys(update).length == 0) throw new UserInputError("you need submit at least one field to update");
+    if (Object.keys(update).length == 0) throw new ForbiddenError("you need submit at least one field to update");
     try {
         await User.update(update, {
             where: {
@@ -313,7 +313,7 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
         where: {
             id: userInfo.user_id
         },
-        attributes: ["username", "image_url", "gender", "birth_date", "current_city", "first_time_working", "education"]
+        attributes: ["username", "image_url", "gender", "birth_date", "current_city", "first_time_working", "education", "phone_number", "email"]
     })
     return {
         ...res.toJSON(),
@@ -325,8 +325,8 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
 const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.resume && (userInfo.identity.identity != "EnterpriseUser")) throw new AuthenticationError('need resume and job expectation for this operation');
-    if (userInfo.resume && !args.entId) throw new UserInputError("need to specify entId for personal user query");
+    if (!userInfo.resume && (userInfo.identity.identity != "EnterpriseUser")) throw new ForbiddenError('need resume and job expectation for this operation');
+    if (userInfo.resume && !args.entId) throw new ForbiddenError("need to specify entId for personal user query");
     let where = {};
     if (args.entId) where.id = args.entId;
     else where.id = userInfo.identity.entId;
@@ -357,7 +357,7 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     let { entId } = args;
     let work_id;
     if (entId) {
-        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
         where.expiredAt = {
             [Op.gte]: new Date()
         }
@@ -407,7 +407,7 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
     let where = {};
     let attributes;
     if (entId) {
-        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new AuthenticationError('need job expectation for this operation');
+        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
         where.company_belonged = entId;
         if (role) {
             where.role = role;
@@ -419,7 +419,7 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         attributes = ["id", "real_name", "pos"]
     } else {
         if (!isvalidEnterpriseAdmin(userInfo.identity)) {
-            throw new AuthenticationError('should specify the enterprise id for this operation');
+            throw new ForbiddenError('should specify the enterprise id for this operation');
         }
         where.company_belonged = userInfo.identity.entId;
         if (role) {
@@ -447,7 +447,34 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
     return res;
 }
 
+const UserChangePhoneNumber = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {newNum} = args;
+    if(!await checkverified(newNum, info.fieldName)) throw new ForbiddenError("need check verify code for this operation");
+    await User.update({
+        phone_number: newNum
+    },{
+        where: {
+            id: userInfo.user_id
+        }
+    });
+}
 
+const UserEditEmail = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {newEmail, verifyCode} = args;
+    let res = await mongo.query('user_log_in_cache', async (collection) => {
+        return await collection.findOne({ email: newEmail, code: verifyCode});
+    })
+    if(!res) throw new UserInputError('verify code not right');
+    User.update({ email: newEmail},{where: {id: userInfo.user_id}});
+}
+
+const UserGetHotJobs = async (parent, args, { userInfo }, info) => {
+
+}
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -468,5 +495,7 @@ module.exports = {
     UserGetBasicInfo,
     UserGetEnterpriseDetail_EntInfo,
     UserGetJobListByEntId,
-    UserGetEnterpriseDetail_WorkerList
+    UserGetEnterpriseDetail_WorkerList,
+    UserChangePhoneNumber,
+    UserEditEmail
 }

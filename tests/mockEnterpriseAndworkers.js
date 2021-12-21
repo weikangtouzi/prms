@@ -92,15 +92,19 @@ mongo.init().then(() => {
                         returning: true
                     })
                     await mongo.query("administrator_censor_list", async (collection) => {
-                        await collection.insertOne({
-                            user_id: user.dataValues.id,
-                            enterpriseName: ent.dataValues.enterprise_name,
-                            charter: `https://be.chenzaozhao.com/${user.dataValues.username}/image/${ent.dataValues.enterprise_name}.jpg`,
-                            phoneNumber: null,
-                            editable: false,
-                            passed: true,
-                            time: new Date(),
-                            description: null
+                        await collection.updateOne({
+                            user_id:user.dataValues.id,
+                        },{
+                            $set: {
+                                user_id: user.dataValues.id,
+                                enterpriseName: ent.dataValues.enterprise_name,
+                                charter: `https://be.chenzaozhao.com/${user.dataValues.username}/image/${ent.dataValues.enterprise_name}.jpg`,
+                                phoneNumber: null,
+                                editable: false,
+                                passed: true,
+                                time: new Date(),
+                                description: null
+                            }
                         })
                     })
                     await Worker.create({

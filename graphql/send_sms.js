@@ -4,7 +4,8 @@ const { UserInputError } = require('apollo-server-errors');
 const { isvaildNum } = require('../utils/validations');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models')
-const {message} = require('../project.json');
+const { message } = require('../project.json');
+const nodemailer = require("nodemailer");
 const sendSms = async (parent, args, context, info) => {
     let { phoneNumber } = args;
     let error = {};
@@ -41,24 +42,30 @@ const sendSms = async (parent, args, context, info) => {
     let res
     try {
         res = await client.SendSms(params);
-    } catch (err){
+    } catch (err) {
         throw new err;
     }
     saveVerifyCode(phoneNumber, code);
     return JSON.stringify(res);
 }
 
-function saveVerifyCode(phoneNumber, code) {
+function saveVerifyCode(to, code, isPhoneNumber = true) {
     mongo.query('user_log_in_cache', async (collection) => {
-        await collection.updateOne({
-            phoneNumber: phoneNumber
-        },
+        let query = {};
+        let data = {};
+        if(isPhoneNumber) {
+            query.phoneNumber = to
+            data.phoneNumber = to
+            data.code = code
+        } else {
+            query.email = to
+            data.phoneNumber = to
+            data.code = code
+        }
+        data.createAt = new Date(Date.now()).toISOString()
+        await collection.updateOne(query,
             [{
-                $replaceWith: {
-                    phoneNumber,
-                    code: code,
-                    createAt: new Date(Date.now()).toISOString()
-                }
+                $replaceWith: data
             }],
             {
                 upsert: true
@@ -66,6 +73,33 @@ function saveVerifyCode(phoneNumber, code) {
     })
 }
 
+const sendEmail = async (parent, args, { userInfo }, info) => {
+    const { emailAddress } = args;
+    const { email } = require('../project.json');
+    let transporter = nodemailer.createTransport({
+        host: email.host,
+        port: 465,
+        secure: true,
+        auth: {
+            user: email.account.user,
+            pass: email.account.pass
+        }
+    })
+    let code = (Math.random() * (999999 - 100000) + 100000).toFixed();
+    try {
+        let info = await transporter.sendMail({
+            from: `"${email.from}" <${email.account.user}>`,
+            to: [emailAddress],
+            subject: "邮箱验证码",
+            html: `<p>验证码：${code}</p>`
+        })
+        saveVerifyCode(emailAddress, code, false);
+        return info.messageId;
+    } catch (e) {
+        throw e;
+    }
+}
 module.exports = {
-    sendSms
+    sendSms,
+    sendEmail
 }

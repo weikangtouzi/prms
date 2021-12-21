@@ -98,9 +98,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        updatedAt: {
+        updated_at: {
             type: DataTypes.DATE,
             allowNull: false
+        },
+        views: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 0,
         },
     }, {
         sequelize,
