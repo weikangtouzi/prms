@@ -1,4 +1,4 @@
-const { AuthenticationError, UserInputError } = require('apollo-server');
+const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
@@ -29,7 +29,7 @@ const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
       }
     });
   } catch (e) {
-    throw new UserInputError('your identify request is under censor right now, please wait')
+    throw new ForbiddenError('your identify request is under censor right now, please wait')
   }
 }
 const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
@@ -46,7 +46,7 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
       return res
     })
     if (!info) {
-      throw new AuthenticationError('your enterprise identify request is not passed or not applied')
+      throw new ForbiddenError('your enterprise identify request is not passed or not applied')
     }
     const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
     try {
@@ -105,7 +105,7 @@ const editEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
       throw new UserInputError('you need at least one data to update')
     }
   } else {
-    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    throw new ForbiddenError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
 const editEnterpriseWorkTimeAndWelfare = async (parent, args, { userInfo }, info) => {
@@ -127,7 +127,7 @@ const editEnterpriseWorkTimeAndWelfare = async (parent, args, { userInfo }, info
     })
 
   } else {
-    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    throw new ForbiddenError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
 const editEnterpriseExtraData = async (parent, args, { userInfo }, info) => {
@@ -152,7 +152,7 @@ const editEnterpriseExtraData = async (parent, args, { userInfo }, info) => {
       }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime })
     }
   } else {
-    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    throw new ForbiddenError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
 const inviteWorkMate = async (parent, args, { userInfo }, info) => {
@@ -178,7 +178,7 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
       throw e
     }
   } else {
-    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    throw new ForbiddenError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
 const precheckForInviteWorkMate = async (parent, args, { userInfo }, info) => {
@@ -208,7 +208,7 @@ const precheckForInviteWorkMate = async (parent, args, { userInfo }, info) => {
       return "OK"
     }
   } else {
-    throw new AuthenticationError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
+    throw new ForbiddenError(`${userInfo.identity.role} role does not have the right for edit enterprise info`)
   }
 }
 const checkEnterpriseIdentification = async (parent, args, { userInfo }, info) => {
@@ -265,7 +265,7 @@ const postJob = async (parent, args, { userInfo }, info) => {
       expired_at: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     })
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
 }
 const editJob = async (parent, args, { userInfo }, info) => {
@@ -299,7 +299,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
     })
     if(!res || res[0] === 0) throw new UserInputError("could not remove the job that is recruiting");
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
 }
 const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
@@ -345,7 +345,7 @@ const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
       }
     })
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 const HREndInterview = async (parent, args, { userInfo }, info) => {
@@ -367,7 +367,7 @@ const HREndInterview = async (parent, args, { userInfo }, info) => {
     })[0] >= 0;
     if (!updateed) throw new UserInputError("interview not started or canceled")
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 const HRCancelInterview = async (parent, args, { userInfo }, info) => {
@@ -403,7 +403,7 @@ const HRCancelInterview = async (parent, args, { userInfo }, info) => {
       }
     });
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 const HRRemoveJob = async (parent, args, { userInfo }, info) => {
@@ -418,7 +418,7 @@ const HRRemoveJob = async (parent, args, { userInfo }, info) => {
     }, { returning: true });
     if (!feedback || feedback[0] === 0) throw new UserInputError("job not found");
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 
@@ -448,7 +448,7 @@ const ENTRecruitmentApply = async (parent, args, { userInfo }, info) => {
     }
 
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 const ENTRecruitmentCancel = async (parent, args, { userInfo }, info) => {
@@ -467,7 +467,7 @@ const ENTRecruitmentCancel = async (parent, args, { userInfo }, info) => {
     })
     if (!reply || reply[0] === 0) throw new UserInputError("your may not apply this recruitment");
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 
@@ -495,7 +495,7 @@ const ENTRemoveWorker = async (parent, args, { userInfo }, info) => {
         throw new UserInputError(`${args.role} is not supported yet`);
     }
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 
@@ -511,7 +511,7 @@ const HRHideJob = async (parent, args, { userInfo }, info) => {
       }
     });
   } else {
-    throw new AuthenticationError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 module.exports = {
