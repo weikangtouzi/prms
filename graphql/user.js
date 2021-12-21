@@ -250,12 +250,12 @@ const resetPassword = async (parent, args, { userInfo }, info) => {
     let { phoneNumber, password, confirmPassword } = args.info;
     if (password.trim() == '') throw new UserInputError('password must be not empty');
     if (confirmPassword.trim() == '') throw new UserInputError('confirmPassword must be not empty');
-    if (!phoneNumber) phoneNumber = await User.findOne({
+    if (!phoneNumber) phoneNumber = (await User.findOne({
         where: {
             id: userInfo.user_id,
         },
         attributes: ["phone_number"]
-    })
+    })).phone_number;
     if (!await checkverified(phoneNumber, info.fieldName)) {
         throw new ForbiddenError('needed verification for this api')
     }
