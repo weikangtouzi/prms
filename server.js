@@ -20,6 +20,7 @@ const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
 const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity } = require('./graphql/types')
 const { info } = require('./utils/logger');
+const { clearViewsEveryMonday } = require('./utils/schedules');
 
 const Void = new GraphQLScalarType({
   name: 'Void',
@@ -682,9 +683,9 @@ const typeDefs = gql`
     rest_rule: String,
     overtime_work_degree: String,
     homepage: String,
-    established_time: Int,
-    tel: Int,
-    work_time: Int,
+    established_time: String,
+    tel: String,
+    work_time: String,
     createdAt: String!,
     job_counter: Int,
     abbreviation: String!,
@@ -763,7 +764,9 @@ const typeDefs = gql`
     birth_date: String, 
     current_city: String, 
     first_time_working: String, 
-    education: Education
+    education: Education,
+    phone_number: String!,
+    email: String
   }
   type AdminLogInResult {
     token: String!,
@@ -838,6 +841,7 @@ const typeDefs = gql`
     AdminLogIn(account: String!, password: String!): AdminLogInResult!
     AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
     CandidateGetAllJobCategoriesByEntId(entId:Int): [[String]]!
+    StaticSendEmail(emailAddress: String!): String
   }
   
   "most of mutations needed token for authorization"
@@ -947,16 +951,16 @@ async function startServer() {
   });
   await new Promise(r => httpServer.listen({ port: 4000 }, r));
   mongo.init().then(() => {
-    info('mongo Connection has been established successfully');
+    // info('mongo Connection has been established successfully');
   })
   sequelize
     .authenticate()
     .then(() => {
       var sql_string = fs.readFileSync('./postgres_only_sql_code.sql', 'utf8');
       sequelize.query(sql_string);
-      info('postgres Connection has been established successfully');
+      // info('postgres Connection has been established successfully');
     })
-  info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
-
+  // info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
+  clearViewsEveryMonday;
 }
 startServer();

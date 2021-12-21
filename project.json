@@ -47,10 +47,15 @@
         "current_sdk": "tencent"
     },
     "email": {
-        "host": "",
+        "host": "smtp.exmail.qq.com",
         "from": "趁早找",
-        "cc": "趁早找",
-        "subject": ""
+        "account": {
+            "user": "office@chenzaozhao.com",
+            "pass": "Wktz1234"
+        },
+        "templates": {
+            "verifycode": ""
+        }
     },
     "chat": {
         

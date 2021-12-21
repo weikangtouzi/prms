@@ -16,6 +16,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   JobReadRecord.init({
+    job_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "job",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
+    },
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
