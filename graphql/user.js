@@ -378,24 +378,20 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     if (!pageSize) pageSize = 10;
 
     if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
-    let res = await Job.findAndCountAll({
+    let res = await JobCache.findAndCountAll({
         where,
         limit: pageSize,
-        offset: pageSize * page,
-        order: [["ontop", "DESC"], ["updatedAt", "DESC"]]
+        offset: page * pageSize,
+        order: [["updatedAt", "DESC"]]
     });
     return {
         count: res.count,
         data: res.rows.map(item => {
-            return {
-                id: item.dataValues.id,
-                title: item.dataValues.title,
-                loc: item.dataValues.address_description[0] + "-" + item.dataValues.address_description[1],
-                experience: item.dataValues.min_experience,
-                education: item.dataValues.min_education,
-                salary: [item.dataValues.min_salary, item.dataValues.max_salary],
-                createdAt: item.dataValues.createdAt
-            }
+            row.address_coordinate = JSON.stringify(row.address_coordinate);
+            if (!row.logo) row.logo = "default_hr_logo";
+            if (!row.emergency) row.emergency = false;
+            row.updated_at = row.updated_at.toISOString();
+            return row
         })
     }
 }
@@ -450,11 +446,11 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
 const UserChangePhoneNumber = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const {newNum} = args;
-    if(!await checkverified(newNum, info.fieldName)) throw new ForbiddenError("need check verify code for this operation");
+    const { newNum } = args;
+    if (!await checkverified(newNum, info.fieldName)) throw new ForbiddenError("need check verify code for this operation");
     await User.update({
         phone_number: newNum
-    },{
+    }, {
         where: {
             id: userInfo.user_id
         }
@@ -464,12 +460,12 @@ const UserChangePhoneNumber = async (parent, args, { userInfo }, info) => {
 const UserEditEmail = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const {newEmail, verifyCode} = args;
+    const { newEmail, verifyCode } = args;
     let res = await mongo.query('user_log_in_cache', async (collection) => {
-        return await collection.findOne({ email: newEmail, code: verifyCode});
+        return await collection.findOne({ email: newEmail, code: verifyCode });
     })
-    if(!res) throw new UserInputError('verify code not right');
-    User.update({ email: newEmail},{where: {id: userInfo.user_id}});
+    if (!res) throw new UserInputError('verify code not right');
+    User.update({ email: newEmail }, { where: { id: userInfo.user_id } });
 }
 
 const StaticGetHotJobs = async (parent, args, { userInfo }, info) => {

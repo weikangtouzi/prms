@@ -737,6 +737,7 @@ const typeDefs = gql`
     salary: [Int]!,
     createdAt: String!,
   }
+  union JobDataListForAllUsers = JobDataForHRDetailPageOrEntJobList | JobDataBriefly
   type RecommendationsListForHRDetailPage {
     data: [JobDataForHRDetailPageOrEntJobList]!,
     count: Int!,
