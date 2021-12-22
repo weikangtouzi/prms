@@ -109,9 +109,25 @@ const EnterpriseFinancing = new GraphQLEnumType({
         Listed: { value: 6 },
         NoNeed: { value: 7 }
     }
-    
-})
 
+})
+const EnterpriseOvertime = new GraphQLEnumType({
+    name: 'EnterpriseFinancing',
+    values: {
+        None: { value: 0 },
+        Paid: { value: 1 },
+        SomeTime: { value: 2 }
+    }
+
+})
+const EnterpriseRestRule = new GraphQLEnumType({
+    name: "EnterpriseRestRule",
+    values: {
+        OneDayOffPerWeekend: { value: 0 },
+        TwoDayOffPerWeekend: { value: 1 },
+        StaggerWeekends: { value: 2 },
+    }
+})
 
 module.exports = {
     Education,
@@ -123,5 +139,7 @@ module.exports = {
     MessageType,
     FullTime,
     EnterpriseSize,
-    EnterpriseFinancing
+    EnterpriseFinancing,
+    EnterpriseOvertime,
+    EnterpriseRestRule
 }
