@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, EnterpriseRestRule, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity, EnterpriseOvertime } = require('./graphql/types')
 const { info } = require('./utils/logger');
 const { clearViewsEveryMonday } = require('./utils/schedules');
 
@@ -55,6 +55,11 @@ const typeDefs = gql`
     Doctor\
   }"
   scalar Education
+  "enum EnterpriseOvertime {\
+    None,\
+    Paid,\
+    SomeTime"
+  scalar EnterpriseOvertime 
   # data used by register user
   input Register {
     "username: required, unique, make sense by the name"
@@ -479,16 +484,12 @@ const typeDefs = gql`
   }"
   scalar EnterpriseSize
   
-  enum EnterpriseRestRule {
-    OneDayOffPerWeekend, 
-    TwoDayOffPerWeekend, 
-    StaggerWeekends
-  }
-  enum EnterpriseOvertimeDegree {
-    None, 
-    Occasionally, 
-    Usually
-  }
+  "enum EnterpriseRestRule {\
+    OneDayOffPerWeekend, \
+    TwoDayOffPerWeekend, \
+    StaggerWeekends\
+  }"
+  scalar EnterpriseRestRule
   input EnterpriseBasicInfo {
     enterpriseName: String!,
     abbreviation: String!,
@@ -522,10 +523,10 @@ const typeDefs = gql`
     customFileType: String,
   }
   input EnterpriseWorkTimeAndWelfare {
-    workRule: String,
-    restRule: String,
+    workRule: [String],
+    restRule: EnterpriseRestRule,
     welfare: [String],
-    overtimeWorkDegree: String,
+    overtimeWorkDegree: EnterpriseOvertime,
     customTags: [String]
   }
   type InterviewSchedule {
