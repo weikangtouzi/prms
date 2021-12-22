@@ -159,7 +159,7 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    const { phoneNumber, role, pos } = args.info;
+    const { phoneNumber, role, pos } = args;
     let user = await User.findOne({
       where: {
         phone_number: phoneNumber

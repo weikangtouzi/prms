@@ -226,7 +226,7 @@ const typeDefs = gql`
     "a link to the file"
     logo: String,
     username: String,
-    birthday: Int,
+    birthday: String,
     gender: Boolean,
     currentCity: String,
     education: Education,
@@ -303,6 +303,7 @@ const typeDefs = gql`
     MoreThanOneMonth
   }
   type ResumeWorkExp {
+    id: Int!,
     enterpriseName: String!,
     positionName: String!,
     departmentName: String!,
@@ -310,6 +311,7 @@ const typeDefs = gql`
     detail: String!
   }
   type ResumeProExp {
+    id: Int!,
     projectName: String!,
     role: String!,
     time: String!,
@@ -318,6 +320,7 @@ const typeDefs = gql`
     project_performance: String,
   }
   type ResumeEduExp {
+    id: Int!,
     schoolName: String!,
     major: String!,
     "check out Education type for value options"
@@ -334,6 +337,7 @@ const typeDefs = gql`
     workExperience: [ResumeWorkExp],
     projectExperience: [ResumeProExp],
     educationExperience: [ResumeEduExp],
+    personalAdvantage: String!,
   }
   "for personal user the interview data will be like this"
   type PersonalUserSideInterviewData {
@@ -842,6 +846,7 @@ const typeDefs = gql`
     AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
     CandidateGetAllJobCategoriesByEntId(entId:Int): [[String]]!
     StaticSendEmail(emailAddress: String!): String
+    StaticGetHotJobs: Void
   }
   
   "most of mutations needed token for authorization"
@@ -898,6 +903,8 @@ const typeDefs = gql`
     CandidateEditJobExpectations(info:EditJobExpectation!): Void
     ENTRemoveWorker(workerId: Int!, role: EnterpriseRole!): Void
     HRHideJob(jobId: Int!): Void
+    UserChangePhoneNumber(newNum: String!): Void
+    UserEditEmail(newEmail: String!, code: String!): Void
   }
   type Subscription {
     newMessage: Message!

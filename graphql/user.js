@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise, Resume, JobExpectation, Job } = require('../models');
+const { User, Worker, Enterprise, JobCache, JobExpectation, Job } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -472,8 +472,22 @@ const UserEditEmail = async (parent, args, { userInfo }, info) => {
     User.update({ email: newEmail},{where: {id: userInfo.user_id}});
 }
 
-const UserGetHotJobs = async (parent, args, { userInfo }, info) => {
-
+const StaticGetHotJobs = async (parent, args, { userInfo }, info) => {
+    let res = await JobCache.findAll({
+        where: {
+            expired_at: {
+                [Op.gt]: new Date(),
+            }
+        },
+        order: [["views", "DESC"], ["updated_at", "DESC"]],
+        limit: 10
+    })
+    return res.map(item => {
+        return {
+            ...item.dataValues,
+            createdAt: item.updated_at.toISOString(),
+        }
+    })
 }
 function checkUser(user, errors) {
     if (!user) {
@@ -497,5 +511,6 @@ module.exports = {
     UserGetJobListByEntId,
     UserGetEnterpriseDetail_WorkerList,
     UserChangePhoneNumber,
-    UserEditEmail
+    UserEditEmail,
+    StaticGetHotJobs
 }

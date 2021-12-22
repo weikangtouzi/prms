@@ -9,7 +9,10 @@ const { logIn,
     UserGetBasicInfo,
     UserGetEnterpriseDetail_EntInfo,
     UserGetEnterpriseDetail_WorkerList,
-    UserGetJobListByEntId } = require('./user');
+    UserGetJobListByEntId,
+    UserChangePhoneNumber,
+    UserEditEmail,
+    StaticGetHotJobs } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -78,7 +81,8 @@ const resolvers = {
         UserGetBasicInfo,
         AdminLogIn,
         AdminGetUserList,
-        StaticSendEmail: sendEmail
+        StaticSendEmail: sendEmail,
+        StaticGetHotJobs
     },
     Mutation: {
         UserRegister: register,
@@ -106,7 +110,9 @@ const resolvers = {
         CandidateRecruitmentApply,
         CandidateEditJobExpectations,
         ENTRemoveWorker,
-        HRHideJob
+        HRHideJob,
+        UserChangePhoneNumber,
+        UserEditEmail
     },
     Subscription: {
         newMessage,
