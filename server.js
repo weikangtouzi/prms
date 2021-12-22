@@ -906,6 +906,7 @@ const typeDefs = gql`
     HRHideJob(jobId: Int!): Void
     UserChangePhoneNumber(newNum: String!): Void
     UserEditEmail(newEmail: String!, code: String!): Void
+    ENTSetDisabled(workerId: Int!): Void
   }
   type Subscription {
     newMessage: Message!

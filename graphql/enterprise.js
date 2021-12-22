@@ -514,6 +514,23 @@ const HRHideJob = async (parent, args, { userInfo }, info) => {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
+
+const ENTSetDisabled = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidEnterpriseAdmin(userInfo.identity)) {
+    let res = await Worker.update({
+      disabled: true,
+    }, {
+      where: {
+        company_belonged: userInfo.identity.ent_id,
+        id: args.workerId,
+        disabled: false,
+      }
+    })
+    if(!res || res[0] == 0) throw new UserInputError("not a worker in your company or already disabled")
+  }
+}
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,
@@ -532,5 +549,6 @@ module.exports = {
   editJob,
   ENTRecruitmentCancel,
   ENTRemoveWorker,
-  HRHideJob
+  HRHideJob,
+  ENTSetDisabled
 }
