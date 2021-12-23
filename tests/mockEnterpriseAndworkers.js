@@ -151,6 +151,7 @@ mongo.init().then(() => {
                             full_time_job: full_time_jobs[j % 3],
                             tags: tags.slice(ts, ts = 3 ? undefined : ts + Math.round(Math.random() * (3 - ts))),
                             comp_id: ent.id,
+                            expired_at: j % 3 == 0? new Date(new Date().getTime() + 100000000): null
                         })
                     }
                 }

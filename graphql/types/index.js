@@ -129,6 +129,14 @@ const EnterpriseRestRule = new GraphQLEnumType({
         ShiftWork: { value: 3 },
     }
 })
+const JobStatus = new GraphQLEnumType({
+    name: "JobStatus",
+    values: {
+        NotPublishedYet: { value: 0 },
+        InRecruitment: { value: 1 },
+        OffLine: { value: 2}
+    }
+})
 
 module.exports = {
     Education,
@@ -142,5 +150,6 @@ module.exports = {
     EnterpriseSize,
     EnterpriseFinancing,
     EnterpriseOvertime,
-    EnterpriseRestRule
+    EnterpriseRestRule,
+    JobStatus
 }

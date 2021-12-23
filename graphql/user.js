@@ -74,7 +74,6 @@ const logIn = async (parent, args, context, info) => {
             user_id: user.id,
             username: user.username
         })
-
     } else {
         let errors = {}
 
@@ -101,7 +100,6 @@ const logIn = async (parent, args, context, info) => {
             user_id: user.id,
             username: user.username
         })
-
     }
     User.update({ last_log_out_time: null }, {
         where: {
@@ -306,6 +304,7 @@ const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
         throw e
     }
 }
+
 const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -354,27 +353,51 @@ const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info)
 const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    let { entId } = args;
+    let { entId, workerId, status, title} = args;
     let worker_id;
     let where = {};
-    if (entId) {
-        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
-        where.expired_at = {
-            [Op.gt]: new Date()
-        }
+    if(workerId) {
+        worker_id = workerId;
     } else {
-        if (isvalidJobPoster(userInfo.identity)) {
-            if (isvalidEnterpriseAdmin(userInfo.identity)) {
-                entId = userInfo.identity.entId
-            } else {
-                worker_id = userInfo.identity.worker_id;
+        if (entId) {
+            if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
+            where.expired_at = {
+                [Op.gt]: new Date()
             }
         } else {
-            throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to query this api`)
+            if (isvalidJobPoster(userInfo.identity)) {
+                if (isvalidEnterpriseAdmin(userInfo.identity)) {
+                    entId = userInfo.identity.entId
+                } else {
+                    worker_id = userInfo.identity.worker_id;
+                }
+            } else {
+                throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to query this api`)
+            }
         }
     }
+    switch(status) {
+        case 'NotPublishedYet':
+            where.expired_at = null;
+            break;
+        case 'InRecruitment':
+            where.expired_at = {
+                [Op.gt]: new Date()
+            };
+            break;
+        case 'OffLine':
+            where.expired_at = {
+                [Op.lte]: new Date()
+            }
+            break;
+        default:
+            break;
+    }
+    if(title) where.title = {
+        [Op.substring]: title
+    }
     if (entId) where.comp_id = entId;
-    if (worker_id) where.work_id = worker_id;
+    if (worker_id) where.worker_id = worker_id;
     let { page, pageSize, category } = args;
     if (!page) page = 0;
     if (!pageSize) pageSize = 10;
