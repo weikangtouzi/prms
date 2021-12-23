@@ -48,6 +48,15 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateEditJobExpectations } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
+    JobDataListForAllUsers: {
+        __resolveType(obj, context, info){
+            if(obj.min_salary) {
+                return 'JobDataBriefly'
+            }else {
+                return 'JobDataForHRDetailPageOrEntJobList'
+            }    
+        },
+    },
     Query: {
         UserLogIn: logIn,
         UserNumberCheck: numberCheck,

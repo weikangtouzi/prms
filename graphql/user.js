@@ -212,7 +212,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                     username: userInfo.username,
                     real_name: worker.real_name,
                     identity: {
-                        work_id: worker.work_id,
+                        worker_id: worker.id,
                         role: args.role,
                         identity: args.targetIdentity,
                         entId: worker.Enterprise.dataValues.id
@@ -355,41 +355,46 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     let { entId } = args;
-    let work_id;
+    let worker_id;
+    let where = {};
     if (entId) {
         if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
-        where.expiredAt = {
-            [Op.gte]: new Date()
+        where.expired_at = {
+            [Op.gt]: new Date()
         }
     } else {
         if (isvalidJobPoster(userInfo.identity)) {
             if (isvalidEnterpriseAdmin(userInfo.identity)) {
                 entId = userInfo.identity.entId
             } else {
-                work_id = userInfo.identity.work_id;
+                worker_id = userInfo.identity.worker_id;
             }
+        } else {
+            throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to query this api`)
         }
     }
-    let where = {};
     if (entId) where.comp_id = entId;
-    if (work_id) where.work_id = work_id;
+    if (worker_id) where.work_id = worker_id;
     let { page, pageSize, category } = args;
     if (!page) page = 0;
     if (!pageSize) pageSize = 10;
-
     if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
+    if (Object.keys(where).length === 0) return {
+        count: 0,
+        data:[]
+    };
     let res = await JobCache.findAndCountAll({
         where,
         limit: pageSize,
         offset: page * pageSize,
-        order: [["updatedAt", "DESC"]]
+        order: [["updated_at", "DESC"]]
     });
     return {
         count: res.count,
-        data: res.rows.map(item => {
+        data: res.rows.map(row => {
             row.address_coordinate = JSON.stringify(row.address_coordinate);
-            if (!row.logo) row.logo = "default_hr_logo";
             if (!row.emergency) row.emergency = false;
+            if (!row.logo) row.logo = "null";
             row.updated_at = row.updated_at.toISOString();
             return row
         })
