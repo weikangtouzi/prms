@@ -58,13 +58,13 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             order: sortWithDistance ? [[sequelize.fn("ST_Distance", sequelize.col("address_coordinate"), sequelize.fn("ST_GeomFromGeoJSON", JSON.stringify({
                 type: "POINT",
                 coordinates: sortWithDistance
-            })))], ["ontop", "DESC"], ["updatedAt", "DESC"]] : [["ontop", "DESC"], ["updatedAt", "DESC"]]
+            })))], ["ontop", "DESC"], ["updated_at", "DESC"]] : [["ontop", "DESC"], ["updated_at", "DESC"]]
         })
     } else {
         res = await JobCache.findAndCountAll({
             limit: pageSize,
             offset: page * pageSize,
-            order: [["ontop", "DESC"], ["updatedAt", "DESC"]]
+            order: [["ontop", "DESC"], ["updated_at", "DESC"]]
         })
     }
     return {
@@ -141,7 +141,7 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
             required_num: data.required_num,
             full_time_job: data.full_time_job,
             tags: data.tags,
-            updatedAt: data.updatedAt,
+            updated_at: data.updated_at,
         },
         hr: {
             id: data.worker_id,
