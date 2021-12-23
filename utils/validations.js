@@ -52,6 +52,7 @@ function isvaildidCardNum(error, idCard, useZh) {
 }
 
 function isvalidTimeSection(input) {
+    if(input == '') return null;
     let twosides = input.split('-');
     if (twosides.length <= 1) {
         return false
