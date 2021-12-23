@@ -620,6 +620,7 @@ const typeDefs = gql`
     messageContent: String!
     to: String!,
     uuid: String!,
+    createdAt: String!
   }
   "same datas as the Insert one, but are all not required"
   input EditEnterpriseBasicInfo {

@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { AuthenticationError, UserInputError } = require('apollo-server')
 const mongo = require('../mongo')
-const { Message, ContractList, User, Worker, Enterprise } = require('../models')
+const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation } = require('../models')
 const { withFilter } = require('graphql-subscriptions');
 const { Op } = require('sequelize')
 function checkBlackList(to, from) {
@@ -12,7 +12,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.identity) throw new AuthenticationError('missing identity');
     const { to, messageType, messageContent } = args.info;
-    if(to == userInfo.user_id) throw new UserInputError("could not send message to yourself");
+    if (to == userInfo.user_id) throw new UserInputError("could not send message to yourself");
     checkBlackList(to, userInfo.user_id);
     let isPersonal = (userInfo.identity.identity == 'PersonalUser');
     let include;
@@ -47,9 +47,10 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
             User.findOne({
                 where: {
                     user_id: res[0].dataValues.target,
+                    disabled: false,
                 },
-                include: include? include : [],
-            }),then(user => {
+                include: include ? include : [],
+            }), then(user => {
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
                         target: user.id,
@@ -63,7 +64,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
                     }
                 })
             })
-            
+
         }
     })
     ContractList.upsert({
@@ -82,9 +83,10 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
             User.findOne({
                 where: {
                     user_id: userInfo.user_id,
+                    disabled: false
                 },
-                include: include? include : [],
-            }),then(user => {
+                include: include ? include : [],
+            }), then(user => {
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
                         target: user.id,
@@ -98,7 +100,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
                     }
                 })
             })
-            
+
         }
     })
 
@@ -170,6 +172,7 @@ const UserGetMessages = async (parent, args, { userInfo }, info) => {
                 to: item.dataValues.user_id,
                 messageType: item.dataValues.message_type,
                 messageContent: item.dataValues.detail,
+                createdAt: item.dataValues.createdAt.toISOString(),
                 ...item.dataValues
             }
         })
@@ -183,7 +186,8 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     let res = await ContractList.findAll({
         where: {
             user_id: userInfo.user_id,
-            identity: isPersonal
+            identity: isPersonal,
+            "":sequelize.literal('"User"."disabled" = false')
         },
         include: include_gen(isPersonal),
     });
@@ -205,7 +209,14 @@ function include_gen(isPersonal) {
     let include = [];
     include.push({
         model: User,
-        attributes: ["image_url", "username"],
+        attributes: ["image_url", "username", "education", "first_time_working", "gender", "birth_date", "current_city"],
+        include: [{
+            model: JobExpectation,
+            attributes: ["job_category", "aimed_city", "min_salary_expectation", "max_salary_expectation"],
+            limit: 1,
+            order: [["updatedAt", "DESC"]]
+        }],
+
     });
     if (isPersonal) {
         include[0].include = [{
