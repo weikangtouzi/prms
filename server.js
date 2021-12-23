@@ -487,7 +487,8 @@ const typeDefs = gql`
   "enum EnterpriseRestRule {\
     OneDayOffPerWeekend, \
     TwoDayOffPerWeekend, \
-    StaggerWeekends\
+    StaggerWeekends,\
+    ShiftWork\
   }"
   scalar EnterpriseRestRule
   input EnterpriseBasicInfo {
@@ -523,7 +524,7 @@ const typeDefs = gql`
     customFileType: String,
   }
   input EnterpriseWorkTimeAndWelfare {
-    workRule: [String],
+    workRule: String,
     restRule: EnterpriseRestRule,
     welfare: [String],
     overtimeWorkDegree: EnterpriseOvertime,
@@ -752,7 +753,7 @@ const typeDefs = gql`
   }
   type JobListForHRDetailPageOrEntJobList {
     count: Int!,
-    data: [JobDataForHRDetailPageOrEntJobList]!
+    data: [JobDataListForAllUsers]!
   }
   type Contract {
     id: Int!,

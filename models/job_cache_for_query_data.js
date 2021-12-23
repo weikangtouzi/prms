@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
                 key: "id"
             }
         },
+        worker_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
         hr_name: {
             type: DataTypes.STRING,
             allowNull: false
@@ -46,7 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         address_description: {
             type: DataTypes.ARRAY(DataTypes.STRING),
             allowNull: true
-          },
+        },
         min_salary: {
             type: DataTypes.INTEGER,
             allowNull: false
@@ -76,6 +80,10 @@ module.exports = (sequelize, DataTypes) => {
         tags: {
             type: DataTypes.ARRAY(DataTypes.STRING(15)),
             allowNull: true
+        },
+        comp_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         },
         comp_name: {
             type: DataTypes.STRING,

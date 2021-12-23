@@ -126,6 +126,7 @@ const EnterpriseRestRule = new GraphQLEnumType({
         OneDayOffPerWeekend: { value: 0 },
         TwoDayOffPerWeekend: { value: 1 },
         StaggerWeekends: { value: 2 },
+        ShiftWork: { value: 3 },
     }
 })
 

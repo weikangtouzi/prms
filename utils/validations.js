@@ -1,4 +1,5 @@
 const mongo = require('../mongo');
+const {ForbiddenError} = require('apollo-server');
 function isvaildNum(error, num, useZh) {
     let reg = /^1(3[0-9]|4[5,7]|5[0,1,2,3,5,6,7,8,9]|6[2,5,6,7]|7[0,1,7,8]|8[0-9]|9[1,8,9])\d{8}$/;
     let res = reg.test(num);
@@ -96,13 +97,13 @@ async function checkverified(phoneNumber, operation) {
 }
 function isvalidEnterpriseAdmin(userIdentity) {
     if (!userIdentity) {
-        throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
+        throw new ForbiddenError('missing identity in token, you request is not gonna be applied')
     }
     return userIdentity.identity == "EnterpriseUser" && userIdentity.role && userIdentity.role == "Admin"
 }
 function isvalidJobPoster(userIdentity) {
     if (!userIdentity) {
-        throw new AuthenticationError('missing identity in token, you request is not gonna be applied')
+        throw new ForbiddenError('missing identity in token, you request is not gonna be applied')
     }
     return userIdentity.identity == "EnterpriseUser" && userIdentity.role && (userIdentity.role == "HR" || userIdentity.role == "Admin")
 }
