@@ -99,8 +99,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         expired_at: {
             type: DataTypes.DATEONLY,
-            allowNull: false,
-            defaultValue: DataTypes.NOW
+            allowNull: true,
         },
         logo: {
             type: DataTypes.TEXT,

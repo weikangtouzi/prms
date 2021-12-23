@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, EnterpriseRestRule, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity, EnterpriseOvertime } = require('./graphql/types')
+const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, EnterpriseRestRule, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity, EnterpriseOvertime, JobStatus } = require('./graphql/types')
 const { info } = require('./utils/logger');
 const { clearViewsEveryMonday } = require('./utils/schedules');
 
@@ -199,7 +199,6 @@ const typeDefs = gql`
     comp_name: String!,
     comp_size: EnterpriseSize!,
     comp_financing: EnterpriseFinancing!,
-    expired_at: String!,
     logo: String!,
     emergency: Boolean!
   }
@@ -225,6 +224,7 @@ const typeDefs = gql`
     isFullTime: FullTime!,
     tags: [String]!,
     coordinates: [Float]!
+    publishNow: Boolean!
   }
   "because the personal data is already exists, I choose this for the name"
   input BasicData {
@@ -794,6 +794,12 @@ const typeDefs = gql`
     identitifyTime: [String],
     isAvaliable: Boolean,
   }
+  "enum JobStatus {\
+    NotPublishedYet,\
+    InRecruitment,\
+    OffLine\
+  }"
+  scalar JobStatus
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -842,7 +848,7 @@ const typeDefs = gql`
     CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
     CandidateGetHRDetail_RecommendationsList(hrId: Int!): RecommendationsListForHRDetailPage!
     CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPageOrEntJobList!
-    UserGetJobListByEntId(entId: Int, pageSize: Int, page: Int, category: [String]): JobListForHRDetailPageOrEntJobList!
+    UserGetJobListByEntId(entId: Int, pageSize: Int, page: Int, category: [String], title: String, workerId: Int, status:JobStatus): JobListForHRDetailPageOrEntJobList!
     UserGetContractList: [Contract]!
     UserGetBasicInfo: UserBasicInfo!
     AdminLogIn(account: String!, password: String!): AdminLogInResult!
