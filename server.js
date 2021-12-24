@@ -156,7 +156,7 @@ const typeDefs = gql`
     required_num: Int!,
     full_time_job: FullTime!,
     tags: [String],
-    updatedAt: String!,
+    updated_at: String!,
   }
   type HRInfoForJobDetailPage {
     id: Int!,
