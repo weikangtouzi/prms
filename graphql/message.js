@@ -195,6 +195,13 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     // console.log(res);
     if (isPersonal) {
         res = res.map(item => {
+            if(!item.User.Worker) item.User.Worker = {
+                pos: "null",
+                Enterprise: {
+                    enterprise_name: "null",
+                },
+                real_name: "已注销"
+            }
             return {
                 id: userInfo.user_id == item.user_id ? item.target : item.user_id,
                 logo: item.User.image_url,

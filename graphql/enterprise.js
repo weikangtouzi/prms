@@ -480,7 +480,7 @@ const ENTRemoveWorker = async (parent, args, { userInfo }, info) => {
         throw new UserInputError("could not delete admin user");
       case 'HR':
         await Job.update({
-          workerId: userInfo.identity.worker_id,
+          worker_id: userInfo.identity.worker_id,
         }, {
           where: {
             worker_id: args.workerId
