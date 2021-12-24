@@ -196,9 +196,9 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     if (isPersonal) {
         res = res.map(item => {
             if(!item.User.Worker) item.User.Worker = {
-                pos: "null",
+                pos: null,
                 Enterprise: {
-                    enterprise_name: "null",
+                    enterprise_name: null,
                 },
                 real_name: "已注销"
             }
