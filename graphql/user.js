@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize } = require('../models');
+const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, ResumeDeliveryRecord } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -353,10 +353,10 @@ const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info)
 const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    let { entId, workerId, status, title} = args;
+    let { entId, workerId, status, title } = args;
     let worker_id;
     let where = {};
-    if(workerId) {
+    if (workerId) {
         worker_id = workerId;
     } else {
         if (entId) {
@@ -376,7 +376,7 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
             }
         }
     }
-    switch(status) {
+    switch (status) {
         case 'NotPublishedYet':
             where.expired_at = null;
             break;
@@ -393,7 +393,7 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
         default:
             break;
     }
-    if(title) where.title = {
+    if (title) where.title = {
         [Op.substring]: title
     }
     if (entId) where.comp_id = entId;
@@ -401,16 +401,24 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
     let { page, pageSize, category } = args;
     if (!page) page = 0;
     if (!pageSize) pageSize = 10;
-    if (category) where[category] = sequelize.literal(`category[1] = '${category}'`);
+    if (category) where[category] = sequelize.literal(`"JobCache"."category"[1] = '${category}'`);
     if (Object.keys(where).length === 0) return {
         count: 0,
-        data:[]
+        data: []
     };
     let res = await JobCache.findAndCountAll({
         where,
         limit: pageSize,
         offset: page * pageSize,
-        order: [["updated_at", "DESC"]]
+        order: [["updated_at", "DESC"]],
+        include: [{
+            model: Job,
+            attributes: ["id"],
+            include: [{
+                model: ResumeDeliveryRecord,
+                attributes: ["id"],
+            }]
+        }],
     });
     return {
         count: res.count,
@@ -419,6 +427,22 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
             if (!row.emergency) row.emergency = false;
             if (!row.logo) row.logo = "null";
             row.updated_at = row.updated_at.toISOString();
+            switch (status) {
+                case 'NotPublishedYet':
+                    row.status = 'NotPublished';
+                    break;
+                case 'InRecruitment':
+                    row.status = 'InRecruitment';
+                    break;
+                case 'OffLine':
+                    row.status = 'OffLine';
+                    break;
+                default:
+                    row.status = row.expired_at? (new Date(row.expired_at).getTime() > new Date().getTime()? 'InRecruitment': 'OffLine') :'NotPublished'
+                    break;
+            }
+            row.createdAt = row.created_at.toISOString();
+            row.resumeCount = row.Job.ResumeDeliveryRecords.length;
             return row
         })
     }

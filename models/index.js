@@ -125,5 +125,10 @@ db.User.hasMany(db.ContractList, {
 db.ContractList.belongsTo(db.User, {
   foreignKey: 'target'
 })
-
+db.Job.hasMany(db.ResumeDeliveryRecord, {
+  foreignKey: 'job_id'
+})
+db.ResumeDeliveryRecord.belongsTo(db.Job, {
+  foreignKey: 'job_id'
+})
 module.exports = db;
