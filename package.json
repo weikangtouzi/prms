@@ -32,6 +32,7 @@
     "sequelize": "^6.6.5",
     "sequelize-auto-migrations": "^1.0.3",
     "sequelize-cli": "^6.2.0",
+    "serve-index": "^1.9.1",
     "subscriptions-transport-ws": "^0.9.19",
     "tencentcloud-sdk-nodejs": "^4.0.251"
   },

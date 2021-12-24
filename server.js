@@ -21,7 +21,7 @@ const contextMiddleware = require('./utils/contextMiddleware');
 const { EnterpriseCertificationStatus, ResumeJobStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, EnterpriseRestRule, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity, EnterpriseOvertime, JobStatus } = require('./graphql/types')
 const { info } = require('./utils/logger');
 const { clearViewsEveryMonday } = require('./utils/schedules');
-
+const serveIndex = require('serve-index');
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -190,6 +190,7 @@ const typeDefs = gql`
     title: String!,
     category: [String]!,
     address_coordinate: String!,
+    address_description: [String]!
     min_salary: Int!,
     max_salary: Int!,
     min_experience: Int!,
@@ -201,7 +202,11 @@ const typeDefs = gql`
     comp_size: EnterpriseSize!,
     comp_financing: EnterpriseFinancing!,
     logo: String!,
-    emergency: Boolean!
+    emergency: Boolean!,
+    createdAt: String!,
+    status: JobStatus!,
+    views: Int!,
+    resumeCount: Int!
   }
   type JobSimpifiedDataPageView {
     page: Int!,
@@ -968,6 +973,7 @@ async function startServer() {
   app.use(graphqlUploadExpress());
   app.use(uploadPath, express.static(uploadPath.split('/')[1]));
   app.use('/preludeDatas', express.static('datas'));
+  app.use('/preludeDatas', serveIndex('datas'));
   server.applyMiddleware({ app });
   let httpServer;
   if (env == 'production') {
