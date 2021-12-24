@@ -803,6 +803,7 @@ const typeDefs = gql`
   }"
   scalar JobStatus
   type Talent {
+    id: Int!,
     logo: String!,
     "some api not having this"
     job: String,
@@ -816,6 +817,8 @@ const typeDefs = gql`
     salary_expectations: [Int]!,
     job_status: ResumeJobStatus!,
     last_log_out_time: String
+    last_msg: String!,
+    last_msg_time: String!
   }
   union ContractItem = Contract | Talent
   "for most of get query needed token for authorization"

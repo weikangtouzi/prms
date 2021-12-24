@@ -209,6 +209,7 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
         res = res.map(item => {
             // console.log(item.User.dataValues.JobExpectations)
             return {
+                id: userInfo.user_id == item.user_id ? item.target : item.user_id,
                 logo: item.User.image_url? item.User.image_url : "",
                 job: null,
                 name: item.User.real_name ? item.User.real_name : item.User.username,
@@ -219,7 +220,9 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
                 city_expectation: item.User.dataValues.JobExpectations[0].aimed_city,
                 salary_expectations: [item.User.dataValues.JobExpectations[0].min_salary_expectation, item.User.dataValues.JobExpectations[0].max_salary_expectation],
                 job_status: item.User.job_status,
-                last_log_out_time: item.User.last_log_out_time
+                last_log_out_time: item.User.last_log_out_time,
+                last_msg: item.last_msg,
+                last_msg_time: item.updatedAt.toISOString()
             }
         })
     }
