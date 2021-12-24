@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: true
     },
     overtime_work_degree: {
-      type: DataTypes.ENUM("None", "Occasionally", "Usually"),
+      type: DataTypes.ENUM("None", "SomeTime", "Paid"),
       allowNull: true
     },
     homepage: {

@@ -134,10 +134,24 @@ const JobStatus = new GraphQLEnumType({
     values: {
         NotPublishedYet: { value: 0 },
         InRecruitment: { value: 1 },
-        OffLine: { value: 2}
+        OffLine: { value: 2 }
     }
 })
+const ResumeJobStatus = new GraphQLEnumType({
+    name: "ResumeJobStatus",
+    values: {
 
+        NoJobButNoJob: { value: 0 },
+
+        NoJobButWantJob: { value: 1 },
+
+        OnTheJob: { value: 2 },
+
+        OnTheJobButLookingForAJob: { value: 3 },
+
+        GraduatingStudent: { value: 4 },
+    }
+})
 module.exports = {
     Education,
     EnterpriseNature,
@@ -151,5 +165,6 @@ module.exports = {
     EnterpriseFinancing,
     EnterpriseOvertime,
     EnterpriseRestRule,
-    JobStatus
+    JobStatus,
+    ResumeJobStatus
 }

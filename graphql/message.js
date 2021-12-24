@@ -183,50 +183,75 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.identity) throw new AuthenticationError('missing identity');
     let isPersonal = (userInfo.identity.identity == 'PersonalUser');
+    let where = {
+        user_id: userInfo.user_id,
+        identity: isPersonal
+    }
+    where['"User"."disabled"'] = sequelize.literal('"User"."disabled" = false');
     let res = await ContractList.findAll({
-        where: {
-            user_id: userInfo.user_id,
-            identity: isPersonal,
-            "":sequelize.literal('"User"."disabled" = false')
-        },
+        where,
         include: include_gen(isPersonal),
     });
-    console.log(res);
-    res = res.map(item => {
-        return {
-            id: userInfo.user_id == item.user_id ? item.target : item.user_id,
-            logo: item.User.image_url,
-            name: isPersonal ? item.User.Worker.real_name : item.User.username,
-            pos: isPersonal ? item.User.Worker.pos : null,
-            ent: isPersonal ? item.User.Worker.Enterprise.enterprise_name : null,
-            last_msg: item.last_msg,
-            last_msg_time: item.updatedAt.toISOString()
-        }
-    })
+    // console.log(res);
+    if (isPersonal) {
+        res = res.map(item => {
+            return {
+                id: userInfo.user_id == item.user_id ? item.target : item.user_id,
+                logo: item.User.image_url,
+                name: item.User.Worker.real_name,
+                pos: item.User.Worker.pos,
+                ent: item.User.Worker.Enterprise.enterprise_name,
+                last_msg: item.last_msg,
+                last_msg_time: item.updatedAt.toISOString()
+            }
+        })
+    } else {
+        res = res.map(item => {
+            // console.log(item.User.dataValues.JobExpectations)
+            return {
+                logo: item.User.image_url? item.User.image_url : "",
+                job: null,
+                name: item.User.real_name ? item.User.real_name : item.User.username,
+                gender: item.User.gender,
+                age: new Date().getFullYear() - new Date(item.User.birth_date).getFullYear(),
+                exp: new Date().getUTCFullYear() - new Date(item.User.first_time_working).getFullYear(),
+                job_category_expectation: item.User.dataValues.JobExpectations[0].job_category,
+                city_expectation: item.User.dataValues.JobExpectations[0].aimed_city,
+                salary_expectations: [item.User.dataValues.JobExpectations[0].min_salary_expectation, item.User.dataValues.JobExpectations[0].max_salary_expectation],
+                job_status: item.User.job_status,
+                last_log_out_time: item.User.last_log_out_time
+            }
+        })
+    }
     return res;
 }
 function include_gen(isPersonal) {
     let include = [];
-    include.push({
-        model: User,
-        attributes: ["image_url", "username", "education", "first_time_working", "gender", "birth_date", "current_city"],
-        include: [{
-            model: JobExpectation,
-            attributes: ["job_category", "aimed_city", "min_salary_expectation", "max_salary_expectation"],
-            limit: 1,
-            order: [["updatedAt", "DESC"]]
-        }],
-
-    });
     if (isPersonal) {
-        include[0].include = [{
-            model: Worker,
-            attributes: ["real_name", "pos"],
+        include.push({
+            model: User,
+            attributes: ["image_url", "username"],
             include: [{
-                model: Enterprise,
-                attributes: ["enterprise_name"]
-            }]
-        }]
+                model: Worker,
+                attributes: ["real_name", "pos"],
+                include: [{
+                    model: Enterprise,
+                    attributes: ["enterprise_name"]
+                }]
+            }],
+        })
+    } else {
+        include.push({
+            model: User,
+            attributes: ["id","image_url", "username", "education", "first_time_working", "gender", "birth_date", "current_city", "job_status"],
+            include: [{
+                model: JobExpectation,
+                attributes: ["job_category", "aimed_city", "min_salary_expectation", "max_salary_expectation"],
+                limit: 1,
+                order: [["updatedAt", "DESC"]]
+            }],
+
+        });
     }
     return include;
 }
