@@ -57,6 +57,15 @@ const resolvers = {
             }    
         },
     },
+    ContractItem: {
+        __resolveType(obj, context, info){
+            if(obj.job_status) {
+                return 'Talent'
+            } else {
+                return 'Contract'
+            }
+        }
+    },
     Query: {
         UserLogIn: logIn,
         UserNumberCheck: numberCheck,

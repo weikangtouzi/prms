@@ -18,7 +18,7 @@ const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
 const { makeExecutableSchema } = require('@graphql-tools/schema');
 const contextMiddleware = require('./utils/contextMiddleware');
-const { EnterpriseCertificationStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, EnterpriseRestRule, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity, EnterpriseOvertime, JobStatus } = require('./graphql/types')
+const { EnterpriseCertificationStatus, ResumeJobStatus, EnterpriseRole, WorkerMatePrecheckResult, MessageType, FullTime, EnterpriseRestRule, Education, EnterpriseSize, EnterpriseFinancing, EnterpriseNature, Identity, EnterpriseOvertime, JobStatus } = require('./graphql/types')
 const { info } = require('./utils/logger');
 const { clearViewsEveryMonday } = require('./utils/schedules');
 
@@ -281,18 +281,19 @@ const typeDefs = gql`
     education: Education!,
     workExperienceTime: Int!,
   }
-  enum ResumeJobStatus {
-    "不想找工作的无业游民"
-    NoJobButNoJob,
-    "离职状态的求职者"
-    NoJobButWantJob,
-    "有工作，但无求职意向"
-    OnTheJob, 
-    "准备跳槽下家的在职者"
-    OnTheJobButLookingForAJob,
-    "应届生"
-    GraduatingStudent
-  }
+  "enum ResumeJobStatus {\
+    不想找工作的无业游民\
+    NoJobButNoJob,\
+    离职状态的求职者\
+    NoJobButWantJob,\
+    有工作，但无求职意向\
+    OnTheJob, \
+    准备跳槽下家的在职者\
+    OnTheJobButLookingForAJob,\
+    应届生\
+    GraduatingStudent\
+  }"
+  scalar ResumeJobStatus
   enum ResumeEmployNature {
     "随时待命"
     Anytime, 
@@ -335,7 +336,7 @@ const typeDefs = gql`
   type ResumeData {
     personalData: ResumePersonalData!,
     "checkout ResumeJobStatus type for value options"
-    jobStatus: String!,
+    jobStatus: ResumeJobStatus!,
     "checkout ResumeEmployNature type for value options"
     employmentNature: String!,
     jobExpectation: JobExpectation!
@@ -434,7 +435,7 @@ const typeDefs = gql`
     "true means male, sorry for female people"
     gender: Boolean,
     "checkout ResumeJobStatus type for value options"
-    jobStatus: String,
+    jobStatus: ResumeJobStatus,
     city: String,
     category: String,
     min_salary: Int,
@@ -801,6 +802,22 @@ const typeDefs = gql`
     OffLine\
   }"
   scalar JobStatus
+  type Talent {
+    logo: String!,
+    "some api not having this"
+    job: String,
+    "may not be the real name"
+    name: String!,
+    gender: Boolean,
+    age: Int,
+    exp: Int,
+    job_category_expectation: [String]!,
+    city_expectation: String!,
+    salary_expectations: [Int]!,
+    job_status: ResumeJobStatus!,
+    last_log_out_time: String
+  }
+  union ContractItem = Contract | Talent
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -850,7 +867,7 @@ const typeDefs = gql`
     CandidateGetHRDetail_RecommendationsList(hrId: Int!): RecommendationsListForHRDetailPage!
     CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPageOrEntJobList!
     UserGetJobListByEntId(entId: Int, pageSize: Int, page: Int, category: [String], title: String, workerId: Int, status:JobStatus): JobListForHRDetailPageOrEntJobList!
-    UserGetContractList: [Contract]!
+    UserGetContractList: [ContractItem]!
     UserGetBasicInfo: UserBasicInfo!
     AdminLogIn(account: String!, password: String!): AdminLogInResult!
     AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
