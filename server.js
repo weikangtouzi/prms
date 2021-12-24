@@ -80,6 +80,7 @@ const typeDefs = gql`
   }
   "logInResult: the result of the login operation"
   type LoginResult {
+    id: Int!,
     "maybe become nullable in the future"
     username: String!,
     "the very first time the user is created"
