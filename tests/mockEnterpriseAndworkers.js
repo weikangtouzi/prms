@@ -141,7 +141,7 @@ mongo.init().then(() => {
                                 type: 'Point',
                                 coordinates: [counter.ent, counter.ent]
                             },
-                            address_description: ["上饶", "德兴", ""],
+                            address_description: ["361100000000","361181000000", "361181002000","上饶", "德兴", "新营街道办事处"],
                             min_salary: ms,
                             max_salary: ms + Math.round(Math.random() * 4 + 1) * 1000,
                             min_experience: Math.round(Math.random() * 5) + 1,
