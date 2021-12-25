@@ -1,4 +1,4 @@
-const { User, Resume, ResumeWorkExp, ResumeProjectExp, ResumePersonalData, ResumeEduExp, JobExpectation, Interview, InterviewRecomment, EnterpriseQuestion, EnterpriseAnswer } = require('../models');
+const { User, Resume, ResumeWorkExp, ResumeProjectExp, ResumeDeliveryRecord, ResumeEduExp, JobExpectation, Interview, InterviewRecomment, EnterpriseQuestion, EnterpriseAnswer, Job } = require('../models');
 const bcrypt = require('bcrypt');
 let names_as_str = "丁宏伯陈涵煦江雅畅林明知贺巍昂朱晋鹏蔡和志潘元亮张奇正刘康盛武志尚谭高原韩欣荣赵志诚毛兴文邵凯歌董思聪贾茂勋萧琪睿贺景明赵斌蔚于飞龙廖子瑜钟乐安郑温书顾宏义卢晋鹏黎睿诚罗安国任心思石才哲冯弘阔邹博文高自珍钱光华崔景胜陈阳焱易弘阔康涵涵曾修伟乔烨烨姚飞驰顾浩然赵良策丁飞捷魏咏思姜星纬康永昌阎永元郝烨华韩光远杜彭湃任建木冯伟才孟嘉慕杜天翰曹明亮梁彬炳陆天工姚昊然孙俊彦孔雨信白高阳杨修杰袁乐语邓雅懿徐学博熊星纬谢雨华白建德姜弘博彭承平周茂勋金高朗杨俊爽崔初瑶廖忻愉文半香韩凝荷林巧茹叶冰莹彭雪环毛乐芸卢乐欣孟海蓝秦妙柏夏嘉宝韩子美叶悦玮周献玉朱雅蕊毛雨晨高子欣范觅海马丽华汤晨风孔燕楠崔映萱沈一瑾钱思蕊胡忠燕文朵薇贺问柳吕迎梅赖宛曼汤津童魏柔婉文忆彤贺采莲任淳美江欣畅何韶阳何秋彤宋小妹易海云郑如容唐绮梅宋琳溪杜婉慧邹韶丽沈夏山汤柔雅武玉琲田韧颖袁宛凝曹古韵姜赫然朱思彤任泽恩常玲琅陆香洁丁寄凡戴映萱谢哲妍汤梦柏尹欣合陈霞飞杜韶仪段太文王谷丝武海萍谭玲玉方好慕孔玉轩许叶飞刘希蓉乔芬芬范友菱戴绮思赵任真";
 let births_as_str = "1988-11-19\n\
@@ -718,7 +718,20 @@ async function mock(counter = 0, max = 150) {
         project_description: "keep it as a secret",
         project_performance: "keep it as a secret"
     })
-
+    let comp_id = (user.id % 12)+1;
+    let res = await Job.findOne({
+        where: {
+            comp_id
+        },
+    })
+    await ResumeDeliveryRecord.create({
+        user_id: user.id,
+        resume_id: resume.id,
+        job_id: res.id,
+        comp_id,
+        hr_id: res.worker_id,
+        readedAt: user.id%2 == 0? new Date() : null
+    })
     counter++
     return mock(counter, max)
 }

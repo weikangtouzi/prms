@@ -63,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     readedAt: {
       type: DataTypes.DATE,
-      allowNull: false
+      allowNull: true
     }
   }, {
     sequelize,
