@@ -165,6 +165,7 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
         phone_number: phoneNumber
       }
     });
+    if(!user.real_name) throw new UserInputError("you can only invite some body that has a real name");
     try {
       await Worker.create({
         company_belonged: userInfo.enterpriseId,
