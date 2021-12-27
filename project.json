@@ -1,83 +1,173 @@
 {
-    "message": {
-        "aliyun": {
-            "accessKeyId": "LTAI5tSoCesdP9NwSjWgC1Wb",
-            "accessKeySecret": "FgfTSTvuQmnXERQ0uWcP7FDeDu2D7u",
-            "templateCodes": {
-                "verifyCode": "SMS_214980009"
-            },
-            "signName": "德兴在线",
-            "endpoint": "dysmsapi.aliyuncs.com"
-        },
-        "tencent": {
-            "credential": {
-                "secretId": "AKID5B1cx2qOghRv96lAJBm69wShfNoyrVsy",
-                "secretKey": "qPhiSv84j7F6gyzkDPK4Y8RVHmzvb07x"
-            },
-            "region": "ap-nanjing",
-            "signMethod": "HmacSHA256",
-            "httpProfile": {
-                "reqMethod": "POST",
-                "reqTimeout": 30,
-                "endpoint": "sms.tencentcloudapi.com"
-            },
-            "SmsSdkAppId": "1400567071",
-            "SignName": "微康投资",
-            "Templates": {
-                "verifyCode": {
-                    "id": "1131845",
-                    "argsCount": 1
-                },
-                "notification": {
-                    "id": "1229196",
-                    "argsCount": 3
-                }
-            }
-        },
-        "common": {
-            "verifyCode": {
-                "length": 6,
-                "expireTime": 300000,
-                "refreshEveryQuery": true
-            },
-            "notification": {
-                
-            }
-        },
-        "current_sdk": "tencent"
+  "message": {
+    "aliyun": {
+      "accessKeyId": "LTAI5tSoCesdP9NwSjWgC1Wb",
+      "accessKeySecret": "FgfTSTvuQmnXERQ0uWcP7FDeDu2D7u",
+      "templateCodes": {
+        "verifyCode": "SMS_214980009"
+      },
+      "signName": "德兴在线",
+      "endpoint": "dysmsapi.aliyuncs.com"
     },
-    "email": {
-        "host": "smtp.exmail.qq.com",
-        "from": "趁早找",
-        "account": {
-            "user": "office@chenzaozhao.com",
-            "pass": "Wktz1234"
+    "tencent": {
+      "credential": {
+        "secretId": "AKID5B1cx2qOghRv96lAJBm69wShfNoyrVsy",
+        "secretKey": "qPhiSv84j7F6gyzkDPK4Y8RVHmzvb07x"
+      },
+      "region": "ap-nanjing",
+      "signMethod": "HmacSHA256",
+      "httpProfile": {
+        "reqMethod": "POST",
+        "reqTimeout": 30,
+        "endpoint": "sms.tencentcloudapi.com"
+      },
+      "SmsSdkAppId": "1400567071",
+      "SignName": "微康投资",
+      "Templates": {
+        "verifyCode": {
+          "id": "1131845",
+          "argsCount": 1
         },
-        "templates": {
-            "verifycode": ""
+        "notification": {
+          "id": "1229196",
+          "argsCount": 3
         }
+      }
     },
-    "chat": {
-        
+    "common": {
+      "verifyCode": {
+        "length": 6,
+        "expireTime": 300000,
+        "refreshEveryQuery": true
+      },
+      "notification": {}
     },
-    "jwtConfig": {
-        "secret": "wdnmd",
-        "expireTime": "3600000",
-        "deadTime": "86400000"
+    "current_sdk": "tencent"
+  },
+  "email": {
+    "host": "smtp.exmail.qq.com",
+    "from": "趁早找",
+    "account": {
+      "user": "office@chenzaozhao.com",
+      "pass": "Wktz1234"
     },
-    "basic": {
-        "email": false,
-        "host": "be.chenzaozhao.com/graphql"
-    },
-    "mongodb": {
-        "url": "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
-    },
-    "uploadPath": "/uploadedFiles",
-    "domain": "be.chenzaozhao.com",
-    "env": "development",
-    "defaultMessageDetails": {
-        "resume": "你收到一份新的简历，请注意查看",
-        "interviewInvitation": "公司像你发起了面试邀请，请注意查看"
-    },
-    "surnameList": ["欧阳","太史","端木","上官","司马","东方","独孤","南宫","万俟","闻人","夏侯","诸葛","尉迟","公羊","赫连","澹台","皇甫","宗政","濮阳","公冶","太叔","申屠","公孙","慕容","仲孙","钟离","长孙","宇文","司徒","鲜于","司空","闾丘","子车","亓官","司寇","巫马","公西","颛孙","壤驷","公良","漆雕","乐正","宰父","谷梁","拓跋","夹谷","轩辕","令狐","段干","百里","呼延","东郭","南门","羊舌","微生","公户","公玉","公仪","梁丘","公仲","公上","公门","公山","公坚","左丘","公伯","西门","公祖","第五","公乘","贯丘","公皙","南荣","东里","东宫","仲长","子书","子桑","即墨","淳于","达奚","褚师","吴铭","纳兰","归海","刘付"]
+    "templates": {
+      "verifycode": ""
+    }
+  },
+  "chat": {},
+  "jwtConfig": {
+    "secret": "wdnmd",
+    "expireTime": "3600000",
+    "deadTime": "86400000"
+  },
+  "basic": {
+    "email": false,
+    "host": "be.chenzaozhao.com/graphql"
+  },
+  "mongodb": {
+    "url": "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+  },
+  "uploadPath": "/uploadedFiles",
+  "domain": "be.chenzaozhao.com",
+  "env": "development",
+  "defaultMessageDetails": {
+    "resume": "你收到一份新的简历，请注意查看",
+    "interviewInvitation": "公司像你发起了面试邀请，请注意查看"
+  },
+  "surnameList": [
+    "欧阳",
+    "太史",
+    "端木",
+    "上官",
+    "司马",
+    "东方",
+    "独孤",
+    "南宫",
+    "万俟",
+    "闻人",
+    "夏侯",
+    "诸葛",
+    "尉迟",
+    "公羊",
+    "赫连",
+    "澹台",
+    "皇甫",
+    "宗政",
+    "濮阳",
+    "公冶",
+    "太叔",
+    "申屠",
+    "公孙",
+    "慕容",
+    "仲孙",
+    "钟离",
+    "长孙",
+    "宇文",
+    "司徒",
+    "鲜于",
+    "司空",
+    "闾丘",
+    "子车",
+    "亓官",
+    "司寇",
+    "巫马",
+    "公西",
+    "颛孙",
+    "壤驷",
+    "公良",
+    "漆雕",
+    "乐正",
+    "宰父",
+    "谷梁",
+    "拓跋",
+    "夹谷",
+    "轩辕",
+    "令狐",
+    "段干",
+    "百里",
+    "呼延",
+    "东郭",
+    "南门",
+    "羊舌",
+    "微生",
+    "公户",
+    "公玉",
+    "公仪",
+    "梁丘",
+    "公仲",
+    "公上",
+    "公门",
+    "公山",
+    "公坚",
+    "左丘",
+    "公伯",
+    "西门",
+    "公祖",
+    "第五",
+    "公乘",
+    "贯丘",
+    "公皙",
+    "南荣",
+    "东里",
+    "东宫",
+    "仲长",
+    "子书",
+    "子桑",
+    "即墨",
+    "淳于",
+    "达奚",
+    "褚师",
+    "吴铭",
+    "纳兰",
+    "归海",
+    "刘付"
+  ],
+  "preludePics": {
+    "entprise": "",
+    "male": [
+      "aaaaa"
+    ],
+    "female": []
+  }
 }

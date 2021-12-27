@@ -7,6 +7,8 @@ const { ObjectId } = require('bson');
 const serializers = require('../utils/serializers');
 const { Op } = require('sequelize');
 const { isvaildNum } = require('../utils/validations');
+const { urlFormater } = require('../utils/serializers');
+const editJsonFile = require('edit-json-file');
 const getCensorList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -185,11 +187,25 @@ const AdminGetEntList = async ( parent, args, { userInfo }, info) => {
     return res;
 }
 
+const AdminEditDefaultLogo = async ( parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {input} = args;
+    if(input.length == 0) throw new UserInputError('empty request is not allowed');
+    let projectJson = editJsonFile(`${__dirname}/../project.json`);
+    input.forEach(item => {
+        const {type, id, link} = item;
+        projectJson.set(`preludePics.${type}.${id}`, link)
+    });
+}
+
+
 
 module.exports = {
     getCensorList,
     setCensoredForAnItem,
     AdminLogIn,
     AdminGetUserList,
-    AdminGetEntList
+    AdminGetEntList,
+    AdminEditDefaultLogo
 }

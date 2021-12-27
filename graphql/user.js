@@ -429,7 +429,7 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
             row.updated_at = row.updated_at.toISOString();
             switch (status) {
                 case 'NotPublishedYet':
-                    row.status = 'NotPublished';
+                    row.status = 'NotPublishedYet';
                     break;
                 case 'InRecruitment':
                     row.status = 'InRecruitment';
