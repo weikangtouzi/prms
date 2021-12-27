@@ -220,7 +220,7 @@ const typeDefs = gql`
   scalar FullTime
   input JobPost {
     JobTitle: String!,
-    workingAddress: String!,
+    workingAddress: [String]!,
     experience:Int!,
     "just a two value array which first value means the min one, second means the max"
     salary: [Int]!,
