@@ -165,7 +165,7 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
         phone_number: phoneNumber
       }
     });
-    if(user) throw new UserInputError("the target is not a valid user of this platform");
+    if(!user) throw new UserInputError("the target is not a valid user of this platform");
     if(!user.real_name) throw new UserInputError("you can only invite some body that has a real name");
     try {
       await Worker.create({
@@ -525,7 +525,7 @@ const ENTSetDisabled = async (parent, args, { userInfo }, info) => {
       disabled: true,
     }, {
       where: {
-        company_belonged: userInfo.identity.ent_id,
+        company_belonged: userInfo.identity.entId,
         id: args.workerId,
         disabled: false,
       }

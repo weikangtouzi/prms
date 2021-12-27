@@ -16,6 +16,7 @@
     "@graphql-tools/schema": "^8.3.0",
     "apollo-server": "^3.3.0",
     "bcrypt": "^5.0.1",
+    "edit-json-file": "^1.7.0",
     "express": "^4.17.1",
     "express-graphql": "^0.12.0",
     "forever-monitor": "^3.0.3",

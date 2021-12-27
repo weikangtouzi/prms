@@ -36,7 +36,6 @@ async function insert(counter = 0) {
             return insert(counter);
         }
     })
-
     return;
 }
 insert();

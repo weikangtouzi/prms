@@ -518,17 +518,18 @@ const typeDefs = gql`
     homepage: String,
     tel: String
   }
-  enum CustomFileType {
-    Charter,
-    Resume,
-    Photo,
-    Other
-  }
+  "enum CustomFileType {\
+    Charter,\
+    Resume,\
+    Photo,\
+    Other\
+  }"
+  scalar CustomFileType
   input UploadExtraAttributes {
     customUploadPath: String,
     customFileName: String,
     "checkout CustomFileType for value options"
-    customFileType: String,
+    customFileType: CustomFileType,
   }
   input EnterpriseWorkTimeAndWelfare {
     workRule: String,
@@ -942,6 +943,8 @@ const typeDefs = gql`
     UserChangePhoneNumber(newNum: String!): Void
     UserEditEmail(newEmail: String!, code: String!): Void
     ENTSetDisabled(workerId: Int!): Void
+    "the file uploaded in this api goes to preludeDatas folder"
+    AdminUploadPreludeData(file: Upload!): String!
   }
   type Subscription {
     newMessage: Message!
