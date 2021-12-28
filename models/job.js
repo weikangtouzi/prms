@@ -69,9 +69,9 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false
     },
     full_time_job: {
-      type: DataTypes.ENUM("FullTime", "PartTime", "InterShip"),
+      type: DataTypes.ENUM("Full", "Part", "InternShip"),
       allowNull: false,
-      defaultValue: "FullTime"
+      defaultValue: "Full"
     },
     tags: {
       type: DataTypes.ARRAY(DataTypes.STRING(15)),

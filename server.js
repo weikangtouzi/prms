@@ -118,7 +118,8 @@ const typeDefs = gql`
     JuniorCollege,
     RegularCollege,
     Postgraduate,
-    Doctor
+    Doctor,
+    Null
   }
   "the data = require(the providers?"
   input PersonalData {
@@ -219,7 +220,7 @@ const typeDefs = gql`
         InternShip}"
   scalar FullTime
   input JobPost {
-    JobTitle: String!,
+    jobTitle: String!,
     workingAddress: [String]!,
     experience:Int!,
     "just a two value array which first value means the min one, second means the max"
@@ -229,8 +230,27 @@ const typeDefs = gql`
     requiredNum: Int!,
     isFullTime: FullTime!,
     tags: [String]!,
-    coordinates: [Float]!
-    publishNow: Boolean!
+    coordinates: [Float]!,
+    onLineTimes: [String],
+    publishNow: Boolean!,
+    category: [String]!,
+  }
+  input JobEdit {
+    id: Int!,
+    jobTitle: String!,
+    workingAddress: [String]!,
+    experience:Int!,
+    "just a two value array which first value means the min one, second means the max"
+    salary: [Int]!,
+    education: EducationRequired!,
+    description: String!,
+    requiredNum: Int!,
+    isFullTime: FullTime!,
+    tags: [String]!,
+    coordinates: [Float]!,
+    onLineTimes: [String],
+    publishNow: Boolean!,
+    category: [String]!,
   }
   "because the personal data is already exists, I choose this for the name"
   input BasicData {
@@ -887,7 +907,7 @@ const typeDefs = gql`
     AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
     CandidateGetAllJobCategoriesByEntId(entId:Int): [[String]]!
     StaticSendEmail(emailAddress: String!): String
-    StaticGetHotJobs: Void
+    StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
   }
   
@@ -900,6 +920,7 @@ const typeDefs = gql`
     "leave extraAttributes null for default upload options"
     CommonSingleUpload(file: Upload!, extraAttributes: UploadExtraAttributes): String!
     HRPostJob(info: JobPost!): Void
+    HREditJob(info: JobEdit!): Void
     "insert or edit a personal data"
     UserEditBasicInfo(info: BasicData!): Void
     "insert or edit a personal advantage"
