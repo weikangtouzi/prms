@@ -559,7 +559,7 @@ const ENTSetEnabled = async (parent, args, { userInfo }, info) => {
     },{
       where: {
         company_belonged: userInfo.identity.entId,
-        id: args.workerId,
+        id,
         disabled: "LOW"
       }
     });
