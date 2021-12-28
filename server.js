@@ -725,6 +725,11 @@ const typeDefs = gql`
     job_counter: Int,
     abbreviation: String!,
   }
+  enum DisabledLevel {
+    LOW,
+    MIDIUM,
+    HIGH
+  }
   type WorkerInfoForWorkerList {
     id: Int!,
     name: String!,
@@ -732,7 +737,7 @@ const typeDefs = gql`
     pos: String!,
     createdAt: String,
     role: EnterpriseRole,
-    disabled: Boolean
+    disabled: DisabledLevel,
   }
   type InterviewRecommentInfoForEntDetail{
     id: Int!,
