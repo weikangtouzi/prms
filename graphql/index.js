@@ -12,7 +12,8 @@ const { logIn,
     UserGetJobListByEntId,
     UserChangePhoneNumber,
     UserEditEmail,
-    StaticGetHotJobs } = require('./user');
+    StaticGetHotJobs,
+    UserSearchEnterprise } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -101,7 +102,8 @@ const resolvers = {
         AdminLogIn,
         AdminGetUserList,
         StaticSendEmail: sendEmail,
-        StaticGetHotJobs
+        StaticGetHotJobs,
+        UserSearchEnterprise
     },
     Mutation: {
         UserRegister: register,

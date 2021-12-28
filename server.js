@@ -828,6 +828,10 @@ const typeDefs = gql`
     last_msg_time: String!
   }
   union ContractItem = Contract | Talent
+  type EntListForSearchResult {
+    count: Int!,
+    data: [EnterpriseInfoForEntDetail]!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -884,6 +888,7 @@ const typeDefs = gql`
     CandidateGetAllJobCategoriesByEntId(entId:Int): [[String]]!
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs: Void
+    UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
   }
   
   "most of mutations needed token for authorization"
