@@ -246,12 +246,12 @@ const postJob = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const { jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates } = args.info;
-    await Job.create({
+    const { jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow, category} = args.info;
+    let data = {
       worker_id: userInfo.user_id,
       title: jobTitle,
       detail: description,
-      adress_coordinate: {
+      address_coordinate: {
         type: 'Point',
         coordinates: coordinates
       },
@@ -263,9 +263,16 @@ const postJob = async (parent, args, { userInfo }, info) => {
       required_num: requiredNum,
       full_time_job: isFullTime,
       tags: tags,
-      comp_id: userInfo.identity.enterpriseId,
-      expired_at: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
-    })
+      comp_id: userInfo.identity.entId,
+      category: category
+    }
+    if(onLineTimes) {
+      data.createdAt = new Date(onLineTimes[0]);
+      data.expired_at = new Date(onLineTimes[1]);
+    } else {
+      if(publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+    }
+    await Job.create(data)
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
@@ -274,7 +281,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates } = args.info;
+    const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes } = args.info;
     let update = {};
     if (jobTitle) update.title = jobTitle;
     if (workingAddress) update.adress_description = workingAddress;
@@ -290,6 +297,12 @@ const editJob = async (parent, args, { userInfo }, info) => {
     if (tags) update.tags = tags;
     if (coordinates) update.adress_coordinate = coordinates;
     if (Object.keys(update).length == 0) throw new UserInputError("at least need one field");
+    if(onLineTimes) {
+      update.createdAt = new Date(onLineTimes[0]);
+      update.expired_at = new Date(onLineTimes[1]);
+    } else {
+      if(publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+    }
     let res = await Job.update(update, {
       where: {
         id: jobId,
@@ -551,6 +564,16 @@ const ENTSetEnabled = async (parent, args, { userInfo }, info) => {
       }
     });
     if (!res || res[0] == 0) throw new UserInputError("目标用户已被管理员禁用，如需恢复请联系平台管理员");
+  } else {
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
+
+const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidJobPoster(userInfo.identity)) {
+
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }

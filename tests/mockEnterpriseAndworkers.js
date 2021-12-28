@@ -41,7 +41,7 @@ mongo.init().then(() => {
     ];
     job_titles = job_titles.map(item => { return ["互联网/通信及硬件", "软件研发", item] });
     const edu_requirements = ["Null", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"]
-    const full_time_jobs = ["FullTime", "PartTime", "InterShip"]
+    const full_time_jobs = ["Full", "Part", "InternShip"]
     const tags = ["免费体检", "住房补贴", "餐补", "上市公司"];
     async function mock(counter = {
         ent: 0,

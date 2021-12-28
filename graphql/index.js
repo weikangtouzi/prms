@@ -35,7 +35,8 @@ const { editEnterpriseBasicInfo,
     ENTRemoveWorker,
     HRHideJob,
     ENTSetDisabled,
-    ENTSetEnabled
+    ENTSetEnabled,
+    editJob
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateGetEnterpriseDetail_InterviewRecomment,
@@ -136,7 +137,8 @@ const resolvers = {
         UserChangePhoneNumber,
         UserEditEmail,
         ENTSetDisabled,
-        ENTSetEnabled
+        ENTSetEnabled,
+        HREditJob: editJob,
     },
     Subscription: {
         newMessage,

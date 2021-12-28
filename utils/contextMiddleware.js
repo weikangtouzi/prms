@@ -19,8 +19,7 @@ module.exports = {
                     let isAvaliable = Worker.findOne({
                         where: {
                             user_binding: userInfo.user_id,
-                            disabled: false,
-                            disabled_by_ent: false
+                            disabled: null,
                         }
                     })
                     if (!isAvaliable) throw new AuthenticationError('account is banned');
@@ -28,7 +27,7 @@ module.exports = {
                     let isAvaliable = User.findOne({
                         where: {
                             id: userInfo.user_id,
-                            disabled: false,
+                            disabled: null,
                         }
                     })
                     if (!isAvaliable) throw new AuthenticationError('account is banned');

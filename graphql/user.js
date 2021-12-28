@@ -521,11 +521,13 @@ const UserEditEmail = async (parent, args, { userInfo }, info) => {
 }
 
 const StaticGetHotJobs = async (parent, args, { userInfo }, info) => {
+    const {category} = args;
     let res = await JobCache.findAll({
         where: {
             expired_at: {
                 [Op.gt]: new Date(),
-            }
+            },
+            "": sequelize.literal(`category[1] = '${category}'`)
         },
         order: [["views", "DESC"], ["updated_at", "DESC"]],
         limit: 10

@@ -6,7 +6,8 @@
     "dev": "nodemon server.js",
     "start": "forever start --append -l forever.log -o out.log -e err.log server.js",
     "stop": "forever stop server.js",
-    "mock": "node ./tests/mockEnterpriseAndworkers.js && node ./tests/mockApplicantAndResumes.js && node ./tests/mockMessages.js"
+    "mock": "npx sequelize-cli db:seed:all && node ./tests/mockEnterpriseAndworkers.js && node ./tests/mockApplicantAndResumes.js && node ./tests/mockMessages.js",
+    "restart": "npm run stop && npm run start"
   },
   "keywords": [],
   "author": "",
