@@ -438,7 +438,7 @@ const UserGetJobListByEntId = async (parent, args, { userInfo }, info) => {
                     row.status = 'OffLine';
                     break;
                 default:
-                    row.status = row.expired_at? (new Date(row.expired_at).getTime() > new Date().getTime()? 'InRecruitment': 'OffLine') :'NotPublished'
+                    row.status = row.expired_at ? (new Date(row.expired_at).getTime() > new Date().getTime() ? 'InRecruitment' : 'OffLine') : 'NotPublished'
                     break;
             }
             row.createdAt = row.created_at.toISOString();
@@ -537,6 +537,38 @@ const StaticGetHotJobs = async (parent, args, { userInfo }, info) => {
         }
     })
 }
+
+const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    let { keyword, page, pageSize } = args;
+    if(!page) page = 0;
+    if(!pageSize) pageSize = 10;
+    let res = await Enterprise.findAndCountAll({
+        where: {
+            enterprise_name: {
+                [Op.substring]: keyword
+            }
+        },
+        limit: pageSize,
+        offset: page * pageSize
+    });
+    if(res.count == 0) return {
+        count: 0,
+        data: []
+    }
+    return {
+        count: res.count,
+        data: res.rows.map(item => {
+            return {
+                ...item.toJSON(),
+                enterprise_coordinates: JSON.stringify(item.dataValues.coordinates),
+                created_at: item.dataValues.createdAt.toISOString()
+            }
+        }) 
+    }
+}
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -560,5 +592,6 @@ module.exports = {
     UserGetEnterpriseDetail_WorkerList,
     UserChangePhoneNumber,
     UserEditEmail,
-    StaticGetHotJobs
+    StaticGetHotJobs,
+    UserSearchEnterprise
 }
