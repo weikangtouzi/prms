@@ -136,7 +136,8 @@ const resolvers = {
         UserChangePhoneNumber,
         UserEditEmail,
         ENTSetDisabled,
-        ENTSetEnabled
+        ENTSetEnabled,
+        // HREditJob: editJob,
     },
     Subscription: {
         newMessage,
