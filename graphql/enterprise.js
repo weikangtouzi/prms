@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo');
-const {Op} = require('sequelize');
+const { Op } = require('sequelize');
 
 
 const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
@@ -165,8 +165,8 @@ const inviteWorkMate = async (parent, args, { userInfo }, info) => {
         phone_number: phoneNumber
       }
     });
-    if(!user) throw new UserInputError("the target is not a valid user of this platform");
-    if(!user.real_name) throw new UserInputError("you can only invite some body that has a real name");
+    if (!user) throw new UserInputError("目标不是平台用户");
+    if (!user.real_name) throw new UserInputError("目标未完成实名认证");
     try {
       await Worker.create({
         company_belonged: userInfo.enterpriseId,
@@ -276,20 +276,20 @@ const editJob = async (parent, args, { userInfo }, info) => {
   if (isvalidJobPoster(userInfo.identity)) {
     const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates } = args.info;
     let update = {};
-    if(jobTitle) update.title = jobTitle;
-    if(workingAddress) update.adress_description = workingAddress;
-    if(experience) update.min_experience = experience;
-    if(salary) {
+    if (jobTitle) update.title = jobTitle;
+    if (workingAddress) update.adress_description = workingAddress;
+    if (experience) update.min_experience = experience;
+    if (salary) {
       update.min_salary = salary[0]
       update.max_salary = salary[1]
     }
-    if(education) update.min_education = education;
-    if(description) update.detail = description;
-    if(requiredNum) update.required_num = requiredNum;
-    if(isFullTime) update.full_time_job = isFullTime;
-    if(tags) update.tags = tags;
-    if(coordinates) update.adress_coordinate = coordinates;
-    if(Object.keys(update).length == 0) throw new UserInputError("at least need one field");
+    if (education) update.min_education = education;
+    if (description) update.detail = description;
+    if (requiredNum) update.required_num = requiredNum;
+    if (isFullTime) update.full_time_job = isFullTime;
+    if (tags) update.tags = tags;
+    if (coordinates) update.adress_coordinate = coordinates;
+    if (Object.keys(update).length == 0) throw new UserInputError("at least need one field");
     let res = await Job.update(update, {
       where: {
         id: jobId,
@@ -299,7 +299,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
       },
       returning: true
     })
-    if(!res || res[0] === 0) throw new UserInputError("could not remove the job that is recruiting");
+    if (!res || res[0] === 0) throw new UserInputError("could not remove the job that is recruiting");
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
@@ -477,7 +477,7 @@ const ENTRemoveWorker = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
-    switch(args.role) {
+    switch (args.role) {
       case 'Admin':
         throw new UserInputError("could not delete admin user");
       case 'HR':
@@ -522,15 +522,37 @@ const ENTSetDisabled = async (parent, args, { userInfo }, info) => {
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidEnterpriseAdmin(userInfo.identity)) {
     let res = await Worker.update({
-      disabled: true,
+      disabled: "LOW",
     }, {
       where: {
         company_belonged: userInfo.identity.entId,
         id: args.workerId,
-        disabled: false,
+        disabled: null,
       }
     })
-    if(!res || res[0] == 0) throw new UserInputError("not a worker in your company or already disabled")
+    if (!res || res[0] == 0) throw new UserInputError("not a worker in your company or already disabled")
+  } else {
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
+
+const ENTSetEnabled = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidEnterpriseAdmin(userInfo.identity)) {
+    const { id } = args;
+    let res = await Worker.update({
+      disabled: null,
+    },{
+      where: {
+        company_belonged: userInfo.identity.entId,
+        id: args.workerId,
+        disabled: "LOW"
+      }
+    });
+    if (!res || res[0] == 0) throw new UserInputError("目标用户已被管理员禁用，如需恢复请联系平台管理员");
+  } else {
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
 module.exports = {
@@ -552,5 +574,6 @@ module.exports = {
   ENTRecruitmentCancel,
   ENTRemoveWorker,
   HRHideJob,
-  ENTSetDisabled
+  ENTSetDisabled,
+  ENTSetEnabled
 }

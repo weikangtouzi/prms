@@ -950,6 +950,7 @@ const typeDefs = gql`
     ENTSetDisabled(workerId: Int!): Void
     "the file uploaded in this api goes to preludeDatas folder"
     AdminUploadPreludeData(file: Upload!): String!
+    ENTSetEnabled(id: Int!): Void
   }
   type Subscription {
     newMessage: Message!

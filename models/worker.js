@@ -49,14 +49,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
     disabled: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
-    },
-    disabled_by_ent: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: false
+      type: DataTypes.ENUM("LOW", "MIDIUM", "HIGH"),
+      allowNull: true
     }
   }, {
     sequelize,
