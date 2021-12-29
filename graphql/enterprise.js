@@ -1,5 +1,5 @@
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
-const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message } = require('../models');
+const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message, JobExpectation, sequelize } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
@@ -246,7 +246,7 @@ const postJob = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const { jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow, category} = args.info;
+    const { jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow, category } = args.info;
     let data = {
       worker_id: userInfo.user_id,
       title: jobTitle,
@@ -255,7 +255,7 @@ const postJob = async (parent, args, { userInfo }, info) => {
         type: 'Point',
         coordinates: coordinates
       },
-      adress_description: workingAddress,
+      address_description: workingAddress,
       min_salary: salary[0],
       max_salary: salary[1],
       min_experience: experience,
@@ -266,11 +266,11 @@ const postJob = async (parent, args, { userInfo }, info) => {
       comp_id: userInfo.identity.entId,
       category: category
     }
-    if(onLineTimes) {
+    if (onLineTimes) {
       data.createdAt = new Date(onLineTimes[0]);
       data.expired_at = new Date(onLineTimes[1]);
     } else {
-      if(publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+      if (publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     }
     await Job.create(data)
   } else {
@@ -297,11 +297,11 @@ const editJob = async (parent, args, { userInfo }, info) => {
     if (tags) update.tags = tags;
     if (coordinates) update.adress_coordinate = coordinates;
     if (Object.keys(update).length == 0) throw new UserInputError("at least need one field");
-    if(onLineTimes) {
+    if (onLineTimes) {
       update.createdAt = new Date(onLineTimes[0]);
       update.expired_at = new Date(onLineTimes[1]);
     } else {
-      if(publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+      if (publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     }
     let res = await Job.update(update, {
       where: {
@@ -556,7 +556,7 @@ const ENTSetEnabled = async (parent, args, { userInfo }, info) => {
     const { id } = args;
     let res = await Worker.update({
       disabled: null,
-    },{
+    }, {
       where: {
         company_belonged: userInfo.identity.entId,
         id,
@@ -573,7 +573,48 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
+    let { expectation, education, salary, page, pageSize } = args;
+    let where = {}
+    let include = [];
+    if (education && education != "Null") where.education = education;
+    let je = {
+      model: JobExpectation,
+      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city"],
+      required: true,
+      limit: 1,
+      order: [["updatedAt", "DESC"]],
+      where: {}
+    };
+    if (expectation) je.where["a"] = sequelize.literal(`"JobExpectation"."job_category[3]" = '${expectation}'`)
+    if (salary) {
+      je.where.min_salary_expectation = salary[0];
+      je.where.max_salary_expectation = salary[1];
+    }
+    include.push(je)
+    let query = {}
+    query.attributes = {
+      include: [[sequelize.literal(`(
+        SELECT COUNT(*) FROM job_expectation WHERE user_id = User.id
+      )`), 'jobExpectionCount']]
+    }
+    where.jobExpectionCount = {
+      [Op.gt]: 0
+    }
+    query.where = where;
+    query.include = include;
 
+    if (!pageSize) {
+      query.limit = 10;
+    } else {
+      query.limit = pageSize;
+    }
+    if (!page) {
+      query.offset = 0;
+    } else {
+      query.offset = query.limit * page
+    }
+    let res = await User.findAndCountAll(query);
+    console.log(res);
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
@@ -598,5 +639,6 @@ module.exports = {
   ENTRemoveWorker,
   HRHideJob,
   ENTSetDisabled,
-  ENTSetEnabled
+  ENTSetEnabled,
+  ENTSearchCandidates
 }

@@ -36,7 +36,8 @@ const { editEnterpriseBasicInfo,
     HRHideJob,
     ENTSetDisabled,
     ENTSetEnabled,
-    editJob
+    editJob,
+    ENTSearchCandidates
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateGetEnterpriseDetail_InterviewRecomment,
@@ -105,7 +106,8 @@ const resolvers = {
         AdminGetUserList,
         StaticSendEmail: sendEmail,
         StaticGetHotJobs,
-        UserSearchEnterprise
+        UserSearchEnterprise,
+        ENTSearchCandidates
     },
     Mutation: {
         UserRegister: register,

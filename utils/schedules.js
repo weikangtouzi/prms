@@ -2,7 +2,7 @@ const schedule = require('node-schedule');
 const { JobCache } = require('../models');
 const { Op } = require('sequelize');
 const { error, info } = require('./logger');
-const clearViewsEveryMonday = schedule.scheduleJob('* * * * * 3', async () => {
+const clearViewsEveryMonday = schedule.scheduleJob('* * * * * 1', async () => {
     try {
         let res = await JobCache.update({
             views: 0,
