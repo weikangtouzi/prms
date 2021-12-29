@@ -914,6 +914,7 @@ const typeDefs = gql`
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
+    ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int): Void
   }
   
   "most of mutations needed token for authorization"
