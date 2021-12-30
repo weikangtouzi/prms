@@ -857,6 +857,23 @@ const typeDefs = gql`
     count: Int!,
     data: [EnterpriseInfoForEntDetail]!
   }
+  type TalentDataForSearchResult {
+    id: Int!,
+    age: Int,
+    name: String!,
+    gender: Boolean,
+    education: Education,
+    experience: Int,
+    job_expectation: [String]!,
+    aimed_city: String!,
+    salary: [Int]!,
+    job_status: ResumeJobStatus!,
+    last_log_out_time: String!
+  }
+  type TalentListForSearchResult {
+    count: Int!,
+    data: [TalentDataForSearchResult]!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -914,7 +931,7 @@ const typeDefs = gql`
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
-    ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int): Void
+    ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int): TalentListForSearchResult!
   }
   
   "most of mutations needed token for authorization"

@@ -642,6 +642,7 @@ let job_titles = [
 job_titles = job_titles.map(item => { return ["互联网/通信及硬件", "软件研发", item] });
 const skills_selections = ["C#", "C", "C++", "JavaScript/Typescript", "MySQL", "Microsoft SQL Server", "Oracle", "PostgreSQL"];
 let industry = [["互联网/IT/电子/通信", "电子商务"], ["房地产/建筑", "房地产开发与经营"], ["生活服务", "餐饮"]]
+let educations = ["LessThanPrime", "Primary", "Junior", "High", "JuniorCollege", "RegularCollege", "Postgraduate", "Doctor"]
 function getName(index) {
     return names_as_str.substring(index * 3, (index + 1) * 3);
 }
@@ -686,6 +687,7 @@ async function mock(counter = 0, max = 150) {
         current_city: "上饶",
         job_status: job_statuss[counter % 4],
         employment_nature: ens[counter % 6],
+        education: educations[counter % 8],
     }, {
         where: {
             id: user.id,
