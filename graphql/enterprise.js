@@ -593,8 +593,12 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       je.where.cate = sequelize.literal(`job_category[3] like '%${expectation}%'`);
     }
     if (salary) {
-      je.where.min_salary_expectation = salary[0];
-      je.where.max_salary_expectation = salary[1];
+      if(salary[0]) je.where.min_salary_expectation = {
+        [Op.gte]: salary[0]
+      };
+      if(salary[1]) je.where.max_salary_expectation = {
+        [Op.lte]: salary[1]
+      };
     }
     include.push(je)
     let query = {}
