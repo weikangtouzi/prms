@@ -570,7 +570,92 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
         }) 
     }
 }
+const UserGetJob = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if(!isvalidJobPoster(userInfo.identity)) {
+        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
+    }
+    const { jobid } = args;
+    let job = await Job.findOne({
+        where: {
+            id: jobid,
+            // expired_at: {
+            //     [Op.gt]: new Date()
+            // }
+        },
+        include: [{
+            model: Worker,
+            attributes: ["real_name", "pos"],
+            include: [{
+                model: Enterprise,
+                attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail", "enterprise_financing"]
+            }, {
+                model: User,
+                attributes: ["image_url", "last_log_out_time"]
+            }]
+        }]
+    });
+    if (!job) throw new UserInputError("job not found");
 
+    let data = job.dataValues;
+    JobReadRecord.create({
+        user_id: userInfo.user_id,
+        job_id: jobid,
+        job_name: data.title,
+        job_salary: `${data.min_salary}-${data.max_salary}`,
+        job_exp: data.min_experience !== 0?`${data.min_experience}年`: "无",
+        job_edu: data.min_education,
+        job_address: data.address_description[0],
+        tags: data.tags,
+        comp_name: data.Worker.Enterprise.enterprise_name,
+        comp_financing: data.Worker.Enterprise.enterprise_financing,
+        hr_name: data.Worker.real_name,
+        hr_position: data.Worker.pos,
+    })
+    JobCache.update({
+        views: sequelize.literal('"views" + 1')
+    }, {
+        where: {
+            job_id: jobid
+        }
+    })
+    let res = {
+        job: {
+            id: data.id,
+            title: data.title,
+            category: data.category,
+            detail: data.detail,
+            address_coordinate: data.address_coordinate.coordinates,
+            address_description: data.address_description,
+            salaryExpected: [data.min_salary, data.max_salary],
+            experience: data.min_experience,
+            education: data.education,
+            required_num: data.required_num,
+            full_time_job: data.full_time_job,
+            tags: data.tags,
+            updated_at: data.updated_at,
+        },
+        hr: {
+            id: data.worker_id,
+            name: data.Worker.real_name,
+            pos: data.Worker.pos,
+            last_log_out_time: data.Worker.User.last_log_out_time,
+            logo: data.Worker.User.image_url
+        },
+        company: {
+            id: data.comp_id,
+            name: data.Worker.Enterprise.enterprise_name,
+            address_coordinates: data.Worker.Enterprise.enterprise_coordinates.coordinates,
+            address_description: data.Worker.Enterprise.enterprise_loc_detail,
+            industry_involved: data.Worker.Enterprise.industry_involved,
+            business_nature: data.Worker.Enterprise.business_nature,
+            enterprise_logo: data.Worker.Enterprise.enterprise_logo,
+            enterprise_size: data.Worker.Enterprise.enterprise_size,
+        }
+    };
+    return res
+}
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -595,5 +680,6 @@ module.exports = {
     UserChangePhoneNumber,
     UserEditEmail,
     StaticGetHotJobs,
-    UserSearchEnterprise
+    UserSearchEnterprise,
+    UserGetJob
 }

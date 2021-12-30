@@ -890,8 +890,6 @@ const typeDefs = gql`
     StaticGetTowns(countyId: String!): [Town]!
     "send a verify code to the given number, if phoneNumber not provider and has token in header, will send to the user's phone number"
     StaticSendSms(phoneNumber: String): String!
-    "get job data by id"
-    CandidateGetJob(jobid: Int): JobDetailPageReply!
     "get resume data, if cache id exists then will return the cache data, cache expired every 30 minutes"
     CommonGetResume(resumeId: Int, cacheId: String): ResumeData!
     QNPhoneNumberCheck(phoneNumber: String, verifyCode: String): Int!
@@ -932,6 +930,7 @@ const typeDefs = gql`
     StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
     ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int): TalentListForSearchResult!
+    UserGetJob(jobid: Int): JobDetailPageReply!
   }
   
   "most of mutations needed token for authorization"
