@@ -576,33 +576,26 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let { expectation, education, salary, page, pageSize } = args;
     let where = {}
     let include = [];
-    if (education && education != "Null") where.education = education;
+    if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
     let je = {
       model: JobExpectation,
-      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city"],
-      required: true,
+      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category"],
+      right: true,
       limit: 1,
       order: [["updatedAt", "DESC"]],
       where: {}
     };
-    if (expectation) je.where["a"] = sequelize.literal(`"JobExpectation"."job_category[3]" = '${expectation}'`)
+    where.jobExpectionCount = sequelize.literal('(SELECT COUNT(*) FROM job_expectation WHERE job_expectation.user_id = "User".id) > 0');
+    if (expectation) where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) like '%${expectation}%'`);
     if (salary) {
       je.where.min_salary_expectation = salary[0];
       je.where.max_salary_expectation = salary[1];
     }
     include.push(je)
     let query = {}
-    query.attributes = {
-      include: [[sequelize.literal(`(
-        SELECT COUNT(*) FROM job_expectation WHERE user_id = User.id
-      )`), 'jobExpectionCount']]
-    }
-    where.jobExpectionCount = {
-      [Op.gt]: 0
-    }
+    console.log(where)
     query.where = where;
     query.include = include;
-
     if (!pageSize) {
       query.limit = 10;
     } else {
@@ -614,7 +607,21 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       query.offset = query.limit * page
     }
     let res = await User.findAndCountAll(query);
-    console.log(res);
+    return {
+      count: res.count,
+      data: res.rows.map(item => {
+        return {
+          ...item.dataValues,
+          salary: [item.dataValues.JobExpectations[0].min_salary_expectation,item.dataValues.JobExpectations[0].max_salary_expectation],
+          aimed_city: item.dataValues.JobExpectations[0].aimed_city,
+          job_expectation: item.dataValues.JobExpectations[0].job_category,
+          last_log_out_time: item.dataValues.last_log_out_time? item.dataValues.last_log_out_time.toISOString() : "在线",
+          age: item.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.birth_date).getFullYear(): null,
+          experience: item.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : null,
+          name: item.dataValues.real_name? item.dataValues.real_name : item.dataValues.username
+        }
+      })
+    }
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
