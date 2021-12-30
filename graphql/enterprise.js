@@ -573,9 +573,11 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    let { expectation, education, salary, page, pageSize } = args;
+    let { expectation, education, salary, page, pageSize, sortByUpdatedTime } = args;
     let where = {}
     let include = [];
+    let order = [];
+    if(sortByUpdatedTime) order.push(["updatedAt", "DESC"])
     if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
     let je = {
       model: JobExpectation,
@@ -586,14 +588,17 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       where: {}
     };
     where.jobExpectionCount = sequelize.literal('(SELECT COUNT(*) FROM job_expectation WHERE job_expectation.user_id = "User".id) > 0');
-    if (expectation) where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) like '%${expectation}%'`);
+    if (expectation) {
+      where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) like '%${expectation}%'`);
+      je.where.cate = sequelize.literal(`job_category[3] like '%${expectation}%'`);
+    }
     if (salary) {
       je.where.min_salary_expectation = salary[0];
       je.where.max_salary_expectation = salary[1];
     }
     include.push(je)
     let query = {}
-    console.log(where)
+    // console.log(where)
     query.where = where;
     query.include = include;
     if (!pageSize) {

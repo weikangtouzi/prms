@@ -90,3 +90,39 @@ CREATE TRIGGER trigger_count_unreaded_msg_for_contract_list_on_update
     after update ON message
     For each row
     EXECUTE PROCEDURE count_unreaded_msg_for_contract_list();
+CREATE OR REPLACE FUNCTION update_users_when_sub_table_is_updated() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  update users set "updatedAt" = NOW() where users.id = NEW.user_id;
+  RETURN NULL;
+END;
+$$;
+CREATE OR REPLACE FUNCTION update_resume_when_sub_table_is_updated() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  update "resume" set "updatedAt" = NOW() where "resume".id = NEW.resume_id;
+  RETURN NULL;
+END;
+$$;
+DROP TRIGGER IF EXISTS trigger_resume_updated ON "resume";
+CREATE TRIGGER trigger_resume_updated
+    after update ON "resume"
+    For each row
+    EXECUTE PROCEDURE update_users_when_sub_table_is_updated();
+DROP TRIGGER IF EXISTS trigger_resume_edu_exp_updated ON "resume_edu_exp";
+CREATE TRIGGER trigger_resume_edu_exp_updated
+    after update ON "resume_edu_exp"
+    For each row
+    EXECUTE PROCEDURE update_resume_when_sub_table_is_updated();
+DROP TRIGGER IF EXISTS trigger_resume_project_exp_updated ON "resume_project_exp";
+CREATE TRIGGER trigger_resume_project_exp_updated
+    after update ON "resume_project_exp"
+    For each row
+    EXECUTE PROCEDURE update_resume_when_sub_table_is_updated();
+DROP TRIGGER IF EXISTS trigger_resume_project_work_updated ON "resume_work_exp";
+CREATE TRIGGER trigger_resume_project_work_updated
+    after update ON "resume_work_exp"
+    For each row
+    EXECUTE PROCEDURE update_resume_when_sub_table_is_updated();

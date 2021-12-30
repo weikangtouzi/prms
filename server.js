@@ -929,7 +929,7 @@ const typeDefs = gql`
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
-    ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int): TalentListForSearchResult!
+    ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean): TalentListForSearchResult!
     UserGetJob(jobid: Int): JobDetailPageReply!
   }
   
