@@ -13,7 +13,8 @@ const { logIn,
     UserChangePhoneNumber,
     UserEditEmail,
     StaticGetHotJobs,
-    UserSearchEnterprise } = require('./user');
+    UserSearchEnterprise,
+    UserGetJob } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -90,7 +91,7 @@ const resolvers = {
         UserGetMessages,
         CandidateGetAllJobExpectations,
         CandidateGetJobList,
-        CandidateGetJob,
+        // CandidateGetJob,
         UserGetEnterpriseDetail_EntInfo,
         UserGetEnterpriseDetail_WorkerList,
         CandidateGetEnterpriseDetail_InterviewRecomment,
@@ -107,7 +108,8 @@ const resolvers = {
         StaticSendEmail: sendEmail,
         StaticGetHotJobs,
         UserSearchEnterprise,
-        ENTSearchCandidates
+        ENTSearchCandidates,
+        UserGetJob
     },
     Mutation: {
         UserRegister: register,
