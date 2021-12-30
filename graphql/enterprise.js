@@ -611,6 +611,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     } else {
       query.offset = query.limit * page
     }
+    query.order = order;
     let res = await User.findAndCountAll(query);
     return {
       count: res.count,
