@@ -1042,7 +1042,7 @@ async function startServer() {
     schema,
     plugins: [
       ApolloServerPluginLandingPageGraphQLPlayground({
-        subscriptionEndpoint: `ws://${domain}/ws`
+        subscriptionEndpoint: `wss://${domain}/ws`
       })
     ],
     context: contextMiddleware.before,
