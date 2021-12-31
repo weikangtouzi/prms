@@ -22,6 +22,7 @@ const { EnterpriseCertificationStatus, ResumeJobStatus, EnterpriseRole, WorkerMa
 const { info } = require('./utils/logger');
 const { clearViewsEveryMonday } = require('./utils/schedules');
 const serveIndex = require('serve-index');
+const cors = require('cors');
 const Void = new GraphQLScalarType({
   name: 'Void',
 
@@ -1014,7 +1015,11 @@ async function startServer() {
   // server.graphqlPath = "/";
 
   const app = express();
-
+  app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
   app.use(graphqlUploadExpress());
   app.use(uploadPath, express.static(uploadPath.split('/')[1]));
   app.use('/preludeDatas', express.static('datas'));
