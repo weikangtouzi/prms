@@ -12,7 +12,7 @@ const { resolvers } = require('./graphql');
 const { GraphQLScalarType, GraphQLUnionType, GraphQLInputObjectType, execute, subscribe, GraphQLString } = require('graphql');
 const mongo = require('./mongo');
 const fs = require('fs');
-const { env, uploadPath } = require('./project.json');
+const { env, uploadPath, domain } = require('./project.json');
 const http = require('http');
 const https = require('https');
 const { SubscriptionServer } = require('subscriptions-transport-ws');
@@ -1042,7 +1042,7 @@ async function startServer() {
     schema,
     plugins: [
       ApolloServerPluginLandingPageGraphQLPlayground({
-        subscriptionEndpoint: "ws://localhost:4000/ws"
+        subscriptionEndpoint: `ws://${domain}/ws`
       })
     ],
     context: contextMiddleware.before,
