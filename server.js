@@ -1010,15 +1010,8 @@ async function startServer() {
   };
   resolvers.Upload = GraphQLUpload;
   const schema = makeExecutableSchema({ typeDefs, resolvers });
-  const server = new ApolloServer({
-    schema,
-    plugins: [
-      ApolloServerPluginLandingPageGraphQLPlayground()
-    ],
-    context: contextMiddleware.before,
-  });
-  server.graphqlPath = "/";
-  await server.start();
+  
+  // server.graphqlPath = "/";
 
   const app = express();
 
@@ -1026,7 +1019,6 @@ async function startServer() {
   app.use(uploadPath, express.static(uploadPath.split('/')[1]));
   app.use('/preludeDatas', express.static('datas'));
   app.use('/preludeDatas', serveIndex('datas'));
-  server.applyMiddleware({ app });
   let httpServer;
   if (env == 'production') {
     httpServer = https.createServer({
@@ -1044,8 +1036,19 @@ async function startServer() {
     onDisconnect: contextMiddleware.ws_close
   }, {
     server: httpServer,
-    path: "/graphql"
+    path: "/ws"
   });
+  const server = new ApolloServer({
+    schema,
+    plugins: [
+      ApolloServerPluginLandingPageGraphQLPlayground({
+        subscriptionEndpoint: "ws://localhost:4000/ws"
+      })
+    ],
+    context: contextMiddleware.before,
+  });
+  await server.start();
+  server.applyMiddleware({ app });
   await new Promise(r => httpServer.listen({ port: 4000 }, r));
   mongo.init().then(() => {
     // info('mongo Connection has been established successfully');
