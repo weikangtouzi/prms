@@ -32,8 +32,23 @@ module.exports = {
                     })
                     if (!isAvaliable) throw new AuthenticationError('account is banned');
                 }
+                User.update({ last_log_out_time: null },{
+                    where: {
+                        id: userInfo.user_id,
+                    }
+                })
             } catch (err) {
                 userInfo = err
+                let id = jwt.decode(token).user_id;
+                User.update({
+                    last_log_out_time: new Date(),
+                }, {
+                    where: {
+                        id,
+                        last_log_out_time: null,
+                    },
+                    returning: true
+                })
             }
             context.userInfo = userInfo;
         }
