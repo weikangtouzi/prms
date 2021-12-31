@@ -126,3 +126,8 @@ CREATE TRIGGER trigger_resume_project_work_updated
     after update ON "resume_work_exp"
     For each row
     EXECUTE PROCEDURE update_resume_when_sub_table_is_updated();
+DROP INDEX IF EXISTS name_search;
+CREATE INDEX name_search
+    ON public.recruitment USING gist
+    (name COLLATE pg_catalog."default" gist_trgm_ops)
+    TABLESPACE pg_default;

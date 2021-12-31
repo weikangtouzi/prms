@@ -589,8 +589,8 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     };
     where.jobExpectionCount = sequelize.literal('(SELECT COUNT(*) FROM job_expectation WHERE job_expectation.user_id = "User".id) > 0');
     if (expectation) {
-      where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) like '%${expectation}%'`);
-      je.where.cate = sequelize.literal(`job_category[3] like '%${expectation}%'`);
+      where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${expectation}'`);
+      je.where.cate = sequelize.literal(`job_category[3] = '${expectation}'`);
     }
     if (salary) {
       if(salary[0]) je.where.min_salary_expectation = {
