@@ -2,7 +2,7 @@
 const {
   Model, Deferrable
 } = require('sequelize');
-const user = require('./user');
+const job = require('./job');
 module.exports = (sequelize, DataTypes) => {
   class ContractList extends Model {
     /**
@@ -32,6 +32,16 @@ module.exports = (sequelize, DataTypes) => {
             key: "id",
             deferrable: Deferrable.NOT
         }
+    },
+    job_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+      references: {
+        model: "job",
+        key: "id",
+        deferrable: Deferrable.NOT
+      }
     },
     last_msg: {
         type: DataTypes.STRING,

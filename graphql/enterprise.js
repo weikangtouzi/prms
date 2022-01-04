@@ -636,6 +636,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
+
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,

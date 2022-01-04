@@ -633,7 +633,12 @@ const typeDefs = gql`
   input SendMessage {
     to: Int!,
     messageType: MessageType!,
-    messageContent: String!
+    messageContent: String!,
+    """
+    this just works when two user is hr and candidate
+    will be skiped when user is other identities
+    """
+    jobId: Int,
   }
   type MessageEntitySelectionString {
     value: String
