@@ -1,9 +1,9 @@
 const jwt = require('jsonwebtoken')
 const { AuthenticationError, UserInputError } = require('apollo-server')
 const mongo = require('../mongo')
-const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation } = require('../models')
+const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation, Job } = require('../models')
 const { withFilter } = require('graphql-subscriptions');
-const { Op } = require('sequelize')
+const { Op } = require('sequelize');
 function checkBlackList(to, from) {
 
 }
@@ -11,7 +11,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.identity) throw new AuthenticationError('missing identity');
-    const { to, messageType, messageContent } = args.info;
+    const { to, messageType, messageContent, jobId } = args.info;
     if (to == userInfo.user_id) throw new UserInputError("could not send message to yourself");
     checkBlackList(to, userInfo.user_id);
     let isPersonal = (userInfo.identity.identity == 'PersonalUser');
@@ -37,7 +37,8 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
         user_id: userInfo.user_id,
         identity: userInfo.identity == "PersonalUser",
         target: to,
-        last_msg: msg.detail
+        last_msg: msg.detail,
+        job_id: jobId
     }, {
         user_id: userInfo.user_id
     }, {
@@ -64,14 +65,14 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
                     }
                 })
             })
-
         }
     })
     ContractList.upsert({
         user_id: to,
         identity: userInfo.identity != "PersonalUser",
         target: userInfo.user_id,
-        last_msg: msg.detail
+        last_msg: msg.detail,
+        job_id: jobId
     }, {
         where: {
             user_id: to
@@ -235,6 +236,7 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     }
     return res;
 }
+
 function include_gen(isPersonal) {
     let include = [];
     if (isPersonal) {
@@ -263,6 +265,10 @@ function include_gen(isPersonal) {
 
         });
     }
+    include.push({
+        model: Job,
+        attributes: ["id", "title"]
+    })
     return include;
 }
 module.exports = {
