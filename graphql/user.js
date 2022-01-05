@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, ResumeDeliveryRecord, JobReadRecord } = require('../models');
+const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, ResumeDeliveryRecord, JobReadRecord, Recruitment } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -521,7 +521,7 @@ const UserEditEmail = async (parent, args, { userInfo }, info) => {
 }
 
 const StaticGetHotJobs = async (parent, args, { userInfo }, info) => {
-    const {category} = args;
+    const { category } = args;
     let res = await JobCache.findAll({
         where: {
             expired_at: {
@@ -544,8 +544,8 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     let { keyword, page, pageSize } = args;
-    if(!page) page = 0;
-    if(!pageSize) pageSize = 10;
+    if (!page) page = 0;
+    if (!pageSize) pageSize = 10;
     let res = await Enterprise.findAndCountAll({
         where: {
             enterprise_name: {
@@ -555,7 +555,7 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
         limit: pageSize,
         offset: page * pageSize
     });
-    if(res.count == 0) return {
+    if (res.count == 0) return {
         count: 0,
         data: []
     }
@@ -567,13 +567,13 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
                 enterprise_coordinates: JSON.stringify(item.dataValues.coordinates),
                 created_at: item.dataValues.createdAt.toISOString()
             }
-        }) 
+        })
     }
 }
 const UserGetJob = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if(!isvalidJobPoster(userInfo.identity)) {
+    if (!isvalidJobPoster(userInfo.identity)) {
         if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
     }
     const { jobid } = args;
@@ -604,7 +604,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
         job_id: jobid,
         job_name: data.title,
         job_salary: `${data.min_salary}-${data.max_salary}`,
-        job_exp: data.min_experience !== 0?`${data.min_experience}年`: "无",
+        job_exp: data.min_experience !== 0 ? `${data.min_experience}年` : "无",
         job_edu: data.min_education,
         job_address: data.address_description[0],
         tags: data.tags,
@@ -656,6 +656,35 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
     };
     return res
 }
+
+const userGetRecruitmentList = async (parent, args, { userInfo }, info) => {
+    const { keyword, appointment, page, pageSize } = args;
+    let query = {
+        where: {},
+        limit: {},
+        offset: {},
+        order: []
+    }
+    if (keyword) {
+        query.where.name = {
+            [Op.substring]: keyword
+        }
+        query.order.push([sequelize.literal(`name % '${keyword}'`), "DESC"])
+    }
+    if (appointment) {
+        query.where.appointment = sequelize.literal(`(SELECT Count(*) FROM recruitment_record WHERE recruitment_record.recruitment_id = Recruitment.id and recruitment_record.user_id = ${userInfo.user_id} and canceled = false) > 0`)
+        query.where.start_at = {
+            [Op.gte]: new Date()
+        }
+    }
+    if (pageSize) { query.limit = pageSize; } else { query.limit = 10; }
+    if (page) { query.offset = page * query.limit; } else { query.offset = 0; }
+    let res = await Recruitment.findAndCountAll(query)
+    return {
+        count: res.count,
+        data: res.rows.map(item => item.dataValues)
+    }
+}
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -681,5 +710,6 @@ module.exports = {
     UserEditEmail,
     StaticGetHotJobs,
     UserSearchEnterprise,
-    UserGetJob
+    UserGetJob,
+    userGetRecruitmentList
 }

@@ -14,7 +14,8 @@ const { logIn,
     UserEditEmail,
     StaticGetHotJobs,
     UserSearchEnterprise,
-    UserGetJob } = require('./user');
+    UserGetJob,
+    userGetRecruitmentList } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -111,7 +112,8 @@ const resolvers = {
         UserSearchEnterprise,
         ENTSearchCandidates,
         UserGetJob,
-        ENTGetCandidatesWithInterviewStatus
+        ENTGetCandidatesWithInterviewStatus,
+        UserGetRecruitmentList: userGetRecruitmentList
     },
     Mutation: {
         UserRegister: register,

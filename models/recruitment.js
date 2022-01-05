@@ -45,13 +45,21 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: "testing"
     },
-    adress: {
+    address_coordinates: {
       type: DataTypes.GEOMETRY('POINT'),
       allowNull: false,
       defaultValue: {
         type: 'Point',
         coordinates: [1.,1.]
       }
+    },
+    address_description: {
+      type: DataTypes.ARRAY(DataTypes.STRING),
+      allowNull: false,
+    },
+    cover: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
     job_count: {
       type: DataTypes.INTEGER,
