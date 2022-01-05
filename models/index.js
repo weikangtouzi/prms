@@ -137,4 +137,10 @@ db.Job.hasMany(db.ContractList, {
 db.ContractList.belongsTo(db.Job, {
   foreignKey: 'job_id'
 })
+db.User.hasMany(db.Interview, {
+  foreignKey: 'user_id',
+});
+db.Interview.belongsTo(db.User, {
+  foreignKey: 'user_id'
+})
 module.exports = db;

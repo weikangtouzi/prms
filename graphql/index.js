@@ -38,7 +38,8 @@ const { editEnterpriseBasicInfo,
     ENTSetDisabled,
     ENTSetEnabled,
     editJob,
-    ENTSearchCandidates
+    ENTSearchCandidates,
+    ENTGetCandidatesWithInterviewStatus
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateGetEnterpriseDetail_InterviewRecomment,
@@ -109,7 +110,8 @@ const resolvers = {
         StaticGetHotJobs,
         UserSearchEnterprise,
         ENTSearchCandidates,
-        UserGetJob
+        UserGetJob,
+        ENTGetCandidatesWithInterviewStatus
     },
     Mutation: {
         UserRegister: register,
