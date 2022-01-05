@@ -131,4 +131,10 @@ db.Job.hasMany(db.ResumeDeliveryRecord, {
 db.ResumeDeliveryRecord.belongsTo(db.Job, {
   foreignKey: 'job_id'
 })
+db.Job.hasMany(db.ContractList, {
+  foreignKey: 'job_id',
+});
+db.ContractList.belongsTo(db.Job, {
+  foreignKey: 'job_id'
+})
 module.exports = db;
