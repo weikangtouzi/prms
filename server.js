@@ -717,7 +717,7 @@ const typeDefs = gql`
     enterprise_size: EnterpriseSize,
     enterprise_welfare:[String],
     enterprise_logo: String,
-    tags: [String]!,
+    tags: [String],
     enterprise_coordinates: [Float]!,
     enterprise_loc_detail: [String]!,
     extra_attribute: String,
