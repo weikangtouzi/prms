@@ -884,11 +884,22 @@ const typeDefs = gql`
     aimed_city: String!,
     salary: [Int]!,
     job_status: ResumeJobStatus!,
-    last_log_out_time: String!
+    last_log_out_time: String!,
+    """
+    some api not having this
+    using Void because the type not settled yet
+    Void will represent any value
+    """
+    job: Void
   }
   type TalentListForSearchResult {
     count: Int!,
     data: [TalentDataForSearchResult]!
+  }
+  enum InterviewStatus {
+    Passed,
+    Waitting,
+    Failed
   }
   "for most of get query needed token for authorization"
   type Query {
@@ -947,6 +958,7 @@ const typeDefs = gql`
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
     ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean): TalentListForSearchResult!
     UserGetJob(jobid: Int): JobDetailPageReply!
+    ENTGetCandidatesWithInterviewStatus(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean, status: InterviewStatus): TalentListForSearchResult!
   }
   
   "most of mutations needed token for authorization"

@@ -636,7 +636,84 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
-
+const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (isvalidJobPoster(userInfo.identity)) {
+    let { expectation, education, salary, page, pageSize, status } = args;
+    let where = {}
+    let include = [];
+    if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
+    let je = {
+      model: JobExpectation,
+      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category"],
+      right: true,
+      limit: 1,
+      order: [["updatedAt", "DESC"]],
+      where: {}
+    };
+    where.status = {
+      [Op.and]: [
+        {
+          [Op.ne]: "Canceled"
+        }
+      ]
+    }
+    if (expectation) {
+      where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) = '${expectation}'`);
+      je.where.cate = sequelize.literal(`job_category[3] = '${expectation}'`);
+    }
+    if (salary) {
+      if(salary[0]) je.where.min_salary_expectation = {
+        [Op.gte]: salary[0]
+      };
+      if(salary[1]) je.where.max_salary_expectation = {
+        [Op.lte]: salary[1]
+      };
+    }
+    include.push({
+      model: User,
+      include:je
+    }, {
+      model: Job,
+      attributes: ["id", "title"],
+    })
+    if(status) where.status = status;
+    let query = {}
+    // console.log(where)
+    query.where = where;
+    query.include = include;
+    if (!pageSize) {
+      query.limit = 10;
+    } else {
+      query.limit = pageSize;
+    }
+    if (!page) {
+      query.offset = 0;
+    } else {
+      query.offset = query.limit * page
+    }
+    console.log(query)
+    let res = await Interview.findAndCountAll(query);
+    return {
+      count: res.count,
+      data: res.rows.map(item => {
+        return {
+          ...item.dataValues.Job.dataValues,
+          salary: [item.dataValues.User.dataValues.JobExpectations[0].min_salary_expectation,item.dataValues.User.dataValues.JobExpectations[0].max_salary_expectation],
+          aimed_city: item.dataValues.User.dataValues.JobExpectations[0].aimed_city,
+          job_expectation: item.dataValues.User.dataValues.JobExpectations[0].job_category,
+          last_log_out_time: item.dataValues.User.dataValues.last_log_out_time? item.dataValues.User.dataValues.last_log_out_time.toISOString() : "在线",
+          age: item.dataValues.User.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.birth_date).getFullYear(): null,
+          experience: item.dataValues.User.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
+          name: item.dataValues.User.dataValues.real_name? item.dataValues.User.dataValues.real_name : item.dataValues.username
+        }
+      })
+    }
+  } else {
+    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
+  }
+}
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,
@@ -658,5 +735,6 @@ module.exports = {
   HRHideJob,
   ENTSetDisabled,
   ENTSetEnabled,
-  ENTSearchCandidates
+  ENTSearchCandidates,
+  ENTGetCandidatesWithInterviewStatus
 }
