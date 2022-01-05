@@ -143,4 +143,10 @@ db.User.hasMany(db.Interview, {
 db.Interview.belongsTo(db.User, {
   foreignKey: 'user_id'
 })
+db.User.hasMany(db.Resume, {
+  foreignKey: 'user_id'
+});
+db.Resume.belongsTo(db.User, {
+  foreignKey: 'user_id'
+})
 module.exports = db;
