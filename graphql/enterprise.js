@@ -1,5 +1,5 @@
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
-const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message, JobExpectation, sequelize } = require('../models');
+const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message, JobExpectation, sequelize, Resume } = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
@@ -581,12 +581,21 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
     let je = {
       model: JobExpectation,
-      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category"],
+      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category", "updatedAt"],
       right: true,
       limit: 1,
       order: [["updatedAt", "DESC"]],
       where: {}
     };
+    let resume = {
+      model: Resume,
+      attributes: ["personal_advantage", "skills"],
+      right: true,
+      limit: 1,
+      where: {
+        is_attachment: false
+      }
+    }
     where.jobExpectionCount = sequelize.literal('(SELECT COUNT(*) FROM job_expectation WHERE job_expectation.user_id = "User".id) > 0');
     if (expectation) {
       where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${expectation}'`);
@@ -600,7 +609,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
         [Op.lte]: salary[1]
       };
     }
-    include.push(je)
+    include.push(je,resume)
     let query = {}
     // console.log(where)
     query.where = where;
@@ -627,8 +636,9 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
           job_expectation: item.dataValues.JobExpectations[0].job_category,
           last_log_out_time: item.dataValues.last_log_out_time? item.dataValues.last_log_out_time.toISOString() : "在线",
           age: item.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.birth_date).getFullYear(): null,
-          experience: item.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : null,
-          name: item.dataValues.real_name? item.dataValues.real_name : item.dataValues.username
+          experience: item.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : 0,
+          name: item.dataValues.real_name? item.dataValues.real_name : item.dataValues.username,
+          ...item.dataValues.Resumes[0].dataValues
         }
       })
     }
@@ -646,12 +656,21 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
     if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
     let je = {
       model: JobExpectation,
-      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category"],
+      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category", "updatedAt"],
       right: true,
       limit: 1,
       order: [["updatedAt", "DESC"]],
       where: {}
     };
+    let resume = {
+      model: Resume,
+      attributes: ["personal_advantage", "skills"],
+      right: true,
+      limit: 1,
+      where: {
+        is_attachment: false
+      }
+    }
     where.status = {
       [Op.and]: [
         {
@@ -673,7 +692,7 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
     }
     include.push({
       model: User,
-      include:je
+      include:[je, resume]
     }, {
       model: Job,
       attributes: ["id", "title"],
@@ -693,22 +712,23 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
     } else {
       query.offset = query.limit * page
     }
-    console.log(query)
     let res = await Interview.findAndCountAll(query);
     return {
       count: res.count,
       data: res.rows.map(item => {
         return {
-          ...item.dataValues.Job.dataValues,
+          ...item.dataValues.User.dataValues,
           salary: [item.dataValues.User.dataValues.JobExpectations[0].min_salary_expectation,item.dataValues.User.dataValues.JobExpectations[0].max_salary_expectation],
           aimed_city: item.dataValues.User.dataValues.JobExpectations[0].aimed_city,
           job_expectation: item.dataValues.User.dataValues.JobExpectations[0].job_category,
           last_log_out_time: item.dataValues.User.dataValues.last_log_out_time? item.dataValues.User.dataValues.last_log_out_time.toISOString() : "在线",
           age: item.dataValues.User.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.birth_date).getFullYear(): null,
           experience: item.dataValues.User.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
-          name: item.dataValues.User.dataValues.real_name? item.dataValues.User.dataValues.real_name : item.dataValues.username
-        }
+          name: item.dataValues.User.dataValues.real_name? item.dataValues.User.dataValues.real_name : item.dataValues.username,
+          ...item.dataValues.User.dataValues.Resumes[0].dataValues
+        };
       })
+      
     }
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);

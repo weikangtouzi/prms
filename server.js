@@ -890,7 +890,9 @@ const typeDefs = gql`
     using Void because the type not settled yet
     Void will represent any value
     """
-    job: Void
+    job: Void,
+    personal_advantage: String,
+    skills: [String]
   }
   type TalentListForSearchResult {
     count: Int!,
