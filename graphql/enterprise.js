@@ -636,7 +636,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
           job_expectation: item.dataValues.JobExpectations[0].job_category,
           last_log_out_time: item.dataValues.last_log_out_time? item.dataValues.last_log_out_time.toISOString() : "在线",
           age: item.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.birth_date).getFullYear(): null,
-          experience: item.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : 0,
+          experience: item.dataValues.first_time_working? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : 0,
           name: item.dataValues.real_name? item.dataValues.real_name : item.dataValues.username,
           ...item.dataValues.Resumes[0].dataValues
         }
@@ -723,17 +723,17 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
           job_expectation: item.dataValues.User.dataValues.JobExpectations[0].job_category,
           last_log_out_time: item.dataValues.User.dataValues.last_log_out_time? item.dataValues.User.dataValues.last_log_out_time.toISOString() : "在线",
           age: item.dataValues.User.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.birth_date).getFullYear(): null,
-          experience: item.dataValues.User.dataValues.experience? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
+          experience: item.dataValues.User.dataValues.first_time_working? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
           name: item.dataValues.User.dataValues.real_name? item.dataValues.User.dataValues.real_name : item.dataValues.username,
           ...item.dataValues.User.dataValues.Resumes[0].dataValues
         };
       })
-      
     }
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
+
 module.exports = {
   editEnterpriseBasicInfo,
   editEnterpriseWorkTimeAndWelfare,

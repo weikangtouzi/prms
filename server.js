@@ -961,6 +961,7 @@ const typeDefs = gql`
     ENTSearchCandidates(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean): TalentListForSearchResult!
     UserGetJob(jobid: Int): JobDetailPageReply!
     ENTGetCandidatesWithInterviewStatus(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean, status: InterviewStatus): TalentListForSearchResult!
+    UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
   }
   
   "most of mutations needed token for authorization"
