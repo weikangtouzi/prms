@@ -210,7 +210,11 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
                 pos: item.User.Worker.pos,
                 ent: item.User.Worker.Enterprise.enterprise_name,
                 last_msg: item.last_msg,
-                last_msg_time: item.updatedAt.toISOString()
+                last_msg_time: item.updatedAt.toISOString(),
+                job: {
+                    id: item.Job.dataValues.id,
+                    title: item.Job.dataValues.title
+                },
             }
         })
     } else {
@@ -219,7 +223,10 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
             return {
                 id: userInfo.user_id == item.user_id ? item.target : item.user_id,
                 logo: item.User.image_url? item.User.image_url : "",
-                job: null,
+                job: {
+                    id: item.Job.dataValues.id,
+                    title: item.Job.dataValues.title
+                },
                 name: item.User.real_name ? item.User.real_name : item.User.username,
                 gender: item.User.gender,
                 age: new Date().getFullYear() - new Date(item.User.birth_date).getFullYear(),
@@ -230,7 +237,7 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
                 job_status: item.User.job_status,
                 last_log_out_time: item.User.last_log_out_time,
                 last_msg: item.last_msg,
-                last_msg_time: item.updatedAt.toISOString()
+                last_msg_time: item.updatedAt.toISOString(),
             }
         })
     }
@@ -278,4 +285,3 @@ module.exports = {
     UserGetContractList,
     newContract
 }
-

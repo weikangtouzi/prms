@@ -802,7 +802,13 @@ const typeDefs = gql`
     pos: String,
     ent: String,
     last_msg: String!,
-    last_msg_time: String!
+    last_msg_time: String!,
+    """
+    some api not having this
+    using Void because the type not settled yet
+    Void will represent any value
+    """
+    job: Void
   }
   type UserBasicInfo {
     username: String!,
@@ -843,8 +849,12 @@ const typeDefs = gql`
   type Talent {
     id: Int!,
     logo: String!,
-    "some api not having this"
-    job: String,
+    """
+    some api not having this
+    using Void because the type not settled yet
+    Void will represent any value
+    """
+    job: Void,
     "may not be the real name"
     name: String!,
     gender: Boolean,
