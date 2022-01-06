@@ -641,7 +641,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
             name: data.Worker.real_name,
             pos: data.Worker.pos,
             last_log_out_time: data.Worker.User.last_log_out_time,
-            logo: data.Worker.User.image_url
+            logo: data.Worker.User.image_url? data.Worker.User.image_url : ""
         },
         company: {
             id: data.comp_id,
@@ -661,8 +661,8 @@ const userGetRecruitmentList = async (parent, args, { userInfo }, info) => {
     const { keyword, appointment, page, pageSize } = args;
     let query = {
         where: {},
-        limit: {},
-        offset: {},
+        limit: 10,
+        offset: 0,
         order: []
     }
     if (keyword) {
@@ -677,8 +677,8 @@ const userGetRecruitmentList = async (parent, args, { userInfo }, info) => {
             [Op.gte]: new Date()
         }
     }
-    if (pageSize) { query.limit = pageSize; } else { query.limit = 10; }
-    if (page) { query.offset = page * query.limit; } else { query.offset = 0; }
+    if (pageSize) query.limit = pageSize
+    if (page) query.offset = page * query.limit
     let res = await Recruitment.findAndCountAll(query)
     return {
         count: res.count,
