@@ -960,7 +960,7 @@ const typeDefs = gql`
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
     ENTSearchCandidates(expectation: String, education: String, city: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean): TalentListForSearchResult!
     UserGetJob(jobid: Int): JobDetailPageReply!
-    ENTGetCandidatesWithInterviewStatus(expectation: String, education: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean, status: InterviewStatus): TalentListForSearchResult!
+    ENTGetCandidatesWithInterviewStatus(expectation: String, education: String, city: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean, status: InterviewStatus): TalentListForSearchResult!
     UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
   }
   
