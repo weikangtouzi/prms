@@ -573,7 +573,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    let { expectation, education, salary, page, pageSize, sortByUpdatedTime } = args;
+    let { expectation, education, salary, city, page, pageSize, sortByUpdatedTime } = args;
     let where = {}
     let include = [];
     let order = [];
@@ -582,7 +582,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let je = {
       model: JobExpectation,
       attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category", "updatedAt"],
-      right: true,
+      required: true,
       limit: 1,
       order: [["updatedAt", "DESC"]],
       where: {}
@@ -590,7 +590,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let resume = {
       model: Resume,
       attributes: ["personal_advantage", "skills"],
-      right: true,
+      required: true,
       limit: 1,
       where: {
         is_attachment: false
@@ -608,6 +608,10 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       if(salary[1]) je.where.max_salary_expectation = {
         [Op.lte]: salary[1]
       };
+    }
+    if(city) {
+      where.city = sequelize.literal(`(SELECT aimed_city FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${city}'`)
+      je.where.aimed_city = city
     }
     include.push(je,resume)
     let query = {}
@@ -650,7 +654,7 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    let { expectation, education, salary, page, pageSize, status } = args;
+    let { expectation, education, salary, city, page, pageSize, status } = args;
     let where = {}
     let include = [];
     if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
@@ -689,6 +693,10 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
       if(salary[1]) je.where.max_salary_expectation = {
         [Op.lte]: salary[1]
       };
+    }
+    if(city) {
+      where.city = sequelize.literal(`(SELECT aimed_city FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${city}'`)
+      je.where.aimed_city = city
     }
     include.push({
       model: User,
