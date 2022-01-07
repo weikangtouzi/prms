@@ -685,13 +685,13 @@ const userGetRecruitmentList = async (parent, args, { userInfo }, info) => {
         data: res.rows.map(item => item.dataValues)
     }
 }
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
         throw new UserInputError('user not found', { errors })
     }
 }
-
 
 module.exports = {
     logIn,

@@ -577,7 +577,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let where = {}
     let include = [];
     let order = [];
-    if(sortByUpdatedTime) order.push(["updatedAt", "DESC"])
+    if (sortByUpdatedTime) order.push(["updatedAt", "DESC"])
     if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
     let je = {
       model: JobExpectation,
@@ -602,18 +602,24 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       je.where.cate = sequelize.literal(`job_category[3] = '${expectation}'`);
     }
     if (salary) {
-      if(salary[0]) je.where.min_salary_expectation = {
-        [Op.gte]: salary[0]
-      };
-      if(salary[1]) je.where.max_salary_expectation = {
-        [Op.lte]: salary[1]
-      };
+      if (salary[0]) {
+        je.where.min_salary_expectation = {
+          [Op.gte]: salary[0]
+        };
+        where.min_salary_expectation = sequelize.literal(`(SELECT min_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) >= '${salary[0]}'`)
+      }
+      if (salary[1]) {
+        je.where.max_salary_expectation = {
+          [Op.lte]: salary[1]
+        };
+        where.min_salary_expectation = sequelize.literal(`(SELECT max_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) <= '${salary[1]}'`)
+      }
     }
-    if(city) {
+    if (city) {
       where.city = sequelize.literal(`(SELECT aimed_city FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${city}'`)
       je.where.aimed_city = city
     }
-    include.push(je,resume)
+    include.push(je, resume)
     let query = {}
     // console.log(where)
     query.where = where;
@@ -635,13 +641,13 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       data: res.rows.map(item => {
         return {
           ...item.dataValues,
-          salary: [item.dataValues.JobExpectations[0].min_salary_expectation,item.dataValues.JobExpectations[0].max_salary_expectation],
+          salary: [item.dataValues.JobExpectations[0].min_salary_expectation, item.dataValues.JobExpectations[0].max_salary_expectation],
           aimed_city: item.dataValues.JobExpectations[0].aimed_city,
           job_expectation: item.dataValues.JobExpectations[0].job_category,
-          last_log_out_time: item.dataValues.last_log_out_time? item.dataValues.last_log_out_time.toISOString() : "在线",
-          age: item.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.birth_date).getFullYear(): null,
-          experience: item.dataValues.first_time_working? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : 0,
-          name: item.dataValues.real_name? item.dataValues.real_name : item.dataValues.username,
+          last_log_out_time: item.dataValues.last_log_out_time ? item.dataValues.last_log_out_time.toISOString() : "在线",
+          age: item.dataValues.birth_date ? new Date().getFullYear() - new Date(item.dataValues.birth_date).getFullYear() : null,
+          experience: item.dataValues.first_time_working ? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : 0,
+          name: item.dataValues.real_name ? item.dataValues.real_name : item.dataValues.username,
           ...item.dataValues.Resumes[0].dataValues
         }
       })
@@ -687,25 +693,31 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
       je.where.cate = sequelize.literal(`job_category[3] = '${expectation}'`);
     }
     if (salary) {
-      if(salary[0]) je.where.min_salary_expectation = {
-        [Op.gte]: salary[0]
-      };
-      if(salary[1]) je.where.max_salary_expectation = {
-        [Op.lte]: salary[1]
-      };
+      if (salary[0]) {
+        je.where.min_salary_expectation = {
+          [Op.gte]: salary[0]
+        };
+        where.min_salary_expectation = sequelize.literal(`(SELECT min_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) >= '${salary[0]}'`)
+      }
+      if (salary[1]) {
+        je.where.max_salary_expectation = {
+          [Op.lte]: salary[1]
+        };
+        where.min_salary_expectation = sequelize.literal(`(SELECT max_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) <= '${salary[1]}'`)
+      }
     }
-    if(city) {
+    if (city) {
       where.city = sequelize.literal(`(SELECT aimed_city FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${city}'`)
       je.where.aimed_city = city
     }
     include.push({
       model: User,
-      include:[je, resume]
+      include: [je, resume]
     }, {
       model: Job,
       attributes: ["id", "title"],
     })
-    if(status) where.status = status;
+    if (status) where.status = status;
     let query = {}
     // console.log(where)
     query.where = where;
@@ -726,13 +738,13 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
       data: res.rows.map(item => {
         return {
           ...item.dataValues.User.dataValues,
-          salary: [item.dataValues.User.dataValues.JobExpectations[0].min_salary_expectation,item.dataValues.User.dataValues.JobExpectations[0].max_salary_expectation],
+          salary: [item.dataValues.User.dataValues.JobExpectations[0].min_salary_expectation, item.dataValues.User.dataValues.JobExpectations[0].max_salary_expectation],
           aimed_city: item.dataValues.User.dataValues.JobExpectations[0].aimed_city,
           job_expectation: item.dataValues.User.dataValues.JobExpectations[0].job_category,
-          last_log_out_time: item.dataValues.User.dataValues.last_log_out_time? item.dataValues.User.dataValues.last_log_out_time.toISOString() : "在线",
-          age: item.dataValues.User.dataValues.birth_date? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.birth_date).getFullYear(): null,
-          experience: item.dataValues.User.dataValues.first_time_working? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
-          name: item.dataValues.User.dataValues.real_name? item.dataValues.User.dataValues.real_name : item.dataValues.username,
+          last_log_out_time: item.dataValues.User.dataValues.last_log_out_time ? item.dataValues.User.dataValues.last_log_out_time.toISOString() : "在线",
+          age: item.dataValues.User.dataValues.birth_date ? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.birth_date).getFullYear() : null,
+          experience: item.dataValues.User.dataValues.first_time_working ? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
+          name: item.dataValues.User.dataValues.real_name ? item.dataValues.User.dataValues.real_name : item.dataValues.username,
           ...item.dataValues.User.dataValues.Resumes[0].dataValues
         };
       })
