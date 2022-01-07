@@ -650,7 +650,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
             address_description: data.Worker.Enterprise.enterprise_loc_detail,
             industry_involved: data.Worker.Enterprise.industry_involved,
             business_nature: data.Worker.Enterprise.business_nature,
-            enterprise_logo: data.Worker.Enterprise.enterprise_logo,
+            enterprise_logo: data.Worker.Enterprise.enterprise_logo? data.Worker.Enterprise.enterprise_logo: "",
             enterprise_size: data.Worker.Enterprise.enterprise_size,
         }
     };
