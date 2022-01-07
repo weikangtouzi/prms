@@ -667,7 +667,7 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
     let je = {
       model: JobExpectation,
       attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category", "updatedAt"],
-      right: true,
+      required: true,
       limit: 1,
       order: [["updatedAt", "DESC"]],
       where: {}
@@ -675,7 +675,7 @@ const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, i
     let resume = {
       model: Resume,
       attributes: ["personal_advantage", "skills"],
-      right: true,
+      required: true,
       limit: 1,
       where: {
         is_attachment: false
