@@ -634,7 +634,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
             required_num: data.required_num,
             full_time_job: data.full_time_job,
             tags: data.tags,
-            updated_at: data.updated_at,
+            updated_at: data.updatedAt,
         },
         hr: {
             id: data.worker_id,
