@@ -73,7 +73,8 @@
   "env": "development",
   "defaultMessageDetails": {
     "resume": "你收到一份新的简历，请注意查看",
-    "interviewInvitation": "公司像你发起了面试邀请，请注意查看"
+    "interviewInvitation": "公司像你发起了面试邀请，请注意查看",
+    "greeting": "您好，看到您有{0}的工作意向，我们在招{1}，非常需要您这样的人才，方便沟通一下吗？"
   },
   "surnameList": [
     "欧阳",
