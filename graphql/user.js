@@ -288,7 +288,7 @@ const UserEditBasicInfo = async (parent, args, { userInfo }, info) => {
     let update = {};
     if (username) update.username = username;
     if (logo) update.image_url = logo;
-    if (gender) update.gender = gender;
+    if (gender !== undefined) update.gender = gender;
     if (birthday) update.birth_date = birthday;
     if (currentCity) update.current_city = currentCity;
     if (firstTimeWorking) update.first_time_working = firstTimeWorking;

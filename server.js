@@ -900,7 +900,7 @@ const typeDefs = gql`
   }
   enum InterviewStatus {
     Passed,
-    Waitting,
+    Waiting,
     Failed
   }
   "for most of get query needed token for authorization"
