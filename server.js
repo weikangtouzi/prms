@@ -638,7 +638,7 @@ const typeDefs = gql`
     this just works when two user is hr and candidate
     will be skiped when user is other identities
     """
-    jobId: Int,
+    jobId: Int!,
   }
   type MessageEntitySelectionString {
     value: String
@@ -1036,6 +1036,10 @@ const typeDefs = gql`
     "the file uploaded in this api goes to preludeDatas folder"
     AdminUploadPreludeData(file: Upload!): String!
     ENTSetEnabled(id: Int!): Void
+    """
+    only supported enterprise user now
+    """
+    UserSendPrologue(job_id: Int!, to: Int!, prologue: Int!): Void  
   }
   type Subscription {
     newMessage: Message!

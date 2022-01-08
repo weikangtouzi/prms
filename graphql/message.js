@@ -4,10 +4,23 @@ const mongo = require('../mongo')
 const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation, Job, Prologue } = require('../models')
 const { withFilter } = require('graphql-subscriptions');
 const { Op } = require('sequelize');
+const { format } = require('../utils/string_format');
+const {defaultMessageDetails} = require('../project.json')
 function checkBlackList(to, from) {
 
 }
-async function sendMessageFunc(to, from, messageContent, messageType, pubsub) {
+async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, messageType, pubsub) {
+    let include;
+    if (isPersonal) {
+        include = [{
+            model: Worker,
+            attributes: ["real_name", "pos"],
+            include: [{
+                model: Enterprise,
+                attributes: ["enterprise_name"]
+            }]
+        }]
+    }
     let msg = await Message.create({
         user_id: to,
         from,
@@ -17,7 +30,7 @@ async function sendMessageFunc(to, from, messageContent, messageType, pubsub) {
     })
     ContractList.upsert({
         user_id: from,
-        identity: userInfo.identity == "PersonalUser",
+        identity: isPersonal,
         target: to,
         last_msg: msg.detail,
         job_id: jobId
@@ -51,7 +64,7 @@ async function sendMessageFunc(to, from, messageContent, messageType, pubsub) {
     })
     ContractList.upsert({
         user_id: to,
-        identity: userInfo.identity != "PersonalUser",
+        identity: !isPersonal,
         target: from,
         last_msg: msg.detail,
         job_id: jobId
@@ -103,18 +116,8 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (to == userInfo.user_id) throw new UserInputError("could not send message to yourself");
     checkBlackList(to, userInfo.user_id);
     let isPersonal = (userInfo.identity.identity == 'PersonalUser');
-    let include;
-    if (isPersonal) {
-        include = [{
-            model: Worker,
-            attributes: ["real_name", "pos"],
-            include: [{
-                model: Enterprise,
-                attributes: ["enterprise_name"]
-            }]
-        }]
-    }
-    await sendMessageFunc(to, userInfo.user_id, messageContent, messageType, pubsub);
+    
+    await sendMessageFunc(to, userInfo.user_id, jobId, isPersonal, messageContent, messageType, pubsub);
 }
 const newMessage = {
     subscribe: withFilter((_, __, { userInfo, pubsub }) => {
@@ -245,10 +248,17 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     }
     return res;
 }
-const UserSendPrologue = async (parent, args, { userInfo }, info) => {
+const UserSendPrologue = async (parent, args, { userInfo, pubsub }, info) => {
     const {job_id, to, prologue} = args;
     let messageContent;
-    if(prologue) messageContent = prologue;
+    if(prologue) {
+        messageContent = prologue;
+    } else {
+        const {job_name, exp} = args.selections;
+        messageContent = format(defaultMessageDetails.greeting, exp, job_name);
+    }
+    let isPersonal = (userInfo.identity.identity == 'PersonalUser');
+    await sendMessageFunc(to, userInfo.user_id, job_id, isPersonal, messageContent, "Normal", pubsub)
 } 
 
 function include_gen(isPersonal) {
@@ -290,5 +300,6 @@ module.exports = {
     newMessage,
     UserGetMessages,
     UserGetContractList,
-    newContract
+    newContract,
+    UserSendPrologue
 }
