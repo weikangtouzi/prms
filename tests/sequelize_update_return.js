@@ -13,7 +13,6 @@ const run = () => {
       cover: ""
     }).then(result => {
       try {
-
         RecruitmentRecord.upsert({
           user_id: 1,
           recruitment_id: result.id,
