@@ -8,7 +8,9 @@ const run = () => {
       name += chars[Math.round(Math.random() * 26)]
     }
     Recruitment.create({
-      name
+      name,
+      address_description: [],
+      cover: ""
     }).then(result => {
       try {
 
@@ -18,6 +20,7 @@ const run = () => {
           canceled: false,
           extra_datas: JSON.stringify({ size: 1 }),
           is_comp: true,
+
         }, {
           where: {
             user_id: 1,
@@ -33,5 +36,6 @@ const run = () => {
     })
   }
 }
-
-run()
+for (let i = 0; i < 100; i++) {
+  run()
+}
