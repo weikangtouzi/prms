@@ -1,11 +1,99 @@
 const jwt = require('jsonwebtoken')
 const { AuthenticationError, UserInputError } = require('apollo-server')
 const mongo = require('../mongo')
-const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation, Job } = require('../models')
+const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation, Job, Prologue } = require('../models')
 const { withFilter } = require('graphql-subscriptions');
 const { Op } = require('sequelize');
 function checkBlackList(to, from) {
 
+}
+async function sendMessageFunc(to, from, messageContent, messageType, pubsub) {
+    let msg = await Message.create({
+        user_id: to,
+        from,
+        detail: messageContent,
+        message_type: messageType,
+        readed: false,
+    })
+    ContractList.upsert({
+        user_id: from,
+        identity: userInfo.identity == "PersonalUser",
+        target: to,
+        last_msg: msg.detail,
+        job_id: jobId
+    }, {
+        user_id: from
+    }, {
+        returning: true
+    }).then((res) => {
+        if (res[0].isNewRecord) {
+            User.findOne({
+                where: {
+                    user_id: res[0].dataValues.target,
+                    disabled: false,
+                },
+                include: include ? include : [],
+            }), then(user => {
+                pubsub.publish("NEW_CONTRACT", {
+                    newContract: {
+                        target: user.id,
+                        user_id: from,
+                        logo: user.image_url,
+                        name: isPersonal ? user.Worker.real_name : user.username,
+                        pos: isPersonal ? user.Worker.pos : null,
+                        ent: isPersonal ? user.Enterprise.enterprise_name : null,
+                        last_msg: res.last_msg,
+                        last_msg_time: res.updatedAt.toISOString()
+                    }
+                })
+            })
+        }
+    })
+    ContractList.upsert({
+        user_id: to,
+        identity: userInfo.identity != "PersonalUser",
+        target: from,
+        last_msg: msg.detail,
+        job_id: jobId
+    }, {
+        where: {
+            user_id: to
+        }
+    }, {
+        returning: true
+    }).then((res) => {
+        if (res[0].isNewRecord) {
+            User.findOne({
+                where: {
+                    user_id: from,
+                    disabled: false
+                },
+                include: include ? include : [],
+            }), then(user => {
+                pubsub.publish("NEW_CONTRACT", {
+                    newContract: {
+                        target: user.id,
+                        user_id: from,
+                        logo: user.image_url,
+                        name: isPersonal ? user.Worker.real_name : user.username,
+                        pos: isPersonal ? user.Worker.pos : null,
+                        ent: isPersonal ? user.Enterprise.enterprise_name : null,
+                        last_msg: res.last_msg,
+                        last_msg_time: res.updatedAt.toISOString()
+                    }
+                })
+            })
+
+        }
+    })
+    pubsub.publish("NEW_MESSAGE", {
+        newMessage: {
+            to: msg.user_id,
+            messageType: msg.message_type,
+            messageContent: msg.detail,
+            ...msg.toJSON()
+        }
+    })
 }
 const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
@@ -26,93 +114,7 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
             }]
         }]
     }
-    let msg = await Message.create({
-        user_id: to,
-        from: userInfo.user_id,
-        detail: messageContent,
-        message_type: messageType,
-        readed: false,
-    })
-    ContractList.upsert({
-        user_id: userInfo.user_id,
-        identity: userInfo.identity == "PersonalUser",
-        target: to,
-        last_msg: msg.detail,
-        job_id: jobId
-    }, {
-        user_id: userInfo.user_id
-    }, {
-        returning: true
-    }).then((res) => {
-        if (res[0].isNewRecord) {
-            User.findOne({
-                where: {
-                    user_id: res[0].dataValues.target,
-                    disabled: false,
-                },
-                include: include ? include : [],
-            }), then(user => {
-                pubsub.publish("NEW_CONTRACT", {
-                    newContract: {
-                        target: user.id,
-                        user_id: userInfo.user_id,
-                        logo: user.image_url,
-                        name: isPersonal ? user.Worker.real_name : user.username,
-                        pos: isPersonal ? user.Worker.pos : null,
-                        ent: isPersonal ? user.Enterprise.enterprise_name : null,
-                        last_msg: res.last_msg,
-                        last_msg_time: res.updatedAt.toISOString()
-                    }
-                })
-            })
-        }
-    })
-    ContractList.upsert({
-        user_id: to,
-        identity: userInfo.identity != "PersonalUser",
-        target: userInfo.user_id,
-        last_msg: msg.detail,
-        job_id: jobId
-    }, {
-        where: {
-            user_id: to
-        }
-    }, {
-        returning: true
-    }).then((res) => {
-        if (res[0].isNewRecord) {
-            User.findOne({
-                where: {
-                    user_id: userInfo.user_id,
-                    disabled: false
-                },
-                include: include ? include : [],
-            }), then(user => {
-                pubsub.publish("NEW_CONTRACT", {
-                    newContract: {
-                        target: user.id,
-                        user_id: userInfo.user_id,
-                        logo: user.image_url,
-                        name: isPersonal ? user.Worker.real_name : user.username,
-                        pos: isPersonal ? user.Worker.pos : null,
-                        ent: isPersonal ? user.Enterprise.enterprise_name : null,
-                        last_msg: res.last_msg,
-                        last_msg_time: res.updatedAt.toISOString()
-                    }
-                })
-            })
-
-        }
-    })
-
-    pubsub.publish("NEW_MESSAGE", {
-        newMessage: {
-            to: msg.user_id,
-            messageType: msg.message_type,
-            messageContent: msg.detail,
-            ...msg.toJSON()
-        }
-    })
+    await sendMessageFunc(to, userInfo.user_id, messageContent, messageType, pubsub);
 }
 const newMessage = {
     subscribe: withFilter((_, __, { userInfo, pubsub }) => {
@@ -243,6 +245,11 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     }
     return res;
 }
+const UserSendPrologue = async (parent, args, { userInfo }, info) => {
+    const {job_id, to, prologue} = args;
+    let messageContent;
+    if(prologue) messageContent = prologue;
+} 
 
 function include_gen(isPersonal) {
     let include = [];

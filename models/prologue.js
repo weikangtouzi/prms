@@ -4,12 +4,12 @@ const {
 } = require('sequelize');
 const worker = require('./worker');
 module.exports = (sequelize, DataTypes) => {
-    class Greeting extends Model {
+    class Prologue extends Model {
         static associate(models) {
             // define association here
         }
     };
-    Greeting.init({
+    Prologue.init({
         worker_id: {
             type: DataTypes.INTEGER,
             references: {
@@ -34,8 +34,8 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         sequelize,
-        modelName: 'Greeting',
-        tableName: 'greeting',
+        modelName: 'Prologue',
+        tableName: 'prologue',
     })
-    return Greeting;
+    return Prologue;
 }

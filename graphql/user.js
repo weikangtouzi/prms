@@ -672,7 +672,7 @@ const userGetRecruitmentList = async (parent, args, { userInfo }, info) => {
         query.order.push([sequelize.literal(`name % '${keyword}'`), "DESC"])
     }
     if (appointment) {
-        query.where.appointment = sequelize.literal(`(SELECT Count(*) FROM recruitment_record WHERE recruitment_record.recruitment_id = Recruitment.id and recruitment_record.user_id = ${userInfo.user_id} and canceled = false) > 0`)
+        query.where.appointment = sequelize.literal(`(SELECT Count(*) FROM recruitment_record WHERE recruitment_record.recruitment_id = "Recruitment".id and recruitment_record.user_id = ${userInfo.user_id} and canceled = false) > 0`)
         query.where.start_at = {
             [Op.gte]: new Date()
         }
