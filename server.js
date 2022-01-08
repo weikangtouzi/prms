@@ -903,6 +903,17 @@ const typeDefs = gql`
     Waiting,
     Failed
   }
+  input TalentListFilter {
+    keyword: String,
+    sortByUpdatedTime: Boolean,
+    category: [String],
+    education: Education,
+    industry_involved: [String],
+    city: [String],
+    gender: Boolean,
+    experience: Int,
+    salary: [Int]
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
