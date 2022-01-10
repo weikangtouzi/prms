@@ -178,11 +178,28 @@ const typeDefs = gql`
     enterprise_logo: String!
     enterprise_size: EnterpriseSize!
   }
-  type JobDetailPageReply {
+  type JobDetailPageReplyEnt {
+    id: Int!,
+    title: String!,
+    category: [String]!,
+    detail: String!,
+    address_coordinate: [Float]!,
+    address_description: [String]!,
+    salaryExpected: [Int]!,
+    experience: Int,
+    education: Education,
+    required_num: Int!,
+    full_time_job: FullTime!,
+    tags: [String],
+    updated_at: String!,
+    status: JobStatus!
+  }
+  type JobDetailPageReplyCandiate {
     job: JobDataForJobDetailPage!,
     hr: HRInfoForJobDetailPage!,
     company: CompInfoForJobDetailPage!
-  } 
+  }
+  union JobDetailPageReply = JobDetailPageReplyCandiate | JobDetailPageReplyEnt
   "for list query"
   type JobDataBriefly {
     id: Int!,
@@ -911,7 +928,7 @@ const typeDefs = gql`
     industry_involved: [String],
     city: [String],
     gender: Boolean,
-    experience: Int,
+    experience: [Int],
     salary: [Int]
   }
   "for most of get query needed token for authorization"

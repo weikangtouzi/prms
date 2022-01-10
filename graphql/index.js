@@ -73,6 +73,15 @@ const resolvers = {
             }
         }
     },
+    JobDetailPageReply: {
+        __resolveType(obj, context, info){
+            if(obj.status) {
+                return 'JobDetailPageReplyEnt'
+            } else {
+                return 'JobDetailPageReplyCandiate'
+            }
+        }
+    },
     Query: {
         UserLogIn: logIn,
         UserNumberCheck: numberCheck,
