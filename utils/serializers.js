@@ -36,5 +36,13 @@ module.exports = {
     },
     urlFormater: {
         encoder: encodeUrl,
+    },
+    dateToJobStatus: (expired_at) => {
+        if(!expired_at) return 'NotPublished'
+        if(expired_at.getTime() < new Date().getTime()) {
+            return 'OffLine'
+        } else {
+            return 'InRecruitment'
+        }
     }
 }
