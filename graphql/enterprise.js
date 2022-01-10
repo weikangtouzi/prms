@@ -281,7 +281,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes } = args.info;
+    const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow } = args.info;
     let update = {};
     if (jobTitle) update.title = jobTitle;
     if (workingAddress) update.adress_description = workingAddress;
@@ -522,7 +522,7 @@ const HRHideJob = async (parent, args, { userInfo }, info) => {
       expired_at: new Date()
     }, {
       where: {
-        id: jobId,
+        id: args.jobId,
       }
     });
   } else {
