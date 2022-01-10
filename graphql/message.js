@@ -9,6 +9,63 @@ const {defaultMessageDetails} = require('../project.json')
 function checkBlackList(to, from) {
 
 }
+async function getJob(jobId) {
+    include = [{
+        model: Worker,
+        attributes: ["real_name", "pos"],
+        include: [{
+            model: Enterprise,
+            attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail", "enterprise_financing"]
+        }, {
+            model: User,
+            attributes: ["image_url", "last_log_out_time"]
+        }]
+    }]
+    let job = await Job.findOne({
+        where: {
+            id: jobid,
+            // expired_at: {
+            //     [Op.gt]: new Date()
+            // }
+        },
+        include
+    });
+    let data = job.dataValues;
+    return {
+        job: {
+            id: data.id,
+            title: data.title,
+            category: data.category,
+            detail: data.detail,
+            address_coordinate: data.address_coordinate.coordinates,
+            address_description: data.address_description,
+            salaryExpected: [data.min_salary, data.max_salary],
+            experience: data.min_experience,
+            education: data.education,
+            required_num: data.required_num,
+            full_time_job: data.full_time_job,
+            tags: data.tags,
+            updated_at: data.updatedAt,
+        },
+        hr: {
+            id: data.worker_id,
+            name: data.Worker.real_name,
+            pos: data.Worker.pos,
+            last_log_out_time: data.Worker.User.last_log_out_time,
+            logo: data.Worker.User.image_url ? data.Worker.User.image_url : ""
+        },
+        company: {
+            id: data.comp_id,
+            name: data.Worker.Enterprise.enterprise_name,
+            address_coordinates: data.Worker.Enterprise.enterprise_coordinates.coordinates,
+            address_description: data.Worker.Enterprise.enterprise_loc_detail,
+            industry_involved: data.Worker.Enterprise.industry_involved,
+            business_nature: data.Worker.Enterprise.business_nature,
+            enterprise_logo: data.Worker.Enterprise.enterprise_logo ? data.Worker.Enterprise.enterprise_logo : "",
+            enterprise_size: data.Worker.Enterprise.enterprise_size,
+        }
+    };
+}
 async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, messageType, pubsub) {
     let include;
     if (isPersonal) {
@@ -38,20 +95,25 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
         user_id: from
     }, {
         returning: true
-    }).then((res) => {
-        if (res[0].isNewRecord) {
+    }).then(async (res) => {
+        if (res[0].dataValues.createdAt && res[0].dataValues.job_id == jobId) {
             User.findOne({
                 where: {
                     user_id: res[0].dataValues.target,
                     disabled: false,
                 },
                 include: include ? include : [],
-            }), then(user => {
+            }), then(async user => {
+                let job = await getJob(jobId);
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
                         target: user.id,
                         user_id: from,
                         logo: user.image_url,
+                        job: {
+                            id: job.id,
+                            title: job.title,
+                        },
                         name: isPersonal ? user.Worker.real_name : user.username,
                         pos: isPersonal ? user.Worker.pos : null,
                         ent: isPersonal ? user.Enterprise.enterprise_name : null,
@@ -60,6 +122,9 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                     }
                 })
             })
+        } else if(res[0].dataValues.job_id !== jobId) {
+            let messageContent = JSON.stringify(await getJob(jobId));
+            sendMessageFunc(to, from, jobId, isPersonal, messageContent, "Other", pubsub)
         }
     })
     ContractList.upsert({
@@ -74,20 +139,25 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
         }
     }, {
         returning: true
-    }).then((res) => {
-        if (res[0].isNewRecord) {
+    }).then(async (res) => {
+        if (res[0].dataValues.createdAt && res[0].dataValues.job_id == jobId) {
             User.findOne({
                 where: {
                     user_id: from,
                     disabled: false
                 },
                 include: include ? include : [],
-            }), then(user => {
+            }), then(async user => {
+                let job = await getJob(jobId);
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
                         target: user.id,
                         user_id: from,
                         logo: user.image_url,
+                        job: {
+                            id: job.id,
+                            title: job.title,
+                        },
                         name: isPersonal ? user.Worker.real_name : user.username,
                         pos: isPersonal ? user.Worker.pos : null,
                         ent: isPersonal ? user.Enterprise.enterprise_name : null,
@@ -97,6 +167,9 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                 })
             })
 
+        } else if(res[0].dataValues.job_id !== jobId) {
+            let messageContent = JSON.stringify(await getJob(jobId));
+            sendMessageFunc(to, from, jobId, isPersonal, messageContent, "Other", pubsub)
         }
     })
     pubsub.publish("NEW_MESSAGE", {
@@ -249,6 +322,9 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
     return res;
 }
 const UserSendPrologue = async (parent, args, { userInfo, pubsub }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization');
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.identity) throw new AuthenticationError('missing identity');
     const {job_id, to, prologue} = args;
     let messageContent;
     if(prologue) {
