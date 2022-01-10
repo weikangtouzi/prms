@@ -15,7 +15,9 @@ const { logIn,
     StaticGetHotJobs,
     UserSearchEnterprise,
     UserGetJob,
-    userGetRecruitmentList } = require('./user');
+    userGetRecruitmentList,
+    UserAddJobExpectation,
+    UserEditJobExpectation } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -156,7 +158,9 @@ const resolvers = {
         ENTSetDisabled,
         ENTSetEnabled,
         HREditJob: editJob,
-        UserSendPrologue
+        UserSendPrologue,
+        UserAddJobExpectation,
+        UserEditJobExpectation
     },
     Subscription: {
         newMessage,

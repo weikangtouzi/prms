@@ -931,6 +931,14 @@ const typeDefs = gql`
     experience: [Int],
     salary: [Int]
   }
+  input UserExpectation {
+    id: Int,
+    job_category: [String],
+    industry_involved: [String], 
+    salary: [Int], 
+    aimed_city: String, 
+    full_time_job: FullTime
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1057,6 +1065,8 @@ const typeDefs = gql`
     only supported enterprise user now
     """
     UserSendPrologue(job_id: Int!, to: Int!, prologue: Int!): Void  
+    UserAddJobExpectation(info:UserExpectation!): Void
+    UserEditJobExpectation(info:UserExpectation!): Void
   }
   type Subscription {
     newMessage: Message!
