@@ -573,10 +573,10 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
 const UserGetJob = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    let isPersonal = true;
+    let isPersonal = false;
     if (!isvalidJobPoster(userInfo.identity)) {
         if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
-        isPersonal = false;
+        isPersonal = true;
     }
     const { jobid } = args;
     let include = [];
