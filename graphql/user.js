@@ -605,7 +605,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
     if (!job) throw new UserInputError("job not found");
 
     let data = job.dataValues;
-    if(isPersonal) {
+    if (isPersonal) {
         JobReadRecord.create({
             user_id: userInfo.user_id,
             job_id: jobid,
@@ -714,7 +714,47 @@ const userGetRecruitmentList = async (parent, args, { userInfo }, info) => {
         data: res.rows.map(item => item.dataValues)
     }
 }
-
+const UserAddJobExpectation = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (userInfo.jobExpectation.length >= 3) throw new ForbiddenError("求职意向已达最大上限");
+    let count = await JobExpectation.count({
+        where: {
+            user_id: userInfo.user_id
+        }
+    });
+    if (count && count >= 3) throw new ForbiddenError("求职意向已达最大上限");
+    const { job_category, industry_involved, salary, aimed_city, full_time_job } = args.info;
+    if(!job_category || !industry_involved || !salary || !aimed_city || full_time_job) throw new UserInputError("missing required filed")
+    await JobExpectation.create({
+        user_id: userInfo.user_id,
+        job_category,
+        industry_involved,
+        aimed_city,
+        min_salary_expectation: salary[0],
+        max_salary_expectation: salary[1],
+        full_time_job
+    })
+}
+const UserEditJobExpectation = async (parent, args, { userInfo }, info) => {
+    let update = {};
+    const { id, job_category, industry_involved, salary, aimed_city, full_time_job } = args.info;
+    if(!id) throw new UserInputError("missng id");
+    if(job_category) update.job_category = job_category;
+    if(aimed_city) update.aimed_city = aimed_city;
+    if(industry_involved) update.industry_involved = industry_involved;
+    if(salary) {
+        update.min_salary_expectation = salary[0]
+        update.max_salary_expectation = salary[1]
+    }
+    if(full_time_job) update.full_time_job = full_time_job;
+    if(Object.keys(update).length == 0) throw new UserInputError("need at least one arg to update");
+    await User.update(update,{
+        where: {
+            id: id,
+        }
+    })
+}
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -740,5 +780,7 @@ module.exports = {
     StaticGetHotJobs,
     UserSearchEnterprise,
     UserGetJob,
-    userGetRecruitmentList
+    userGetRecruitmentList,
+    UserAddJobExpectation,
+    UserEditJobExpectation
 }
