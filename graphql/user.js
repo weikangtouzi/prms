@@ -605,27 +605,29 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
     if (!job) throw new UserInputError("job not found");
 
     let data = job.dataValues;
-    JobReadRecord.create({
-        user_id: userInfo.user_id,
-        job_id: jobid,
-        job_name: data.title,
-        job_salary: `${data.min_salary}-${data.max_salary}`,
-        job_exp: data.min_experience !== 0 ? `${data.min_experience}年` : "无",
-        job_edu: data.min_education,
-        job_address: data.address_description[0],
-        tags: data.tags,
-        comp_name: data.Worker.Enterprise.enterprise_name,
-        comp_financing: data.Worker.Enterprise.enterprise_financing,
-        hr_name: data.Worker.real_name,
-        hr_position: data.Worker.pos,
-    })
-    JobCache.update({
-        views: sequelize.literal('"views" + 1')
-    }, {
-        where: {
-            job_id: jobid
-        }
-    })
+    if(isPersonal) {
+        JobReadRecord.create({
+            user_id: userInfo.user_id,
+            job_id: jobid,
+            job_name: data.title,
+            job_salary: `${data.min_salary}-${data.max_salary}`,
+            job_exp: data.min_experience !== 0 ? `${data.min_experience}年` : "无",
+            job_edu: data.min_education,
+            job_address: data.address_description[0],
+            tags: data.tags,
+            comp_name: data.Worker.Enterprise.enterprise_name,
+            comp_financing: data.Worker.Enterprise.enterprise_financing,
+            hr_name: data.Worker.real_name,
+            hr_position: data.Worker.pos,
+        })
+        JobCache.update({
+            views: sequelize.literal('"views" + 1')
+        }, {
+            where: {
+                job_id: jobid
+            }
+        })
+    }
     let res;
     if (isPersonal) {
         res = {
