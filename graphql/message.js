@@ -103,7 +103,7 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                     disabled: false,
                 },
                 include: include ? include : [],
-            }), then(async user => {
+            }).then(async user => {
                 let job = await getJob(jobId);
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
@@ -147,7 +147,7 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                     disabled: false
                 },
                 include: include ? include : [],
-            }), then(async user => {
+            }).then(async user => {
                 let job = await getJob(jobId);
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
