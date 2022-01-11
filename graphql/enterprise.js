@@ -301,7 +301,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
       update.createdAt = new Date(onLineTimes[0]);
       update.expired_at = new Date(onLineTimes[1]);
     } else {
-      if (publishNow) data.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+      if (publishNow) update.expired_at = new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
     }
     let res = await Job.update(update, {
       where: {

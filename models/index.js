@@ -6,7 +6,8 @@ const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
-
+const mongo = require('../mongo');
+mongo.init();
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable],
@@ -15,7 +16,7 @@ if (config.use_env_variable) {
       ...config
     });
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password,  {
+  sequelize = new Sequelize(config.database, config.username, config.password, {
     logging: false,
     ...config
   });
@@ -149,4 +150,49 @@ db.User.hasMany(db.Resume, {
 db.Resume.belongsTo(db.User, {
   foreignKey: 'user_id'
 })
+db.Resume.hasMany(db.ResumeWorkExp, {
+  foreignKey: 'resume_id'
+})
+db.ResumeWorkExp.belongsTo(db.Resume, {
+  foreignKey: 'resume_id'
+})
+db.User.afterCreate((user, options) => {
+  try {
+    db.User.findOne({
+      where: user,
+      include: [{
+        model: db.JobExpectation,
+      }, {
+        model: db.Resume,
+        include: [{
+          model: db.ResumeWorkExp
+        }]
+      }]
+    }).then(res => {
+      mongo.query('talent_cache_for_search', async (collection) => {
+        collection.updateOne({
+          id: user.id,
+        }, {
+          $set: res.dataValues
+        }, { upsert: true })
+      })
+    })
+  } catch (e) {
+    throw e
+  }
+});
+db.User.afterUpdate((user, options) => {
+  try {
+    mongo.query('talent_cache_for_search', async (collection) => {
+      collection.updateOne({
+        id: user.id,
+      }, {
+        $set: user.dataValues
+      }, { upsert: true })
+    })
+  } catch (e) {
+    throw e
+  }
+});
+db.mongo = mongo;
 module.exports = db;
