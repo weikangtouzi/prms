@@ -580,19 +580,18 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
     }
     const { jobid } = args;
     let include = [];
-    if (isPersonal) {
-        include = [{
-            model: Worker,
-            attributes: ["real_name", "pos"],
-            include: [{
-                model: Enterprise,
-                attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail", "enterprise_financing"]
-            }, {
-                model: User,
-                attributes: ["image_url", "last_log_out_time"]
-            }]
+    include = [{
+        model: Worker,
+        attributes: ["real_name", "pos"],
+        include: [{
+            model: Enterprise,
+            attributes: ["enterprise_name", "enterprise_size", "enterprise_coordinates", "industry_involved", "business_nature", "enterprise_logo", "enterprise_loc_detail", "enterprise_financing"]
+        }, {
+            model: User,
+            attributes: ["image_url", "last_log_out_time"]
         }]
-    }
+    }]
+
     let job = await Job.findOne({
         where: {
             id: jobid,
@@ -645,6 +644,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
                 full_time_job: data.full_time_job,
                 tags: data.tags,
                 updated_at: data.updatedAt,
+
             },
             hr: {
                 id: data.worker_id,
@@ -666,20 +666,39 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
         };
     } else {
         res = {
-            id: data.id,
-            title: data.title,
-            category: data.category,
-            detail: data.detail,
-            address_coordinate: data.address_coordinate.coordinates,
-            address_description: data.address_description,
-            salaryExpected: [data.min_salary, data.max_salary],
-            experience: data.min_experience,
-            education: data.education,
-            required_num: data.required_num,
-            full_time_job: data.full_time_job,
-            tags: data.tags,
-            updated_at: data.updatedAt,
-            status: serializers.dateToJobStatus(new Date(data.expired_at))
+            job: {
+                id: data.id,
+                title: data.title,
+                category: data.category,
+                detail: data.detail,
+                address_coordinate: data.address_coordinate.coordinates,
+                address_description: data.address_description,
+                salaryExpected: [data.min_salary, data.max_salary],
+                experience: data.min_experience,
+                education: data.education,
+                required_num: data.required_num,
+                full_time_job: data.full_time_job,
+                tags: data.tags,
+                updated_at: data.updatedAt,
+                status: serializers.dateToJobStatus(new Date(data.expired_at))
+            },
+            hr: {
+                id: data.worker_id,
+                name: data.Worker.real_name,
+                pos: data.Worker.pos,
+                last_log_out_time: data.Worker.User.last_log_out_time,
+                logo: data.Worker.User.image_url ? data.Worker.User.image_url : ""
+            },
+            company: {
+                id: data.comp_id,
+                name: data.Worker.Enterprise.enterprise_name,
+                address_coordinates: data.Worker.Enterprise.enterprise_coordinates.coordinates,
+                address_description: data.Worker.Enterprise.enterprise_loc_detail,
+                industry_involved: data.Worker.Enterprise.industry_involved,
+                business_nature: data.Worker.Enterprise.business_nature,
+                enterprise_logo: data.Worker.Enterprise.enterprise_logo ? data.Worker.Enterprise.enterprise_logo : "",
+                enterprise_size: data.Worker.Enterprise.enterprise_size,
+            }
         }
     }
 
@@ -725,7 +744,7 @@ const UserAddJobExpectation = async (parent, args, { userInfo }, info) => {
     });
     if (count && count >= 3) throw new ForbiddenError("求职意向已达最大上限");
     const { job_category, industry_involved, salary, aimed_city, full_time_job } = args.info;
-    if(!job_category || !industry_involved || !salary || !aimed_city || full_time_job) throw new UserInputError("missing required filed")
+    if (!job_category || !industry_involved || !salary || !aimed_city || full_time_job) throw new UserInputError("missing required filed")
     await JobExpectation.create({
         user_id: userInfo.user_id,
         job_category,
@@ -739,17 +758,17 @@ const UserAddJobExpectation = async (parent, args, { userInfo }, info) => {
 const UserEditJobExpectation = async (parent, args, { userInfo }, info) => {
     let update = {};
     const { id, job_category, industry_involved, salary, aimed_city, full_time_job } = args.info;
-    if(!id) throw new UserInputError("missng id");
-    if(job_category) update.job_category = job_category;
-    if(aimed_city) update.aimed_city = aimed_city;
-    if(industry_involved) update.industry_involved = industry_involved;
-    if(salary) {
+    if (!id) throw new UserInputError("missng id");
+    if (job_category) update.job_category = job_category;
+    if (aimed_city) update.aimed_city = aimed_city;
+    if (industry_involved) update.industry_involved = industry_involved;
+    if (salary) {
         update.min_salary_expectation = salary[0]
         update.max_salary_expectation = salary[1]
     }
-    if(full_time_job) update.full_time_job = full_time_job;
-    if(Object.keys(update).length == 0) throw new UserInputError("need at least one arg to update");
-    await User.update(update,{
+    if (full_time_job) update.full_time_job = full_time_job;
+    if (Object.keys(update).length == 0) throw new UserInputError("need at least one arg to update");
+    await User.update(update, {
         where: {
             id: id,
         }

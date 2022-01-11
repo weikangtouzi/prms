@@ -316,6 +316,7 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
                 last_log_out_time: item.User.last_log_out_time,
                 last_msg: item.last_msg,
                 last_msg_time: item.updatedAt.toISOString(),
+                ...item.dataValues.User.Resumes[0].dataValues
             }
         })
     }
@@ -361,6 +362,9 @@ function include_gen(isPersonal) {
                 attributes: ["job_category", "aimed_city", "min_salary_expectation", "max_salary_expectation"],
                 limit: 1,
                 order: [["updatedAt", "DESC"]]
+            },{
+                model: Resume,
+                attributes: ["skills", "personal_advantage"]
             }],
 
         });
