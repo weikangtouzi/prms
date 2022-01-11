@@ -281,7 +281,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const { jobId, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow } = args.info;
+    const { id, jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow } = args.info;
     let update = {};
     if (jobTitle) update.title = jobTitle;
     if (workingAddress) update.adress_description = workingAddress;
@@ -305,7 +305,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
     }
     let res = await Job.update(update, {
       where: {
-        id: args.jobId,
+        id: id,
         expired_at: {
           [Op.lt]: new Date()
         }
