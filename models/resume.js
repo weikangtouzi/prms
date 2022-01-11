@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     personal_advantage: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: true
     },
   }, {
     sequelize,

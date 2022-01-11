@@ -679,7 +679,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
             full_time_job: data.full_time_job,
             tags: data.tags,
             updated_at: data.updatedAt,
-            status: serializers.dateToJobStatus(data.expired_at)
+            status: serializers.dateToJobStatus(new Date(data.expired_at))
         }
     }
 
