@@ -305,7 +305,7 @@ const editJob = async (parent, args, { userInfo }, info) => {
     }
     let res = await Job.update(update, {
       where: {
-        id: jobId,
+        id: args.jobId,
         expired_at: {
           [Op.lt]: new Date()
         }
