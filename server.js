@@ -3,14 +3,14 @@ const {
   ApolloServerPluginLandingPageGraphQLPlayground
 } = require("apollo-server-core");
 const { ApolloServer, gql } = require('apollo-server-express');
-const { sequelize } = require('./models');
+const { sequelize, mongo } = require('./models');
 const {
   GraphQLUpload,
   graphqlUploadExpress, // A Koa implementation is also exported.
 } = require('graphql-upload');
 const { resolvers } = require('./graphql');
 const { GraphQLScalarType, GraphQLUnionType, GraphQLInputObjectType, execute, subscribe, GraphQLString } = require('graphql');
-const mongo = require('./mongo');
+
 const fs = require('fs');
 const { env, uploadPath, domain } = require('./project.json');
 const http = require('http');
@@ -1114,9 +1114,9 @@ async function startServer() {
   await server.start();
   server.applyMiddleware({ app });
   await new Promise(r => httpServer.listen({ port: 4000 }, r));
-  mongo.init().then(() => {
-    // info('mongo Connection has been established successfully');
-  })
+  // mongo.init().then(() => {
+  //   // info('mongo Connection has been established successfully');
+  // })
   sequelize
     .authenticate()
     .then(() => {
@@ -1126,5 +1126,6 @@ async function startServer() {
     })
   // info(`🚀 Server ready at http${env == 'production' ? 's' : ''}://localhost:4000${server.graphqlPath}`);
   clearViewsEveryMonday;
+  
 }
 startServer();

@@ -65,7 +65,8 @@ mongo.init().then(() => {
                         password: passwords[counter.user],
                         phone_number: "188000000" + (counter.user < 10 ? "0" + counter.user : counter.user),
                         real_name: real_names[counter.user],
-                        identified: "Success"
+                        identified: "Success",
+                        disabled: false
                     }, {
                         returning: true
                     });
