@@ -318,6 +318,7 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
         ...res.toJSON(),
         birth_date: res.birth_date,
         first_time_working: res.first_time_working,
+        image_url: res.image_url? res.image_url : "",
     }
 }
 
