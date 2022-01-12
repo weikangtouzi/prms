@@ -194,5 +194,6 @@ db.User.afterUpdate((user, options) => {
     throw e
   }
 });
+
 db.mongo = mongo;
 module.exports = db;
