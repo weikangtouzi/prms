@@ -183,22 +183,97 @@ db.User.afterCreate((user, options) => {
 });
 db.User.afterUpdate((user, options) => {
   try {
-    mongo.query('talent_cache_for_search', async (collection) => {
-      collection.updateOne({
-        id: user.id,
+    db.User.findOne({
+      where: user,
+      include: [{
+        model: db.JobExpectation,
       }, {
-        $set: user.dataValues
-      }, { upsert: true })
+        model: db.Resume,
+        include: [{
+          model: db.ResumeWorkExp
+        }]
+      }]
+    }).then(res => {
+      mongo.query('talent_cache_for_search', async (collection) => {
+        collection.updateOne({
+          id: user.id,
+        }, {
+          $set: res.dataValues
+        }, { upsert: true })
+      })
     })
   } catch (e) {
     throw e
   }
 });
-db.JobExpectation.afterUpdate((job, options) => {
+db.JobExpectation.afterUpdate((jobExpectation, options) => {
   try {
-
+    User.update({ updateAt: jobExpectation.updatedAt})
   } catch (e) {
-    
+    throw e
+  }
+})
+db.JobExpectation.afterCreate((jobExpectation, options) => {
+  try {
+    User.update({ updateAt: jobExpectation.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.Resume.afterCreate((resume, options) => {
+  try {
+    User.update({ updateAt: resume.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.Resume.afterUpdate((resume, options) => {
+  try {
+    User.update({ updateAt: resume.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.ResumeWorkExp.afterCreate((resumeWorkExp, options) => {
+  try {
+    Resume.update({ updateAt: resumeWorkExp.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.ResumeWorkExp.afterUpdate((resumeWorkExp, options) => {
+  try {
+    Resume.update({ updateAt: resumeWorkExp.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.ResumeProjectExp.afterCreate((resumeProjectExp, options) => {
+  try {
+    Resume.update({ updateAt: resumeProjectExp.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.ResumeProjectExp.afterUpdate((resumeProjectExp, options) => {
+  try {
+    Resume.update({ updateAt: resumeProjectExp.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.ResumeEduExp.afterCreate((resumeEduExp, options) => {
+  try {
+    Resume.update({ updateAt: resumeEduExp.updatedAt})
+  } catch (e) {
+    throw e
+  }
+})
+db.ResumeEduExp.afterUpdate((resumeEduExp, options) => {
+  try {
+    Resume.update({ updateAt: resumeEduExp.updatedAt})
+  } catch (e) {
+    throw e
   }
 })
 db.mongo = mongo;
