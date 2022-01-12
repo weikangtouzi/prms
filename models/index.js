@@ -7,6 +7,7 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 const mongo = require('../mongo');
+const { info } = require('../utils/logger');
 mongo.init();
 let sequelize;
 if (config.use_env_variable) {
@@ -161,15 +162,7 @@ db.User.afterCreate((user, options) => {
     db.User.findOne({
       where: {
         id: user.id,
-      },
-      include: [{
-        model: db.JobExpectation,
-      }, {
-        model: db.Resume,
-        include: [{
-          model: db.ResumeWorkExp
-        }]
-      }]
+      }
     }).then(res => {
       mongo.query('talent_cache_for_search', async (collection) => {
         collection.updateOne({
@@ -184,6 +177,7 @@ db.User.afterCreate((user, options) => {
   }
 });
 db.User.afterUpdate((user, options) => {
+  console.log("a")
   try {
     db.User.findOne({
       where: {
@@ -194,7 +188,9 @@ db.User.afterUpdate((user, options) => {
       }, {
         model: db.Resume,
         include: [{
-          model: db.ResumeWorkExp
+          model: db.ResumeWorkExp,
+          limit: 1,
+          order:["end_at", "DESC"]
         }]
       }]
     }).then(res => {
@@ -202,7 +198,10 @@ db.User.afterUpdate((user, options) => {
         collection.updateOne({
           id: user.id,
         }, {
-          $set: res.dataValues
+          $set: {
+            ...res.dataValues,
+            Resumes: res.dataValues.Resumes.map(item => item.dataValues)
+          }
         }, { upsert: true })
       })
     })
