@@ -810,6 +810,7 @@ mock().then(() => {
                     anonymous: false,
                 })
             })
+            process.exit();
         })
     })
 
