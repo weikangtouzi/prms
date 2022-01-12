@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken')
 const {jwtConfig, uploadPath} = require('../project.json')
-function encodeUrl(extraAttributes, filename) {
+function encodeUrl(extraAttributes, filename, username) {
     let path = `${uploadPath}/${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}`
     if (!fs.existsSync(fs.realpathSync(".") + "/" + uploadPath)) {
         fs.mkdirSync(fs.realpathSync(".") + "/" + uploadPath);
     }
-    if (!fs.existsSync(fs.realpathSync(".") + "/" + `${uploadPath}/${userInfo.username}/`)) {
-        fs.mkdirSync(fs.realpathSync(".") + "/" + `${uploadPath}/${userInfo.username}/`);
+    if (!fs.existsSync(fs.realpathSync(".") + "/" + `${uploadPath}/${username}/`)) {
+        fs.mkdirSync(fs.realpathSync(".") + "/" + `${uploadPath}/${username}/`);
     }
     if (!fs.existsSync(fs.realpathSync(".") + "/" + path)) {
         fs.mkdirSync(fs.realpathSync(".") + "/" + path);
