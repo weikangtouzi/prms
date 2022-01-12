@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const { AuthenticationError, UserInputError } = require('apollo-server')
 const mongo = require('../mongo')
-const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation, Job, Prologue } = require('../models')
+const { Message, ContractList, User, Worker, Enterprise, sequelize, JobExpectation, Job, Resume } = require('../models')
 const { withFilter } = require('graphql-subscriptions');
 const { Op } = require('sequelize');
 const { format } = require('../utils/string_format');
