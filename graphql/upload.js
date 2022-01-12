@@ -14,7 +14,7 @@ const singleUpload = async (parent, args, {userInfo}, info) => {
     filename = new Date().getTime() + '-' + filename;
     try {
         const stream = createReadStream();
-        const { path, url } = urlFormater.encoder(extraAttributes, filename, userInfo.username);
+        const { path, url } = urlFormater.encoder(extraAttributes, filename, userInfo.username, mimetype);
         const out = fs.createWriteStream(`./${path}/${filename}`);
         stream.pipe(out);
         await finished(out);
