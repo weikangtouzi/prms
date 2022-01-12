@@ -6,12 +6,11 @@ const { urlFormater } = require('../utils/serializers')
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const editJsonFile = require('edit-json-file');
-const singleUpload = async (parent, args, context, info) => {
+const singleUpload = async (parent, args, {userInfo}, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     let { createReadStream, filename, mimetype, encoding } = await args.file;
     const { extraAttributes } = args;
-    let userInfo = jwt.decode(context.req.headers.authorization);
     filename = new Date().getTime() + '-' + filename;
     try {
         const stream = createReadStream();
