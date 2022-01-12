@@ -58,8 +58,8 @@ function saveVerifyCode(to, code, isPhoneNumber = true) {
             data.phoneNumber = to
             data.code = code
         } else {
-            query.newEmail = to
-            data.newEmail = to
+            query.email = to
+            data.email = to
             data.code = code
         }
         data.createAt = new Date(Date.now()).toISOString()
