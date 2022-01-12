@@ -159,7 +159,9 @@ db.ResumeWorkExp.belongsTo(db.Resume, {
 db.User.afterCreate((user, options) => {
   try {
     db.User.findOne({
-      where: user,
+      where: {
+        id: user.id,
+      },
       include: [{
         model: db.JobExpectation,
       }, {
@@ -184,7 +186,9 @@ db.User.afterCreate((user, options) => {
 db.User.afterUpdate((user, options) => {
   try {
     db.User.findOne({
-      where: user,
+      where: {
+        id: user.id,
+      },
       include: [{
         model: db.JobExpectation,
       }, {
@@ -208,70 +212,110 @@ db.User.afterUpdate((user, options) => {
 });
 db.JobExpectation.afterUpdate((jobExpectation, options) => {
   try {
-    User.update({ updateAt: jobExpectation.updatedAt})
+    db.User.update({ updateAt: jobExpectation.updatedAt},{
+      where: {
+        id: jobExpectation.user_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.JobExpectation.afterCreate((jobExpectation, options) => {
   try {
-    User.update({ updateAt: jobExpectation.updatedAt})
+    db.User.update({ updateAt: jobExpectation.updatedAt},{
+      where: {
+        id: jobExpectation.user_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.Resume.afterCreate((resume, options) => {
   try {
-    User.update({ updateAt: resume.updatedAt})
+    db.User.update({ updateAt: resume.updatedAt},{
+      where: {
+        id: resume.user_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.Resume.afterUpdate((resume, options) => {
   try {
-    User.update({ updateAt: resume.updatedAt})
+    db.User.update({ updateAt: resume.updatedAt},{
+      where: {
+        id: resume.user_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.ResumeWorkExp.afterCreate((resumeWorkExp, options) => {
   try {
-    Resume.update({ updateAt: resumeWorkExp.updatedAt})
+    db.Resume.update({ updateAt: resumeWorkExp.updatedAt},{
+      where: {
+        id: resumeWorkExp.resume_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.ResumeWorkExp.afterUpdate((resumeWorkExp, options) => {
   try {
-    Resume.update({ updateAt: resumeWorkExp.updatedAt})
+    db.Resume.update({ updateAt: resumeWorkExp.updatedAt},{
+      where: {
+        id: resumeWorkExp.resume_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.ResumeProjectExp.afterCreate((resumeProjectExp, options) => {
   try {
-    Resume.update({ updateAt: resumeProjectExp.updatedAt})
+    db.Resume.update({ updateAt: resumeProjectExp.updatedAt},{
+      where: {
+        id: resumeProjectExp.resume_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.ResumeProjectExp.afterUpdate((resumeProjectExp, options) => {
   try {
-    Resume.update({ updateAt: resumeProjectExp.updatedAt})
+    db.Resume.update({ updateAt: resumeProjectExp.updatedAt},{
+      where: {
+        id: resumeProjectExp.resume_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.ResumeEduExp.afterCreate((resumeEduExp, options) => {
   try {
-    Resume.update({ updateAt: resumeEduExp.updatedAt})
+    db.Resume.update({ updateAt: resumeEduExp.updatedAt},{
+      where: {
+        id: resumeEduExp.resume_id
+      }
+    })
   } catch (e) {
     throw e
   }
 })
 db.ResumeEduExp.afterUpdate((resumeEduExp, options) => {
   try {
-    Resume.update({ updateAt: resumeEduExp.updatedAt})
+    db.Resume.update({ updateAt: resumeEduExp.updatedAt},{
+      where: {
+        id: resumeEduExp.resume_id
+      }
+    })
   } catch (e) {
     throw e
   }
