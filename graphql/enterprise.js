@@ -306,13 +306,13 @@ const editJob = async (parent, args, { userInfo }, info) => {
     let res = await Job.update(update, {
       where: {
         id: id,
-        expired_at: {
-          [Op.lt]: new Date()
-        }
+        // expired_at: {
+        //   [Op.lt]: new Date()
+        // }
       },
       returning: true
     })
-    if (!res || res[0] === 0) throw new UserInputError("could not remove the job that is recruiting");
+    // if (!res || res[0] === 0) throw new UserInputError("could not remove the job that is recruiting");
   } else {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to post a job`);
   }
