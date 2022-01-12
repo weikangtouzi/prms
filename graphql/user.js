@@ -515,7 +515,7 @@ const UserEditEmail = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { newEmail, code } = args;
     let res = await mongo.query('user_log_in_cache', async (collection) => {
-        return await collection.findOne({ email: newEmail, code });
+        return await collection.findOneAndDelete({ email: newEmail, code });
     })
     if (!res) throw new UserInputError('verify code not right');
     User.update({ email: newEmail }, { where: { id: userInfo.user_id } });
