@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const {jwtConfig} = require('../project.json')
+const {jwtConfig, uploadPath} = require('../project.json')
 function encodeUrl(extraAttributes, filename) {
     let path = `${uploadPath}/${userInfo.username}/${extraAttributes ? extraAttributes.customUploadPath : mimetype.split("/")[0]}`
     if (!fs.existsSync(fs.realpathSync(".") + "/" + uploadPath)) {

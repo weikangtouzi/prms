@@ -194,6 +194,12 @@ db.User.afterUpdate((user, options) => {
     throw e
   }
 });
+db.JobExpectation.afterUpdate((job, options) => {
+  try {
 
+  } catch (e) {
+    
+  }
+})
 db.mongo = mongo;
 module.exports = db;
