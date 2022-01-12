@@ -13,7 +13,7 @@ function encodeUrl(extraAttributes, filename, username, mimetype) {
         fs.mkdirSync(fs.realpathSync(".") + "/" + path);
     }
     return {
-        url: "https://" + domain + `/${path}/${filename}`,
+        url: "https://" + domain + `${path}/${filename}`,
         path
     }
 }
