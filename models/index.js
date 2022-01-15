@@ -8,6 +8,8 @@ const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 const mongo = require('../mongo');
 const { info } = require('../utils/logger');
+const elasticSearch = require('../elasticSearch')
+const { Education } = require('../graphql/types/')
 mongo.init();
 let sequelize;
 if (config.use_env_variable) {
@@ -164,24 +166,32 @@ db.User.afterCreate((user, options) => {
         id: user.id,
       }
     }).then(res => {
-      mongo.query('talent_cache_for_search', async (collection) => {
-        collection.updateOne({
-          id: user.id,
-        }, {
-          $set: res.dataValues
-        }, { upsert: true })
+      elasticSearch.index({
+        index: 'talent_search',
+        id: user.id,
+        body: {
+          ...res.dataValues,
+          education: {
+            name: res.dataValues.education,
+            lvl: Education.getValue(res.dataValues.education)
+          },
+          experience: res.dataValues.first_time_working ? (new Date().getFullYear() - new Date(res.dataValues.first_time_working).getFullYear()) : null,
+        }
+        // operation to perform
+      }).catch(err => {
+        throw err
       })
     })
+
   } catch (e) {
     throw e
   }
 });
-db.User.afterUpdate((user, options) => {
-  console.log("a")
+db.User.afterBulkUpdate((user, options) => {
   try {
     db.User.findOne({
       where: {
-        id: user.id,
+        id: user.where.id,
       },
       include: [{
         model: db.JobExpectation,
@@ -190,31 +200,54 @@ db.User.afterUpdate((user, options) => {
         include: [{
           model: db.ResumeWorkExp,
           limit: 1,
-          order:["end_at", "DESC"]
+          order: [["end_at", "DESC"]]
         }]
       }]
     }).then(res => {
-      mongo.query('talent_cache_for_search', async (collection) => {
-        collection.updateOne({
-          id: user.id,
-        }, {
-          $set: {
+      elasticSearch.update({
+        index: 'talent_search',
+        id: String(res.dataValues.id),
+        body: {
+          // operation to perform
+          // the document to index
+          doc: {
             ...res.dataValues,
-            Resumes: res.dataValues.Resumes.map(item => item.dataValues)
+            education: res.dataValues.education ? {
+              name: res.dataValues.education,
+              lvl: Education.getValue(res.dataValues.education).value
+            } : null,
+            experience: res.dataValues.first_time_working ? (new Date().getFullYear() - new Date(res.dataValues.first_time_working).getFullYear()) : null,
+            Resumes: res.dataValues.Resumes.map(item => {
+              return {
+                ...item.dataValues,
+                ResumeWorkExps: item.dataValues.ResumeWorkExps[0] ? item.dataValues.ResumeWorkExps[0].dataValues : null
+              }
+            }),
+            JobExpectations: res.dataValues.JobExpectations.map(item => item.dataValues)
           }
-        }, { upsert: true })
+        },
+        retry_on_conflict: 8,
+      }).catch(err => {
+        throw err
       })
     })
+
   } catch (e) {
     throw e
   }
 });
-db.JobExpectation.afterUpdate((jobExpectation, options) => {
+db.JobExpectation.afterBulkUpdate((jobExpectation, options) => {
   try {
-    db.User.update({ updateAt: jobExpectation.updatedAt},{
+    db.JobExpectation.findOne({
       where: {
-        id: jobExpectation.user_id
-      }
+        id: jobExpectation.where.id
+      }, attributes: ["user_id"]
+    }).then(res => {
+      db.User.update({ updatedAt: res.dataValues.updatedAt }, {
+        where: {
+          id: res.dataValues.user_id
+        }
+      })
     })
   } catch (e) {
     throw e
@@ -222,9 +255,9 @@ db.JobExpectation.afterUpdate((jobExpectation, options) => {
 })
 db.JobExpectation.afterCreate((jobExpectation, options) => {
   try {
-    db.User.update({ updateAt: jobExpectation.updatedAt},{
+    db.User.update({ updatedAt: jobExpectation.updatedAt }, {
       where: {
-        id: jobExpectation.user_id
+        id: jobExpectation.dataValues.user_id
       }
     })
   } catch (e) {
@@ -233,21 +266,28 @@ db.JobExpectation.afterCreate((jobExpectation, options) => {
 })
 db.Resume.afterCreate((resume, options) => {
   try {
-    db.User.update({ updateAt: resume.updatedAt},{
+    db.User.update({ updatedAt: resume.updatedAt }, {
       where: {
-        id: resume.user_id
+        id: resume.dataValues.user_id
       }
     })
   } catch (e) {
     throw e
   }
 })
-db.Resume.afterUpdate((resume, options) => {
+db.Resume.afterBulkUpdate((resume, options) => {
+  console.log(resume)
   try {
-    db.User.update({ updateAt: resume.updatedAt},{
+    db.Resume.findOne({
       where: {
-        id: resume.user_id
-      }
+        id: resume.where.id
+      }, attributes: ["user_id"]
+    }).then(res => {
+      db.User.update({ updatedAt: res.dataValues.updatedAt }, {
+        where: {
+          id: res.dataValues.user_id
+        }
+      })
     })
   } catch (e) {
     throw e
@@ -255,69 +295,144 @@ db.Resume.afterUpdate((resume, options) => {
 })
 db.ResumeWorkExp.afterCreate((resumeWorkExp, options) => {
   try {
-    db.Resume.update({ updateAt: resumeWorkExp.updatedAt},{
+    db.Resume.update({ updatedAt: resumeWorkExp.updatedAt }, {
       where: {
-        id: resumeWorkExp.resume_id
+        id: resumeWorkExp.dataValues.resume_id
       }
     })
   } catch (e) {
     throw e
   }
 })
-db.ResumeWorkExp.afterUpdate((resumeWorkExp, options) => {
+db.ResumeWorkExp.afterBulkUpdate((resumeWorkExp, options) => {
   try {
-    db.Resume.update({ updateAt: resumeWorkExp.updatedAt},{
+    db.ResumeWorkExp.findOne({
       where: {
-        id: resumeWorkExp.resume_id
-      }
+        id: resumeWorkExp.where.id
+      }, attributes: ["resume_id"]
+    }).then(res => {
+      db.Resume.update({ updatedAt: res.dataValues.updatedAt }, {
+        where: {
+          id: res.dataValues.resume_id
+        }
+      })
     })
+
   } catch (e) {
     throw e
   }
 })
 db.ResumeProjectExp.afterCreate((resumeProjectExp, options) => {
   try {
-    db.Resume.update({ updateAt: resumeProjectExp.updatedAt},{
+
+    db.Resume.update({ updatedAt: resumeProjectExp.updatedAt }, {
       where: {
-        id: resumeProjectExp.resume_id
+        id: resumeProjectExp.dataValues.resume_id
       }
     })
   } catch (e) {
     throw e
   }
 })
-db.ResumeProjectExp.afterUpdate((resumeProjectExp, options) => {
+db.ResumeProjectExp.afterBulkUpdate((resumeProjectExp, options) => {
   try {
-    db.Resume.update({ updateAt: resumeProjectExp.updatedAt},{
+    db.ResumeProjectExp.findOne({
       where: {
-        id: resumeProjectExp.resume_id
-      }
+        id: resumeProjectExp.where.id
+      }, attributes: ["resume_id"]
+    }).then(res => {
+      db.Resume.update({ updatedAt: res.dataValues.updatedAt }, {
+        where: {
+          id: res.dataValues.resume_id
+        }
+      })
     })
+
   } catch (e) {
     throw e
   }
 })
 db.ResumeEduExp.afterCreate((resumeEduExp, options) => {
   try {
-    db.Resume.update({ updateAt: resumeEduExp.updatedAt},{
+    db.Resume.update({ updatedAt: resumeEduExp.updatedAt }, {
       where: {
-        id: resumeEduExp.resume_id
+        id: resumeEduExp.dataValues.resume_id
       }
     })
   } catch (e) {
     throw e
   }
 })
-db.ResumeEduExp.afterUpdate((resumeEduExp, options) => {
+db.ResumeEduExp.afterBulkUpdate((resumeEduExp, options) => {
   try {
-    db.Resume.update({ updateAt: resumeEduExp.updatedAt},{
+    db.ResumeEduExp.findOne({
       where: {
-        id: resumeEduExp.resume_id
-      }
+        id: resumeEduExp.where.id
+      }, attributes: ["resume_id"]
+    }).then(res => {
+      db.Resume.update({ updatedAt: res.dataValues.updatedAt }, {
+        where: {
+          id: res.dataValues.resume_id
+        }
+      })
     })
   } catch (e) {
     throw e
   }
+})
+db.Interview.afterCreate((interview, options) => {
+  elasticSearch.update({
+    index: 'talent_search',
+    id: String(interview.dataValues.user_id),
+    body: {
+      // operation to perform
+      // the document to index
+      script: {
+        source: 'if(ctx._source.interview_status == null) {ctx._source.interview_status = new def[]{params.interview_status};} else {def is = ctx._source.interview_status;def add = true;for(int i = 0; i < is.length; i++) {if(is[i].candidateId == params.interview_status.candidateId) { if(is[i].jobId == params.interview_status.jobId) { if(is[i].HRId == params.interview_status.HRId) { add = false;ctx._source.interview_status[i].status = params.interview_status.status;break; } } } } if(add) { ctx._source.interview_status.add(params.interview_status); }}',
+        lang: "painless",
+        params: {
+          interview_status: {
+            candidateId: interview.dataValues.user_id,
+            jobId: interview.dataValues.job_id,
+            HRId: interview.dataValues.hr_id,
+            status: interview.dataValues.status
+          }
+        }
+      }
+    }
+  }).catch(err => {
+    throw err
+  })
+})
+db.Interview.afterUpdate((interview, options) => {
+  db.Interview.findOne({
+    where: {
+      id: interview.id
+    }
+  }).then(res => {
+    elasticSearch.update({
+      index: 'talent_search',
+      id: String(res.dataValues.user_id),
+      body: {
+        // operation to perform
+        // the document to index
+        script: {
+          source: 'if(ctx._source.interview_status == null) {ctx._source.interview_status = new def[]{params.interview_status};} else {def is = ctx._source.interview_status;def add = true;for(int i = 0; i < is.length; i++) {if(is[i].candidateId == params.interview_status.candidateId) { if(is[i].jobId == params.interview_status.jobId) { if(is[i].HRId == params.interview_status.HRId) { add = false;ctx._source.interview_status[i].status = params.interview_status.status;break; } } } } if(add) { ctx._source.interview_status.add(params.interview_status); }}',
+          lang: "painless",
+          params: {
+            interview_status: {
+              candidateId: res.dataValues.user_id,
+              jobId: res.dataValues.job_id,
+              HRId: res.dataValues.hr_id,
+              status: res.dataValues.status
+            }
+          }
+        }
+      }
+    }).catch(err => {
+      throw err
+    })
+  })
 })
 db.mongo = mongo;
 module.exports = db;

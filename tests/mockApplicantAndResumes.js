@@ -649,7 +649,8 @@ function getName(index) {
 for (let i = 0; i < 150; i++) {
     passwords[i] = bcrypt.hashSync("word_" + i, 2)
 }
-async function mock(counter = 0, max = 150) {
+let users = []
+async function mockusers(counter = 0, max = 150) {
     process.stdout.write(`mocking candidates: ${counter}/${max}\n`)
     if (counter == max) {
         return
@@ -663,7 +664,17 @@ async function mock(counter = 0, max = 150) {
         real_name: getName(counter),
         birth_date: new Date(births[counter]),
     });
+    users.push(user);
+    counter++
+    return mockusers(counter, max)
+}
+async function mockInfo(counter = 0, max = 150) {
+    process.stdout.write(`mocking candidateInfos: ${counter}/${max}\n`)
+    if (counter == max) {
+        return
+    }
     let ms = Math.round(Math.random() * 10 + 1) * 1000;
+    let user = users[counter];
     for (let i = 0; i < 3; i++) {
         await JobExpectation.create({
             user_id: user.id,
@@ -674,7 +685,6 @@ async function mock(counter = 0, max = 150) {
             industry_involved: industry[counter % 3]
         })
     }
-
     let resume = await Resume.create({
         user_id: user.id,
         personal_advantage: "",
@@ -735,7 +745,11 @@ async function mock(counter = 0, max = 150) {
         readedAt: user.id%2 == 0? new Date() : null
     })
     counter++
-    return mock(counter, max)
+    return mockInfo(counter, max)
+}
+async function mock() {
+    await mockusers()
+    await mockInfo()
 }
 mock().then(() => {
     Interview.create({
