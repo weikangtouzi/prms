@@ -994,7 +994,7 @@ const typeDefs = gql`
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
-    ENTSearchCandidates(filter: TalentListFilter): TalentListForSearchResult!
+    ENTSearchCandidates(filter: TalentListFilter, pageSize: Int, page: Int): TalentListForSearchResult!
     UserGetJob(jobid: Int): JobDetailPageReply!
     # ENTGetCandidatesWithInterviewStatus(filter: TalentListFilter): TalentListForSearchResult!
     UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
