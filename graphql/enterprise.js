@@ -629,7 +629,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let from = 0;
     if(args.pageSize) size = args.pageSize;
     if(args.page) from = size * args.page;
-    console.log(JSON.stringify(builder.query))
+    // console.log(JSON.stringify(builder.query))
     const res = (await builder.send(elasticSearch, "talent_search", size, from)).body
     return {
       count: res.hits.total.value,
