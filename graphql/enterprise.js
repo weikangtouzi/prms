@@ -579,14 +579,11 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let builder = queryBuilder();
     if(keyword) {
       let fieldNames = ["real_name", "Resumes.skills", "Resumes.ResumeWorkExp.comp_name"];
-      let matchs = fieldNames.flatMap(fieldName => {
-        let res = {}
-        res[fieldName] = keyword
-        return res
+      let matchs = fieldNames.map(fieldName => {
+        return builder.newMatch(fieldName, keyword)
       })
-      matchs.forEach(match => {
-        builder.addShould({match})
-      })
+      builder.addMust(builder.newBool(matchs))
+
     }
     if(sortByUpdatedTime) builder.addSort(builder.newSort("updatedAt", false))
     if(category) {
@@ -632,6 +629,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     let from = 0;
     if(args.pageSize) size = args.pageSize;
     if(args.page) from = size * args.page;
+    console.log(JSON.stringify(builder.query))
     const res = (await builder.send(elasticSearch, "talent_search", size, from)).body
     return {
       count: res.hits.total.value,
