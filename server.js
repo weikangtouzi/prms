@@ -884,19 +884,31 @@ const typeDefs = gql`
     gender: Boolean,
     education: Education,
     experience: Int,
-    job_expectation: [String]!,
-    aimed_city: String!,
+    """
+    using Void to save times
+    just return whatnever this candidate's job_expectation is,
+    data like those
     salary: [Int]!,
     job_status: ResumeJobStatus!,
-    last_log_out_time: String!,
+    is now moved to this param
+    """
+    job_expectation: Void,
+    current_city: String!,
+    "null for online now"
+    last_log_out_time: String,
     """
     some api not having this
     using Void because the type not settled yet
     Void will represent any value
     """
     job: Void,
-    personal_advantage: String,
-    skills: [String]
+    """
+      personal_advantage: String,
+      skills: [String]
+      those data is required in resume_data
+      other data only show out when is available
+    """
+    resume_data: Void,
   }
   type TalentListForSearchResult {
     count: Int!,
@@ -911,12 +923,13 @@ const typeDefs = gql`
     keyword: String,
     sortByUpdatedTime: Boolean,
     category: [String],
-    education: Education,
+    education: EducationRequired,
     industry_involved: [String],
     city: [String],
     gender: Boolean,
     experience: [Int],
-    salary: [Int]
+    salary: [Int],
+    interview_status: InterviewStatus
   }
   input UserExpectation {
     id: Int,
@@ -981,9 +994,9 @@ const typeDefs = gql`
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs(category: String!): Void
     UserSearchEnterprise(keyword: String!,pageSize: Int, page: Int): EntListForSearchResult!
-    ENTSearchCandidates(expectation: String, education: String, city: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean): TalentListForSearchResult!
+    ENTSearchCandidates(filter: TalentListFilter): TalentListForSearchResult!
     UserGetJob(jobid: Int): JobDetailPageReply!
-    ENTGetCandidatesWithInterviewStatus(expectation: String, education: String, city: String, salary: [Int], page: Int, pageSize: Int, sortByUpdatedTime: Boolean, status: InterviewStatus): TalentListForSearchResult!
+    # ENTGetCandidatesWithInterviewStatus(filter: TalentListFilter): TalentListForSearchResult!
     UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
   }
   

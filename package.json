@@ -8,13 +8,15 @@
     "stop": "forever stop server.js",
     "mock": "npx sequelize-cli db:seed:all && node ./tests/mockEnterpriseAndworkers.js && node ./tests/mockApplicantAndResumes.js && node ./tests/mockMessages.js",
     "restart": "npm run stop && npm run start",
-    "migrate": "npx sequelize-cli db:migrate"
+    "migrate": "npx sequelize-cli db:migrate",
+    "es_gen": "node ./utils/es_gen.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@alicloud/dysmsapi20170525": "^2.0.2",
+    "@elastic/elasticsearch": "^7.16.0",
     "@graphql-tools/schema": "^8.3.0",
     "apollo-server": "^3.3.0",
     "bcrypt": "^5.0.1",
@@ -28,7 +30,8 @@
     "jsonwebtoken": "^8.5.1",
     "log4js": "^6.3.0",
     "mongodb": "^4.1.2",
-    "mongoose": "^6.0.5",
+    "mongoosastic": "^4.6.0",
+    "mongoose": "^6.1.6",
     "node-schedule": "^2.1.0",
     "nodemailer": "^6.7.2",
     "pg": "^8.7.1",

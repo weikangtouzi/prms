@@ -5,8 +5,9 @@ const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require
 const { jwtConfig } = require('../project.json');
 const mongo = require('../mongo');
 const { Op } = require('sequelize');
-
-
+const elasticSearch = require('../elasticSearch')
+const queryBuilder = require('../elasticSearch/querys');
+const { Education } = require('./types');
 const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -573,82 +574,75 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    let { expectation, education, salary, city, page, pageSize, sortByUpdatedTime } = args;
-    let where = {}
-    let include = [];
-    let order = [];
-    if (sortByUpdatedTime) order.push(["updatedAt", "DESC"])
-    if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
-    let je = {
-      model: JobExpectation,
-      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category", "updatedAt"],
-      required: true,
-      limit: 1,
-      order: [["updatedAt", "DESC"]],
-      where: {}
-    };
-    let resume = {
-      model: Resume,
-      attributes: ["personal_advantage", "skills"],
-      required: true,
-      limit: 1,
-      where: {
-        is_attachment: false
-      }
+    const {keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status} = args.filter;
+    if(!keyword && !interview_status) throw new UserInputError("搜索人才需要搜索关键字，或者指定面试状态来获取与你相关的求职者");
+    let builder = queryBuilder();
+    if(keyword) {
+      let fieldNames = ["real_name", "Resumes.skills", "Resumes.ResumeWorkExp.comp_name"];
+      let matchs = fieldNames.flatMap(fieldName => {
+        let res = {}
+        res[fieldName] = keyword
+        return res
+      })
+      matchs.forEach(match => {
+        builder.addShould({match})
+      })
     }
-    where.jobExpectionCount = sequelize.literal('(SELECT COUNT(*) FROM job_expectation WHERE job_expectation.user_id = "User".id) > 0');
-    if (expectation) {
-      where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${expectation}'`);
-      je.where.cate = sequelize.literal(`job_category[3] = '${expectation}'`);
+    if(sortByUpdatedTime) builder.addSort(builder.newSort("updatedAt", false))
+    if(category) {
+      let musts = [...category];
+      musts = musts.map(must =>{
+        return builder.newMatch("JobExpectations.job_category", must)
+      })
+      builder.addMust(builder.newBool(null,musts))
     }
-    if (salary) {
-      if (salary[0]) {
-        je.where.min_salary_expectation = {
-          [Op.gte]: salary[0]
-        };
-        where.min_salary_expectation = sequelize.literal(`(SELECT min_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) >= '${salary[0]}'`)
-      }
-      if (salary[1]) {
-        je.where.max_salary_expectation = {
-          [Op.lte]: salary[1]
-        };
-        where.min_salary_expectation = sequelize.literal(`(SELECT max_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) <= '${salary[1]}'`)
-      }
+    if(education && education != "Null") builder.addMust(builder.newRange("education.lvl", null, Education.getValue(education).value))
+    if(industry_involved) {
+      let musts = [...industry_involved];
+      musts = musts.map(must =>{
+        return builder.newMatch("JobExpectations.industry_involved", must)
+      })
+      builder.addMust(builder.newBool(null,musts))
     }
-    if (city) {
-      where.city = sequelize.literal(`(SELECT aimed_city FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${city}'`)
-      je.where.aimed_city = city
+    if(city) {
+      let shoulds = [];
+      city.forEach(c => {
+        shoulds.push(builder.newMatch("current_city", c));
+        shoulds.push(builder.newMatch("JobExpectations.aimed_city", c));
+      })
+      builder.addMust(builder.newBool(shoulds))
     }
-    include.push(je, resume)
-    let query = {}
-    // console.log(where)
-    query.where = where;
-    query.include = include;
-    if (!pageSize) {
-      query.limit = 10;
-    } else {
-      query.limit = pageSize;
+    if(gender !== undefined) {
+      builder.addMust(builder.newMatch("gender", gender))
     }
-    if (!page) {
-      query.offset = 0;
-    } else {
-      query.offset = query.limit * page
+    if(experience) {
+      builder.addMust(builder.newRange("experience", experience[0], experience[1]))
     }
-    query.order = order;
-    let res = await User.findAndCountAll(query);
+    if(salary) {
+      let shoulds = [];
+      shoulds.push(builder.newRange("JobExpectations.min_salary_expectation", salary[0]))
+      shoulds.push(builder.newRange("JobExpectations.max_salary_expectation",null, salary[1]))
+      builder.addMust(builder.newBool(shoulds))
+    }
+    if(interview_status) {
+      builder.addMust(builder.newMatch("interview_status.status", interview_status))
+    }
+    builder.addMust(builder.newMatch("disabled", false))
+    let size = 10;
+    let from = 0;
+    if(args.pageSize) size = args.pageSize;
+    if(args.page) from = size * args.page;
+    const res = (await builder.send(elasticSearch, "talent_search", size, from)).body
     return {
-      count: res.count,
-      data: res.rows.map(item => {
+      count: res.hits.total.value,
+      data: res.hits.hits.map(hit => {
         return {
-          ...item.dataValues,
-          salary: [item.dataValues.JobExpectations[0].min_salary_expectation, item.dataValues.JobExpectations[0].max_salary_expectation],
-          aimed_city: item.dataValues.JobExpectations[0].aimed_city,
-          job_expectation: item.dataValues.JobExpectations[0].job_category,
-          last_log_out_time: item.dataValues.last_log_out_time ? item.dataValues.last_log_out_time.toISOString() : "在线",
-          age: item.dataValues.birth_date ? new Date().getFullYear() - new Date(item.dataValues.birth_date).getFullYear() : null,
-          experience: item.dataValues.first_time_working ? new Date().getFullYear() - new Date(item.dataValues.first_time_working).getFullYear() : 0,
-          name: item.dataValues.real_name ? item.dataValues.real_name : item.dataValues.username,
-          ...item.dataValues.Resumes[0].dataValues
+          ...hit._source,
+          name: hit._source.real_name? hit._source.real_name : hit._source.username,
+          education: hit._source.education? hit._source.education.name : null,
+          job_expectation: hit._source.JobExpectations,
+          age: hit._source.birth_date? (new Date().getFullYear()) - (new Date(hit._source.birth_date).getFullYear()): null,
+          resume_data: hit._source.Resumes[0]
         }
       })
     }
@@ -656,103 +650,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
-const ENTGetCandidatesWithInterviewStatus = async (parent, args, { userInfo }, info) => {
-  if (!userInfo) throw new AuthenticationError('missing authorization')
-  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-  if (isvalidJobPoster(userInfo.identity)) {
-    let { expectation, education, salary, city, page, pageSize, status } = args;
-    let where = {}
-    let include = [];
-    if (education && education != "Null") where.education = sequelize.literal(`education = ANY(enum_range('${education}'::enum_users_education, NULL))`);
-    let je = {
-      model: JobExpectation,
-      attributes: ["min_salary_expectation", "max_salary_expectation", "aimed_city", "job_category", "updatedAt"],
-      required: true,
-      limit: 1,
-      order: [["updatedAt", "DESC"]],
-      where: {}
-    };
-    let resume = {
-      model: Resume,
-      attributes: ["personal_advantage", "skills"],
-      required: true,
-      limit: 1,
-      where: {
-        is_attachment: false
-      }
-    }
-    where.status = {
-      [Op.and]: [
-        {
-          [Op.ne]: "Canceled"
-        }
-      ]
-    }
-    if (expectation) {
-      where.cate = sequelize.literal(`(SELECT job_category[3] FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) = '${expectation}'`);
-      je.where.cate = sequelize.literal(`job_category[3] = '${expectation}'`);
-    }
-    if (salary) {
-      if (salary[0]) {
-        je.where.min_salary_expectation = {
-          [Op.gte]: salary[0]
-        };
-        where.min_salary_expectation = sequelize.literal(`(SELECT min_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) >= '${salary[0]}'`)
-      }
-      if (salary[1]) {
-        je.where.max_salary_expectation = {
-          [Op.lte]: salary[1]
-        };
-        where.min_salary_expectation = sequelize.literal(`(SELECT max_salary_expectation FROM job_expectation WHERE job_expectation.user_id = "Interview->User".id limit 1) <= '${salary[1]}'`)
-      }
-    }
-    if (city) {
-      where.city = sequelize.literal(`(SELECT aimed_city FROM job_expectation WHERE job_expectation.user_id = "User".id limit 1) = '${city}'`)
-      je.where.aimed_city = city
-    }
-    include.push({
-      model: User,
-      include: [je, resume]
-    }, {
-      model: Job,
-      attributes: ["id", "title"],
-    })
-    if (status) where.status = status;
-    let query = {}
-    // console.log(where)
-    query.where = where;
-    query.include = include;
-    if (!pageSize) {
-      query.limit = 10;
-    } else {
-      query.limit = pageSize;
-    }
-    if (!page) {
-      query.offset = 0;
-    } else {
-      query.offset = query.limit * page
-    }
-    let res = await Interview.findAndCountAll(query);
-    return {
-      count: res.count,
-      data: res.rows.map(item => {
-        return {
-          ...item.dataValues.User.dataValues,
-          salary: [item.dataValues.User.dataValues.JobExpectations[0].min_salary_expectation, item.dataValues.User.dataValues.JobExpectations[0].max_salary_expectation],
-          aimed_city: item.dataValues.User.dataValues.JobExpectations[0].aimed_city,
-          job_expectation: item.dataValues.User.dataValues.JobExpectations[0].job_category,
-          last_log_out_time: item.dataValues.User.dataValues.last_log_out_time ? item.dataValues.User.dataValues.last_log_out_time.toISOString() : "在线",
-          age: item.dataValues.User.dataValues.birth_date ? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.birth_date).getFullYear() : null,
-          experience: item.dataValues.User.dataValues.first_time_working ? new Date().getFullYear() - new Date(item.dataValues.User.dataValues.first_time_working).getFullYear() : null,
-          name: item.dataValues.User.dataValues.real_name ? item.dataValues.User.dataValues.real_name : item.dataValues.username,
-          ...item.dataValues.User.dataValues.Resumes[0].dataValues
-        };
-      })
-    }
-  } else {
-    throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
-  }
-}
+
 
 module.exports = {
   editEnterpriseBasicInfo,
@@ -776,5 +674,4 @@ module.exports = {
   ENTSetDisabled,
   ENTSetEnabled,
   ENTSearchCandidates,
-  ENTGetCandidatesWithInterviewStatus
 }
