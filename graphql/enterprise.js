@@ -625,6 +625,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       builder.addMust(builder.newMatch("interview_status.status", interview_status))
     }
     builder.addMust(builder.newMatch("disabled", false))
+    builder.addMust(builder.newMatch("Resumes.is_public", true))
     let size = 10;
     let from = 0;
     if(args.pageSize) size = args.pageSize;
@@ -634,13 +635,17 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     return {
       count: res.hits.total.value,
       data: res.hits.hits.map(hit => {
+        let interview_status = hit._source.interview_status? hit._source.interview_status.filter((ele)=> {
+          return ele.HRId == userInfo.identity.worker_id
+        }) : null
         return {
           ...hit._source,
           name: hit._source.real_name? hit._source.real_name : hit._source.username,
           education: hit._source.education? hit._source.education.name : null,
           job_expectation: hit._source.JobExpectations,
           age: hit._source.birth_date? (new Date().getFullYear()) - (new Date(hit._source.birth_date).getFullYear()): null,
-          resume_data: hit._source.Resumes[0]
+          resume_data: hit._source.Resumes[0],
+          interview_status
         }
       })
     }
