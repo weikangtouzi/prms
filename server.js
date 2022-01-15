@@ -897,11 +897,13 @@ const typeDefs = gql`
     "null for online now"
     last_log_out_time: String,
     """
-    some api not having this
-    using Void because the type not settled yet
-    Void will represent any value
+    remove the job param
+    add a interview_status instead
+    this interview_status is optional
+    and only will show up when this candidate
+    is really have a interview with the hr
     """
-    job: Void,
+    interview_status: Void,
     """
       personal_advantage: String,
       skills: [String]
