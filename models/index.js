@@ -175,7 +175,8 @@ db.User.afterCreate((user, options) => {
             name: res.dataValues.education,
             lvl: Education.getValue(res.dataValues.education)
           },
-          experience: res.dataValues.first_time_working ? (new Date().getFullYear() - new Date(res.dataValues.first_time_working).getFullYear()) : null,
+          first_time_working: res.dataValues.first_time_working ? new Date(res.dataValues.first_time_working) : null,
+          birth_date: res.dataValues.birth_date ? new Date(res.dataValues.birth_date) : null,
         }
         // operation to perform
       }).catch(err => {
@@ -216,14 +217,15 @@ db.User.afterBulkUpdate((user, options) => {
               name: res.dataValues.education,
               lvl: Education.getValue(res.dataValues.education).value
             } : null,
-            experience: res.dataValues.first_time_working ? (new Date().getFullYear() - new Date(res.dataValues.first_time_working).getFullYear()) : null,
             Resumes: res.dataValues.Resumes.map(item => {
               return {
                 ...item.dataValues,
                 ResumeWorkExps: item.dataValues.ResumeWorkExps[0] ? item.dataValues.ResumeWorkExps[0].dataValues : null
               }
             }),
-            JobExpectations: res.dataValues.JobExpectations.map(item => item.dataValues)
+            JobExpectations: res.dataValues.JobExpectations.map(item => item.dataValues),
+            first_time_working: res.dataValues.first_time_working ? new Date(res.dataValues.first_time_working) : null,
+            birth_date: res.dataValues.birth_date ? new Date(res.dataValues.birth_date) : null,
           }
         },
         retry_on_conflict: 8,

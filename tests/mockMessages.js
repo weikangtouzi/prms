@@ -20,6 +20,8 @@ async function insert(counter = 0) {
                 counter += 1;
                 if (counter < 500000) {
                     return insert(counter);
+                } else {
+                    return
                 }
             }
             Message.create({
@@ -52,7 +54,7 @@ async function insert(counter = 0) {
                 })
                 process.stdout.write(`mocking messages:${counter}/500000\n`)
                 counter += 1;
-                if (counter < 500000) {
+                if (counter <= 500000) {
                     return insert(counter);
                 }
             })
@@ -60,4 +62,6 @@ async function insert(counter = 0) {
     })
     return;
 }
-insert();
+insert().then(_ => {
+    process.exit()
+});

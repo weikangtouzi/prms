@@ -931,7 +931,9 @@ const typeDefs = gql`
     gender: Boolean,
     experience: [Int],
     salary: [Int],
-    interview_status: InterviewStatus
+    interview_status: InterviewStatus,
+    age: [Int],
+    job_status: JobStatus,
   }
   input UserExpectation {
     id: Int,

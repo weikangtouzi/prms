@@ -574,8 +574,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const {keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status} = args.filter;
-    if(!keyword && !interview_status) throw new UserInputError("搜索人才需要搜索关键字，或者指定面试状态来获取与你相关的求职者");
+    const {keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status, age, job_status} = args.filter;
     let builder = queryBuilder();
     if(keyword) {
       let fieldNames = ["real_name", "Resumes.skills", "Resumes.ResumeWorkExp.comp_name"];
@@ -617,12 +616,30 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     }
     if(salary) {
       let shoulds = [];
-      shoulds.push(builder.newRange("JobExpectations.min_salary_expectation", salary[0]))
-      shoulds.push(builder.newRange("JobExpectations.max_salary_expectation",null, salary[1]))
+      let con_1 = builder.newBool(null, [builder.newRange("JobExpectations.min_salary_expectation", salary[0]), builder.newRange("JobExpectations.max_salary_expectation",null, salary[0])])
+      shoulds.push(con_1)
+      shoulds.push(builder.newRange("JobExpectations.min_salary_expectation",salary[1], salary[0]))
       builder.addMust(builder.newBool(shoulds))
     }
     if(interview_status) {
       builder.addMust(builder.newMatch("interview_status.status", interview_status))
+    }
+    if(age) {
+      let age_filter = [];
+      if(age[0]) {
+        let date = new Date()
+        date.setFullYear(date.getFullYear() - age[0])
+        age_filter.push(date)
+      }
+      if(age[1]) {
+        let date = new Date()
+        date.setFullYear(date.getFullYear() - age[1])
+        age_filter.push(date)
+      }
+      builder.addMust(builder.newRange("birth_date", ...age_filter))
+    }
+    if(job_status) {
+      builder.addMust(builder.newMatch("job_status", job_status))
     }
     builder.addMust(builder.newMatch("disabled", false))
     builder.addMust(builder.newMatch("Resumes.is_public", true))
