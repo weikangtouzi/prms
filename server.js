@@ -944,6 +944,7 @@ const typeDefs = gql`
     full_time_job: FullTime
   }
   type ResumeWorkExpData {
+    id: Int!,
     comp_name: String!,
     pos_name: String!,
     department: String!,
