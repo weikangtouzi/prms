@@ -42,8 +42,9 @@ const { editEnterpriseBasicInfo,
     ENTSetEnabled,
     editJob,
     ENTSearchCandidates,
+    ENTEditAccountInfo
 } = require('./enterprise');
-const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
+const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
     CandidateGetEnterpriseDetail_QA,
     CandidateGetHRDetail_HRInfo,
@@ -53,7 +54,8 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList, CandidateGetJob,
     CandidateEditPersonalAdvantage,
     CandidateEditWorkExprience,
     CandidateRecruitmentApply,
-    CandidateEditJobExpectations } = require('./candidate');
+    CandidateEditJobExpectations,
+    CandidateGetWorkExps } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
@@ -121,7 +123,8 @@ const resolvers = {
         UserSearchEnterprise,
         ENTSearchCandidates,
         UserGetJob,
-        UserGetRecruitmentList: userGetRecruitmentList
+        UserGetRecruitmentList: userGetRecruitmentList,
+        CandidateGetWorkExps
     },
     Mutation: {
         UserRegister: register,
@@ -158,7 +161,8 @@ const resolvers = {
         UserSendPrologue,
         UserVerifyCodeConsume,
         UserAddJobExpectation,
-        UserEditJobExpectation
+        UserEditJobExpectation,
+        ENTEditAccountInfo
     },
     Subscription: {
         newMessage,

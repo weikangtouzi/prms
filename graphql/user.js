@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, ResumeDeliveryRecord, JobReadRecord, Recruitment } = require('../models');
+const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, Resume, ResumeDeliveryRecord, JobReadRecord, Recruitment } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -230,13 +230,22 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 include: [{
                     model: JobExpectation,
                     attributes: ["job_category"]
+                },{
+                    model: Resume,
+                    attributes: ["id"],
+                    where: {
+                        is_attachment: false
+                    }
                 }]
             })
             tokenObj = {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
                 identity: { identity: args.targetIdentity },
-                jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues })
+                jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues }),
+            }
+            if(resume.dataValues.Resumes && resume.dataValues.Resumes.length > 0) {
+                tokenObj.resume_id = resume.dataValues.Resumes[0].dataValues.id
             }
         } else {
             throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })

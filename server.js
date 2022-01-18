@@ -943,6 +943,18 @@ const typeDefs = gql`
     aimed_city: String, 
     full_time_job: FullTime
   }
+  type ResumeWorkExpData {
+    comp_name: String!,
+    pos_name: String!,
+    department: String!,
+    start_at: String!,
+    end_at: String!,
+    working_detail: String!
+  }
+  type ResumeWorkExpsData {
+    count: Int!,
+    data: [ResumeWorkExpData]!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1001,6 +1013,7 @@ const typeDefs = gql`
     UserGetJob(jobid: Int): JobDetailPageReply!
     # ENTGetCandidatesWithInterviewStatus(filter: TalentListFilter): TalentListForSearchResult!
     UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
+    CandidateGetWorkExps: ResumeWorkExpsData!
   }
   
   "most of mutations needed token for authorization"
@@ -1071,6 +1084,7 @@ const typeDefs = gql`
     UserAddJobExpectation(info:UserExpectation!): Void
     UserVerifyCodeConsume(info: VerifyInfo) : Void
     UserEditJobExpectation(info:UserExpectation!): Void
+    ENTEditAccountInfo(pos: String): Void
   }
   type Subscription {
     newMessage: Message!
