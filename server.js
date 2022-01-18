@@ -977,7 +977,6 @@ const typeDefs = gql`
     ENTPrecheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
     "just tests"
     TestShowDatas(pageSize: Int, lastIndex: String): [PersonalDataView]!
-    UserVerifyCodeConsume(info: VerifyInfo) : Void
     "if page not provided it will be 0,for pageSize it will be 10"
     UserGetMessages(targetId: Int!, page: Int, pageSize: Int): MessagePage
     CandidateGetAllJobExpectations: [JobExpectation]!
@@ -1070,6 +1069,7 @@ const typeDefs = gql`
     """
     UserSendPrologue(job_id: Int!, to: Int!, prologue: Int!): Void  
     UserAddJobExpectation(info:UserExpectation!): Void
+    UserVerifyCodeConsume(info: VerifyInfo) : Void
     UserEditJobExpectation(info:UserExpectation!): Void
   }
   type Subscription {

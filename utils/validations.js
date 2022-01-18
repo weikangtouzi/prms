@@ -77,17 +77,14 @@ async function checkverified(phoneNumber, operation) {
     if (phoneNumber) {
         try {
             res = await mongo.query('user_log_in_cache', async (collection) => {
-                return await collection.findOneAndDelete({
+                return await collection.findOne({
                     phoneNumber,
                     verified: true,
                     operation
                 })
             })
-            if (res.value) {
-                return true
-            } else {
-                return false
-            }
+            if(!res) return false
+            return true
         } catch (e) {
             throw e
         }
