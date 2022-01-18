@@ -670,7 +670,19 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
     throw new ForbiddenError(`your account right: \"${userInfo.identity.role}\" does not have the right to start a interview`);
   }
 }
-
+const ENTEditAccountInfo = async (parent, args, { userInfo }, info) => {
+  if(!userInfo) throw new AuthenticationError('missing authorization')
+  if(userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if(userInfo.identity.identity != "EnterpriseUser") throw new ForbiddenError('only for enterprise users');
+  const {pos} = args;
+  let data = {};
+  if(pos) data.pos = pos
+  await Worker.update(data, { 
+    where: {
+      id: userInfo.identity.worker_id
+    }
+  })
+}
 
 module.exports = {
   editEnterpriseBasicInfo,
@@ -694,4 +706,5 @@ module.exports = {
   ENTSetDisabled,
   ENTSetEnabled,
   ENTSearchCandidates,
+  ENTEditAccountInfo
 }
