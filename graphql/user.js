@@ -11,6 +11,7 @@ const serializers = require('../utils/serializers');
 const { checkverified, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { error } = require('../utils/logger');
 const { user } = require('pg/lib/defaults');
+const { query } = require('../mongo');
 const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
     if (verifyCode === "tested") {
@@ -18,7 +19,7 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
             let res = await collection.updateOne({
                 phoneNumber
             }, {
-                $set: {
+                $replaceWith: {
                     phoneNumber,
                     verified: true,
                     operation,
@@ -38,7 +39,8 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
             {
                 $replaceWith: {
                     phoneNumber,
-                    verified: operation,
+                    verified: true,
+                    operation,
                     createdAt: new Date(),
                 }
             }
@@ -508,6 +510,9 @@ const UserChangePhoneNumber = async (parent, args, { userInfo }, info) => {
             id: userInfo.user_id
         }
     });
+    await query("user_log_in_cache", async (collection) => {
+        await collection.deleteOne({phoneNumber: newNum});
+    })
 }
 
 const UserEditEmail = async (parent, args, { userInfo }, info) => {

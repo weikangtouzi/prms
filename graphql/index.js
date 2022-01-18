@@ -99,7 +99,6 @@ const resolvers = {
         StaticGetAllRegion: getAllRegion,
         ENTPrecheckForInviteWorkMate: precheckForInviteWorkMate,
         TestShowDatas: showDatas,
-        UserVerifyCodeConsume,
         UserGetMessages,
         CandidateGetAllJobExpectations,
         CandidateGetJobList,
@@ -157,6 +156,7 @@ const resolvers = {
         ENTSetEnabled,
         HREditJob: editJob,
         UserSendPrologue,
+        UserVerifyCodeConsume,
         UserAddJobExpectation,
         UserEditJobExpectation
     },
