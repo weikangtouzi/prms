@@ -352,7 +352,8 @@ const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) 
             personal_advantage: content
         }, {
             where: {
-                user_id: userInfo.user_id
+                user_id: userInfo.user_id,
+                is_attachment: false,
             }
         });
     } catch (err) {
@@ -363,7 +364,7 @@ const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) 
 const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { id, resumeId, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
+    const { id, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
     if (id) {
         let update = {};
         if (compName) update.comp_name = compName;
@@ -378,7 +379,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
         });
     }
     else {
-        if (!resumeId) throw new UserInputError("resumeId is required");
+        if (!userInfo.resume_id) throw new UserInputError("尚未创建简历");
         if (!compName || compName.trim() == '') throw new UserInputError("compName is required when no id specified");
         if (!posName) throw new UserInputError("posName is required when no id specified");
         if (!department) throw new UserInputError("department is required when no id specified");
