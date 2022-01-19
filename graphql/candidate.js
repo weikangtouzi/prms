@@ -222,17 +222,18 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
             limit: 1,
         }]
     });
+    if(raw.rows.length == 0) return null
     res = {
-        ...raw.rows.map((row) => {
+        ...(raw.rows.map((row) => {
             return {
                 question: row.dataValues.question_description,
                 answerCount: row.dataValues.answer_count? row.dataValues.answer_count : 0,
                 answer: row.dataValues.EnterpriseAnswers[0].dataValues.content,
             }
-        })[0],
+        })[0]),
         questionCount: raw.count
     }
-
+    console.log(res)
     return res
 }
 const CandidateGetHRDetail_HRInfo = async (parent, args, { userInfo }, info) => {
