@@ -55,7 +55,8 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateEditWorkExprience,
     CandidateRecruitmentApply,
     CandidateEditJobExpectations,
-    CandidateGetWorkExps } = require('./candidate');
+    CandidateGetWorkExps,
+    CandidateGetOnlineResumeBasicInfo } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
@@ -124,7 +125,8 @@ const resolvers = {
         UserGetJob,
         UserGetRecruitmentList: userGetRecruitmentList,
         CandidateGetWorkExps,
-        UserGetEnterpriseQuestions
+        UserGetEnterpriseQuestions,
+        CandidateGetOnlineResumeBasicInfo
     },
     Mutation: {
         UserRegister: register,

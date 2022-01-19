@@ -970,6 +970,10 @@ const typeDefs = gql`
     count: Int!,
     data: [EnterpriseQuestion]!
   }
+  type ResumeBasicInfo {
+    skills: [String]!,
+    personal_advantage: String
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1029,6 +1033,7 @@ const typeDefs = gql`
     UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
     CandidateGetWorkExps: ResumeWorkExpsData!
     UserGetEnterpriseQuestions("""this arg is for personal user only"""entId: Int, """if this is bigger than 0, \nwill return the answers of this question\nand limit will be this value"""needAnswerPreview: Int, page: Int, pageSize: Int): EnterpriseQuestions
+    CandidateGetOnlineResumeBasicInfo: ResumeBasicInfo!
   }
   
   "most of mutations needed token for authorization"
