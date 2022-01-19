@@ -844,7 +844,6 @@ const UserGetEnterpriseQuestions = async (parent, args, { userInfo }, info) => {
                     }
                 })
             }
-
         })
     }
 }

@@ -183,7 +183,6 @@ db.User.afterCreate((user, options) => {
         throw err
       })
     })
-
   } catch (e) {
     throw e
   }
@@ -205,6 +204,32 @@ db.User.afterBulkUpdate((user, options) => {
         }]
       }]
     }).then(res => {
+      if(user.image_url) {
+        db.EnterpriseQuestion.update({
+        logo: res.dataValues.image_url,
+      }, {
+        where: {
+          user_id: res.dataValues.id
+        }
+      })
+      db.Worker.findOne({
+        where: {
+          user_binding: res.dataValues.id
+        },
+        attributes: ["id"]
+      }).then(({dataValues}) => {
+        if(dataValues) {
+          db.EnterpriseAnswer.update({
+            logo: res.dataValues.image_url,
+          }, {
+            where: {
+              user_id: dataValues.id
+            }
+          })
+        }
+        
+      })
+    }
       elasticSearch.update({
         index: 'talent_search',
         id: String(res.dataValues.id),
@@ -233,7 +258,7 @@ db.User.afterBulkUpdate((user, options) => {
         throw err
       })
     })
-
+    
   } catch (e) {
     throw e
   }
