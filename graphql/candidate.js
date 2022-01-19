@@ -111,7 +111,7 @@ const CandidateGetJob = async (parent, args, { userInfo }, info) => {
         job_id: jobid,
         job_name: data.title,
         job_salary: `${data.min_salary}-${data.max_salary}`,
-        job_exp: data.min_experience !== 0?`${data.min_experience}年`: "无",
+        job_exp: data.min_experience !== 0 ? `${data.min_experience}年` : "无",
         job_edu: data.min_education,
         job_address: data.address_description[0],
         tags: data.tags,
@@ -226,7 +226,7 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
         ...raw.rows.map((row) => {
             return {
                 question: row.dataValues.question_description,
-                answerCount: row.dataValues.answer_count,
+                answerCount: row.dataValues.answer_count? row.dataValues.answer_count : 0,
                 answer: row.dataValues.EnterpriseAnswers[0].dataValues.content,
             }
         })[0],
@@ -352,8 +352,7 @@ const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) 
             personal_advantage: content
         }, {
             where: {
-                user_id: userInfo.user_id,
-                is_attachment: false,
+                id: userInfo.resume_id
             }
         });
     } catch (err) {
@@ -393,7 +392,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
             start_at: startAt,
             end_at: endAt,
             working_detail: workDetail,
-            resume_id: resumeId
+            resume_id: userInfo.resume_id
         })
     }
     if (hideFromThisCompany) mongo.query("blacklist", async (collection) => {
@@ -408,7 +407,6 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { id,
-        resumeId,
         schoolName,
         education,
         isFullTime,
@@ -429,7 +427,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
             }
         });
     } else {
-        if (!resumeId) throw new UserInputError("resumeId is required");
+        if (!user.resume_id) throw new UserInputError("尚未创建简历");
         if (!schoolName) throw new UserInputError("schoolName is required");
         if (!education) throw new UserInputError("education is required");
         if (!isFullTime) throw new UserInputError("isFullTime is required");
@@ -437,7 +435,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
         if (!time) throw new UserInputError("time is required");
         if (!exp_at_school) throw new UserInputError("exp_at_school is required");
         await ResumeEduExp.create({
-            resume_id: resumeId,
+            resume_id: user.resume_id,
             school_name: schoolName,
             education: education,
             is_all_time: isFullTime,
@@ -451,7 +449,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { id, resumeId, projectName, role, startAt, endAt, description, performance } = args.info;
+    const { id, projectName, role, startAt, endAt, description, performance } = args.info;
     if (id) {
         let update = {};
         if (projectName) update.project_name = projectName;
@@ -466,7 +464,7 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
             }
         })
     } else {
-        if (!resumeId) throw new UserInputError("resumeId is required");
+        if (!user.resume_id) throw new UserInputError("尚未创建简历");
         if (!projectId) throw new UserInputError("projectId is required");
         if (!role) throw new UserInputError("role is required");
         if (!startAt) throw new UserInputError("startAt is required");
@@ -474,7 +472,7 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
         if (!description) throw new UserInputError("startAt is required");
         if (!performance) throw new UserInputError("endAt is required");
         await ResumeProjectExp.create({
-            resume_id: resumeId,
+            resume_id: user.resume_id,
             project_name: projectName,
             role: role,
             startAt: startAt,
@@ -488,11 +486,12 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { resumeId, skills } = args;
+    if (!user.resume_id) throw new UserInputError("尚未创建简历");
+    const { skills } = args;
     await Resume.update({
         skills: skills
     }, {
-        id: resumeId,
+        id: user.resume_id,
     })
 }
 
@@ -577,9 +576,9 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
 }
 
 const CandidateGetWorkExps = async (parent, args, { userInfo }, info) => {
-    if(!userInfo) throw new AuthenticationError('missing authorization')
-    if(userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if(!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     let res = await ResumeWorkExp.findAndCountAll({
         where: {
             resume_id: userInfo.resume_id
