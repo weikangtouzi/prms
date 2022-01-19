@@ -222,7 +222,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 throw new UserInputError('bad input', { role: "enterprise user needs specify role for using" })
             }
         } else if (args.targetIdentity == "PersonalUser") {
-            let resume = await User.findOne({
+            let user = User.findOne({
                 where: {
                     id: userInfo.user_id,
                 },
@@ -230,22 +230,23 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 include: [{
                     model: JobExpectation,
                     attributes: ["job_category"]
-                },{
-                    model: Resume,
-                    attributes: ["id"],
-                    where: {
-                        is_attachment: false
-                    }
                 }]
             })
+            const [resume, created] = await Resume.findOrCreate({
+                where: {user_id: userInfo.user_id, is_attachment: false},
+                defaults: {
+
+                }
+            })
+            user = await user;
             tokenObj = {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
                 identity: { identity: args.targetIdentity },
-                jobExpectation: resume.dataValues.JobExpectations.map(item => { return item.dataValues }),
+                jobExpectation: user.dataValues.JobExpectations.map(item => { return item.dataValues }),
             }
-            if(resume.dataValues.Resumes && resume.dataValues.Resumes.length > 0) {
-                tokenObj.resume_id = resume.dataValues.Resumes[0].dataValues.id
+            if(resume) {
+                tokenObj.resume_id = resume.dataValues.id
             }
         } else {
             throw new UserInputError('bad input', { indentity: "not supported identity: this identity may not be supported in this version" })
@@ -336,8 +337,8 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
 const UserGetEnterpriseDetail_EntInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.jobExpectations && (userInfo.identity.identity != "EnterpriseUser")) throw new ForbiddenError('need resume and job expectation for this operation');
-    if (userInfo.jobExpectations && !args.entId) throw new ForbiddenError("need to specify entId for personal user query");
+    if (!userInfo.jobExpectation && (userInfo.identity.identity != "EnterpriseUser")) throw new ForbiddenError('need resume and job expectation for this operation');
+    if (userInfo.jobExpectation && !args.entId) throw new ForbiddenError("need to specify entId for personal user query");
     let where = {};
     if (args.entId) where.id = args.entId;
     else where.id = userInfo.identity.entId;
