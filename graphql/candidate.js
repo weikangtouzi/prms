@@ -515,7 +515,6 @@ const CandidateSendResume = async (parent, args, { userInfo }, info) => {
         comp_id: compId,
         hr_id: hrId
     });
-
 }
 
 const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {

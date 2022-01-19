@@ -17,7 +17,8 @@ const { logIn,
     UserGetJob,
     userGetRecruitmentList,
     UserAddJobExpectation,
-    UserEditJobExpectation } = require('./user');
+    UserEditJobExpectation,
+    UserGetEnterpriseQuestions } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -124,7 +125,8 @@ const resolvers = {
         ENTSearchCandidates,
         UserGetJob,
         UserGetRecruitmentList: userGetRecruitmentList,
-        CandidateGetWorkExps
+        CandidateGetWorkExps,
+        UserGetEnterpriseQuestions
     },
     Mutation: {
         UserRegister: register,

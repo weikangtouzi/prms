@@ -574,9 +574,9 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const {keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status, age, job_status} = args.filter;
+    const { keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status, age, job_status } = args.filter;
     let builder = queryBuilder();
-    if(keyword) {
+    if (keyword) {
       let fieldNames = ["real_name", "Resumes.skills", "Resumes.ResumeWorkExp.comp_name"];
       let matchs = fieldNames.map(fieldName => {
         return builder.newMatch(fieldName, keyword)
@@ -584,23 +584,23 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       builder.addMust(builder.newBool(matchs))
 
     }
-    if(sortByUpdatedTime) builder.addSort(builder.newSort("updatedAt", false))
-    if(category) {
+    if (sortByUpdatedTime) builder.addSort(builder.newSort("updatedAt", false))
+    if (category) {
       let musts = [...category];
-      musts = musts.map(must =>{
+      musts = musts.map(must => {
         return builder.newMatch("JobExpectations.job_category", must)
       })
-      builder.addMust(builder.newBool(null,musts))
+      builder.addMust(builder.newBool(null, musts))
     }
-    if(education && education != "Null") builder.addMust(builder.newRange("education.lvl", null, Education.getValue(education).value))
-    if(industry_involved) {
+    if (education && education != "Null") builder.addMust(builder.newRange("education.lvl", null, Education.getValue(education).value))
+    if (industry_involved) {
       let musts = [...industry_involved];
-      musts = musts.map(must =>{
+      musts = musts.map(must => {
         return builder.newMatch("JobExpectations.industry_involved", must)
       })
-      builder.addMust(builder.newBool(null,musts))
+      builder.addMust(builder.newBool(null, musts))
     }
-    if(city) {
+    if (city) {
       let shoulds = [];
       city.forEach(c => {
         shoulds.push(builder.newMatch("current_city", c));
@@ -608,59 +608,59 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       })
       builder.addMust(builder.newBool(shoulds))
     }
-    if(gender !== undefined) {
+    if (gender !== undefined) {
       builder.addMust(builder.newMatch("gender", gender))
     }
-    if(experience) {
+    if (experience) {
       builder.addMust(builder.newRange("experience", experience[0], experience[1]))
     }
-    if(salary) {
+    if (salary) {
       let shoulds = [];
-      let con_1 = builder.newBool(null, [builder.newRange("JobExpectations.min_salary_expectation", salary[0]), builder.newRange("JobExpectations.max_salary_expectation",null, salary[0])])
+      let con_1 = builder.newBool(null, [builder.newRange("JobExpectations.min_salary_expectation", salary[0]), builder.newRange("JobExpectations.max_salary_expectation", null, salary[0])])
       shoulds.push(con_1)
-      shoulds.push(builder.newRange("JobExpectations.min_salary_expectation",salary[1], salary[0]))
+      shoulds.push(builder.newRange("JobExpectations.min_salary_expectation", salary[1], salary[0]))
       builder.addMust(builder.newBool(shoulds))
     }
-    if(interview_status) {
+    if (interview_status) {
       builder.addMust(builder.newMatch("interview_status.status", interview_status))
     }
-    if(age) {
+    if (age) {
       let age_filter = [];
-      if(age[0]) {
+      if (age[0]) {
         let date = new Date()
         date.setFullYear(date.getFullYear() - age[0])
         age_filter.push(date)
       }
-      if(age[1]) {
+      if (age[1]) {
         let date = new Date()
         date.setFullYear(date.getFullYear() - age[1])
         age_filter.push(date)
       }
       builder.addMust(builder.newRange("birth_date", ...age_filter))
     }
-    if(job_status) {
+    if (job_status) {
       builder.addMust(builder.newMatch("job_status", job_status))
     }
     builder.addMust(builder.newMatch("disabled", false))
     builder.addMust(builder.newMatch("Resumes.is_public", true))
     let size = 10;
     let from = 0;
-    if(args.pageSize) size = args.pageSize;
-    if(args.page) from = size * args.page;
+    if (args.pageSize) size = args.pageSize;
+    if (args.page) from = size * args.page;
     // console.log(JSON.stringify(builder.query))
     const res = (await builder.send(elasticSearch, "talent_search", size, from)).body
     return {
       count: res.hits.total.value,
       data: res.hits.hits.map(hit => {
-        let interview_status = hit._source.interview_status? hit._source.interview_status.filter((ele)=> {
+        let interview_status = hit._source.interview_status ? hit._source.interview_status.filter((ele) => {
           return ele.HRId == userInfo.identity.worker_id
         }) : null
         return {
           ...hit._source,
-          name: hit._source.real_name? hit._source.real_name : hit._source.username,
-          education: hit._source.education? hit._source.education.name : null,
+          name: hit._source.real_name ? hit._source.real_name : hit._source.username,
+          education: hit._source.education ? hit._source.education.name : null,
           job_expectation: hit._source.JobExpectations,
-          age: hit._source.birth_date? (new Date().getFullYear()) - (new Date(hit._source.birth_date).getFullYear()): null,
+          age: hit._source.birth_date ? (new Date().getFullYear()) - (new Date(hit._source.birth_date).getFullYear()) : null,
           resume_data: hit._source.Resumes[0],
           interview_status
         }
@@ -671,18 +671,19 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   }
 }
 const ENTEditAccountInfo = async (parent, args, { userInfo }, info) => {
-  if(!userInfo) throw new AuthenticationError('missing authorization')
-  if(userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-  if(userInfo.identity.identity != "EnterpriseUser") throw new ForbiddenError('only for enterprise users');
-  const {pos} = args;
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (userInfo.identity.identity != "EnterpriseUser") throw new ForbiddenError('only for enterprise users');
+  const { pos } = args;
   let data = {};
-  if(pos) data.pos = pos
-  await Worker.update(data, { 
+  if (pos) data.pos = pos
+  await Worker.update(data, {
     where: {
       id: userInfo.identity.worker_id
     }
   })
 }
+
 
 module.exports = {
   editEnterpriseBasicInfo,
