@@ -269,7 +269,6 @@ const typeDefs = gql`
   input WorkExperience {
     "for edit you need pass this data"
     id: Int,
-    resumeId: Int,
     compName: String,
     posName: String,
     department: String,
@@ -281,7 +280,6 @@ const typeDefs = gql`
   input EduExp {
     "for edit you need pass this data"
     id: Int,
-    resumeId: Int,
     schoolName: String,
     education: Education,
     isFullTime: Boolean,
@@ -292,7 +290,6 @@ const typeDefs = gql`
   input ProExp {
     "for edit you need pass this data"
     id: Int,
-    resumeId: Int,
     projectName: String,
     role: String,
     startAt: String,
@@ -1068,7 +1065,7 @@ const typeDefs = gql`
     UserSendMessage(info: SendMessage!): Void
     HRRemoveJob(jobId: Int!): Void
     ENTRecruitmentApply(recruitmentId: Int!, size: String): Void
-    CandidateEditSkills(resumeId: Int!, skills: [String]!): Void
+    CandidateEditSkills(skills: [String]!): Void
     CandidateEditJobExpectations(info:EditJobExpectation!): Void
     ENTRemoveWorker(workerId: Int!, role: EnterpriseRole!): Void
     HRHideJob(jobId: Int!): Void
