@@ -953,7 +953,8 @@ const typeDefs = gql`
     content: String!,
     """the worker who answers, null for anonymous answers"""
     worker_id: Int,
-    thumbs: Int!
+    thumbs: Int!,
+    logo: String
   }
   type EnterpriseQuestion {
     id: Int!,
@@ -962,7 +963,8 @@ const typeDefs = gql`
     question_description: String!,
     addtional_description: String,
     answerCount: Int!,
-    answers: [EnterpriseAnswer]!
+    answers: [EnterpriseAnswer]!,
+    logo: String
   }
   type EnterpriseQuestions {
     count: Int!,
