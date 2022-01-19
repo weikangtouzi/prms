@@ -226,7 +226,7 @@ const CandidateGetEnterpriseDetail_QA = async (parent, args, { userInfo }, info)
         ...raw.rows.map((row) => {
             return {
                 question: row.dataValues.question_description,
-                answerCount: row.dataValues.answer_count,
+                answerCount: row.dataValues.answer_count? row.dataValues.answer_count : 0,
                 answer: row.dataValues.EnterpriseAnswers[0].dataValues.content,
             }
         })[0],
