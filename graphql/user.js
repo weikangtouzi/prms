@@ -480,7 +480,13 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         attributes = ["id", "real_name", "pos"]
     } else {
         if (!isvalidEnterpriseAdmin(userInfo.identity)) {
-            throw new ForbiddenError('should specify the enterprise id for this operation');
+            if(isvalidJobPoster(userInfo.identity)) {
+               if(role != "HR") {
+                   throw new ForbiddenError("只能获取相同身份的同事列表")
+               }
+            } else {
+                throw new ForbiddenError('should specify the enterprise id for this operation');
+            }
         }
         where.company_belonged = userInfo.identity.entId;
         if (role) {
