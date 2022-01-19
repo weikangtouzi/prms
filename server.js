@@ -763,12 +763,7 @@ const typeDefs = gql`
     count: Int!,
     recommends: [InterviewRecommentInfoForEntDetail]!
   }
-  type EnterpriseQAForEntDetail {
-    questionCount: Int!,
-    answerCount: Int!,
-    question: String!,
-    answer: String!
-  }
+  
   type JobDataForHRDetailPageOrEntJobList {
     id: Int!,
     title: String!,
@@ -1014,7 +1009,6 @@ const typeDefs = gql`
     UserGetEnterpriseDetail_EntInfo(entId: Int): EnterpriseInfoForEntDetail!
     UserGetEnterpriseDetail_WorkerList(entId: Int, role: EnterpriseRole): [WorkerInfoForWorkerList]!
     CandidateGetEnterpriseDetail_InterviewRecomment(entId: Int): InterviewRecommentListForEntDetail!
-    CandidateGetEnterpriseDetail_QA(entId: Int): EnterpriseQAForEntDetail
     CandidateGetHRDetail_HRInfo(hrId: Int): HRInfoForHRDetailPage!
     CandidateGetHRDetail_RecommendationsList(hrId: Int!): RecommendationsListForHRDetailPage!
     CandidateGetHRDetail_JobListPageView(hrId: Int!, pageSize: Int, page: Int): JobListForHRDetailPageOrEntJobList!
