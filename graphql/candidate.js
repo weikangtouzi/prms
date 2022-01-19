@@ -584,4 +584,3 @@ module.exports = {
     CandidateEditJobExpectations,
     CandidateGetWorkExps
 }
-
