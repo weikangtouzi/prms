@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const { Identity } = require('./types');
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
 const jwt = require('jsonwebtoken')
-const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, Resume, ResumeDeliveryRecord, JobReadRecord, Recruitment } = require('../models');
+const { User, Worker, Enterprise, JobCache, JobExpectation, Job, sequelize, Resume, ResumeDeliveryRecord, JobReadRecord, Recruitment, EnterpriseAnswer, EnterpriseQuestion } = require('../models');
 const { Op } = require('sequelize');
 const mongo = require('../mongo');
 const { jwtConfig } = require('../project.json');
@@ -233,7 +233,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 }]
             })
             const [resume, created] = await Resume.findOrCreate({
-                where: {user_id: userInfo.user_id, is_attachment: false},
+                where: { user_id: userInfo.user_id, is_attachment: false },
                 defaults: {
 
                 }
@@ -245,7 +245,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 identity: { identity: args.targetIdentity },
                 jobExpectation: user.dataValues.JobExpectations.map(item => { return item.dataValues }),
             }
-            if(resume) {
+            if (resume) {
                 tokenObj.resume_id = resume.dataValues.id
             }
         } else {
@@ -330,7 +330,7 @@ const UserGetBasicInfo = async (parent, args, { userInfo }, info) => {
         ...res.toJSON(),
         birth_date: res.birth_date,
         first_time_working: res.first_time_working,
-        image_url: res.image_url? res.image_url : "",
+        image_url: res.image_url ? res.image_url : "",
     }
 }
 
@@ -480,10 +480,10 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         attributes = ["id", "real_name", "pos"]
     } else {
         if (!isvalidEnterpriseAdmin(userInfo.identity)) {
-            if(isvalidJobPoster(userInfo.identity)) {
-               if(role != "HR") {
-                   throw new ForbiddenError("只能获取相同身份的同事列表")
-               }
+            if (isvalidJobPoster(userInfo.identity)) {
+                if (role != "HR") {
+                    throw new ForbiddenError("只能获取相同身份的同事列表")
+                }
             } else {
                 throw new ForbiddenError('should specify the enterprise id for this operation');
             }
@@ -527,7 +527,7 @@ const UserChangePhoneNumber = async (parent, args, { userInfo }, info) => {
         }
     });
     await query("user_log_in_cache", async (collection) => {
-        await collection.deleteOne({phoneNumber: newNum});
+        await collection.deleteOne({ phoneNumber: newNum });
     })
 }
 
@@ -796,6 +796,58 @@ const UserEditJobExpectation = async (parent, args, { userInfo }, info) => {
         }
     })
 }
+const UserGetEnterpriseQuestions = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const { entId, needAnswerPreview, page, pageSize } = args;
+    let query
+    if (userInfo.identity.identity == "EnterprseUser") {
+        if (!isvalidJobPoster(userInfo.identity)) throw new ForbiddenError("不是有效的用户类型")
+        query = {
+            where: {
+                enterprise_id: userInfo.identity.entId
+            }
+        }
+    } else {
+        if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
+        if (!entId) throw new UserInputError("missing enterprise_id")
+        query = {
+            where: {
+                enterprise_id: entId
+            }
+        }
+    }
+    let limit = pageSize? pageSize : 10;
+    let offset = page? page * limit: 0;
+    let include;
+    query.limit = limit;
+    query.offset = offset;
+    if (needAnswerPreview > 0) {
+        include = [{
+            model: EnterpriseAnswer,
+            limit: needAnswerPreview,
+            order: [["thumbs", "DESC"]]
+        }]
+        query.include = include
+    }
+    let res = await EnterpriseQuestion.findAndCountAll(query);
+    return {
+        count: res.count,
+        data: res.rows.map(row => {
+            return {
+                ...row.dataValues,
+                user_id: row.dataValues.anonymous? null: row.dataValues.user_id,
+                answers: row.dataValues.EnterpriseAnswers.map(ans =>{ 
+                    return {
+                        ...ans.dataValues,
+                        worker_id: ans.dataValues.anonymous? null: ans.dataValues.user_id,
+                    }
+                })
+            }
+
+        })
+    }
+}
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -823,5 +875,6 @@ module.exports = {
     UserGetJob,
     userGetRecruitmentList,
     UserAddJobExpectation,
-    UserEditJobExpectation
+    UserEditJobExpectation,
+    UserGetEnterpriseQuestions
 }

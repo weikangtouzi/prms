@@ -953,6 +953,26 @@ const typeDefs = gql`
     count: Int!,
     data: [ResumeWorkExpData]!
   }
+  type EnterpriseAnswer {
+    id: Int!,
+    content: String!,
+    """the worker who answers, null for anonymous answers"""
+    worker_id: Int,
+    thumbs: Int!
+  }
+  type EnterpriseQuestion {
+    id: Int!,
+    """the id of the user who pose this question, null for anonymous questions"""
+    user_id: Int,
+    question_description: String!,
+    addtional_description: String,
+    answerCount: Int!,
+    answers: [EnterpriseAnswer]!
+  }
+  type EnterpriseQuestions {
+    count: Int!,
+    data: [EnterpriseQuestion]!
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1012,6 +1032,7 @@ const typeDefs = gql`
     # ENTGetCandidatesWithInterviewStatus(filter: TalentListFilter): TalentListForSearchResult!
     UserGetRecruitmentList(keyword: String, appointment: Boolean, page: Int, pageSize: Int): Void
     CandidateGetWorkExps: ResumeWorkExpsData!
+    UserGetEnterpriseQuestions("""this arg is for personal user only"""entId: Int, """if this is bigger than 0, \nwill return the answers of this question\nand limit will be this value"""needAnswerPreview: Int, page: Int, pageSize: Int): EnterpriseQuestions
   }
   
   "most of mutations needed token for authorization"
