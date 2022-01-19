@@ -826,11 +826,11 @@ const UserGetEnterpriseQuestions = async (parent, args, { userInfo }, info) => {
         include = [{
             model: EnterpriseAnswer,
             limit: needAnswerPreview,
+            order: [["thumbs", "DESC"]]
         }]
         query.include = include
     }
     let res = await EnterpriseQuestion.findAndCountAll(query);
-    console.log(res)
     return {
         count: res.count,
         data: res.rows.map(row => {
