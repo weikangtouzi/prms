@@ -204,7 +204,7 @@ db.User.afterBulkUpdate((user, options) => {
         }]
       }]
     }).then(res => {
-      if(user.attributes.image_url) {
+      if(user.attributes && user.attributes.image_url) {
         db.EnterpriseQuestion.update({
         logo: res.dataValues.image_url,
       }, {
