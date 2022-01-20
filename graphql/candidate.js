@@ -570,7 +570,7 @@ const CandidateGetOnlineResumeBasicInfo = async (parent, args, { userInfo }, inf
     if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     let res = await Resume.findOne({
         where: {
-            resume_id: userInfo.resume_id,
+            id: userInfo.resume_id,
         },
        attributes: ["skills", "personal_advantage"] 
     })
