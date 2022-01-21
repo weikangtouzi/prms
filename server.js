@@ -974,6 +974,9 @@ const typeDefs = gql`
     skills: [String]!,
     personal_advantage: String
   }
+  type EnterpriseAccountInfo {
+    pos: String,
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1034,6 +1037,7 @@ const typeDefs = gql`
     CandidateGetWorkExps: ResumeWorkExpsData!
     UserGetEnterpriseQuestions("""this arg is for personal user only"""entId: Int, """if this is bigger than 0, \nwill return the answers of this question\nand limit will be this value"""needAnswerPreview: Int, page: Int, pageSize: Int): EnterpriseQuestions
     CandidateGetOnlineResumeBasicInfo: ResumeBasicInfo!
+    ENTGetAccountInfo: EnterpriseAccountInfo!
   }
   
   "most of mutations needed token for authorization"
