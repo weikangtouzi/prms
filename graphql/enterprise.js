@@ -696,7 +696,13 @@ const ENTGetAccountInfo = async (parent, args, { userInfo }, info) => {
     ...res.dataValues
   }
 }
-
+const HRGetInterviewRecomments = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if(!isvalidJobPoster(userInfo.identity)) throw new ForbiddenError('not a valid joboster')
+  
+  
+}
 
 module.exports = {
   editEnterpriseBasicInfo,
