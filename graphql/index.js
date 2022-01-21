@@ -43,7 +43,8 @@ const { editEnterpriseBasicInfo,
     ENTSetEnabled,
     editJob,
     ENTSearchCandidates,
-    ENTEditAccountInfo
+    ENTEditAccountInfo,
+    ENTGetAccountInfo
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
@@ -126,7 +127,8 @@ const resolvers = {
         UserGetRecruitmentList: userGetRecruitmentList,
         CandidateGetWorkExps,
         UserGetEnterpriseQuestions,
-        CandidateGetOnlineResumeBasicInfo
+        CandidateGetOnlineResumeBasicInfo,
+        ENTGetAccountInfo
     },
     Mutation: {
         UserRegister: register,

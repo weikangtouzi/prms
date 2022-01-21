@@ -683,6 +683,19 @@ const ENTEditAccountInfo = async (parent, args, { userInfo }, info) => {
     }
   })
 }
+const ENTGetAccountInfo = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if (userInfo.identity.identity != "EnterpriseUser") throw new ForbiddenError('only for enterprise users');
+  let res = await Worker.findOne({
+    where: {
+      id: userInfo.identity.worker_id
+    }
+  })
+  return {
+    ...res.dataValues
+  }
+}
 
 
 module.exports = {
@@ -707,5 +720,6 @@ module.exports = {
   ENTSetDisabled,
   ENTSetEnabled,
   ENTSearchCandidates,
-  ENTEditAccountInfo
+  ENTEditAccountInfo,
+  ENTGetAccountInfo
 }

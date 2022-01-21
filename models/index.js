@@ -227,7 +227,6 @@ db.User.afterBulkUpdate((user, options) => {
             }
           })
         }
-        
       })
     }
       elasticSearch.update({
