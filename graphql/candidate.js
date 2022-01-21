@@ -316,10 +316,10 @@ const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, i
 const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { content } = args;
+    const { advantage } = args;
     try {
         await Resume.update({
-            personal_advantage: content
+            personal_advantage: advantage
         }, {
             where: {
                 id: userInfo.resume_id
@@ -344,7 +344,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
         if (workDetail) update.work_detail = workDetail;
         if (Object.keys(update).length == 0) throw new UserInputError("needed at least one data");
         await ResumeWorkExp.update(update, {
-            id: id
+            where:{id: id}
         });
     }
     else {
