@@ -687,6 +687,7 @@ const ENTGetAccountInfo = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (userInfo.identity.identity != "EnterpriseUser") throw new ForbiddenError('only for enterprise users');
+  console.log(info)
   let res = await Worker.findOne({
     where: {
       id: userInfo.identity.worker_id
@@ -696,12 +697,14 @@ const ENTGetAccountInfo = async (parent, args, { userInfo }, info) => {
     ...res.dataValues
   }
 }
-const HRGetInterviewRecomments = async (parent, args, { userInfo }, info) => {
+const HRGetInterviewcomments = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if(!isvalidJobPoster(userInfo.identity)) throw new ForbiddenError('not a valid joboster')
-  
-  
+  const {needReply, onlyMine} = args;
+  mongo.query("comments", (c) => {
+
+  })
 }
 
 module.exports = {

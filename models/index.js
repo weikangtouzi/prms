@@ -117,12 +117,6 @@ db.EnterpriseQuestion.belongsTo(db.User, {
 db.User.hasMany(db.EnterpriseQuestion, {
   foreignKey: 'user_id'
 })
-db.User.hasMany(db.InterviewRecomment, {
-  foreignKey: 'user_id'
-})
-db.InterviewRecomment.belongsTo(db.User, {
-  foreignKey: 'user_id'
-})
 db.User.hasMany(db.ContractList, {
   foreignKey: 'target'
 })
