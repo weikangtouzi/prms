@@ -567,6 +567,44 @@ const CandidateGetWorkExps = async (parent, args, { userInfo }, info) => {
         })
     }
 }
+const CandidateGetEduExps = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
+    let res = await ResumeEduExp.findAndCountAll({
+        where: {
+            resume_id: userInfo.resume_id
+        }
+    })
+    return {
+        count: res.count,
+        data: res.rows.map(row => {
+            return {
+                ...row.dataValues
+            }
+        })
+    }
+}
+const CandidateGetProjectExps = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
+    let res = await ResumeProjectExp.findAndCountAll({
+        where: {
+            resume_id: userInfo.resume_id
+        }
+    })
+    return {
+        count: res.count,
+        data: res.rows.map(row => {
+            return {
+                ...row.dataValues,
+                start_at: new Date(row.dataValues.start_at).toISOString(),
+                end_at: new Date(row.dataValues.start_at).toISOString()
+            }
+        })
+    }
+}
 const CandidateGetOnlineResumeBasicInfo = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -599,5 +637,7 @@ module.exports = {
     CandidateRecruitmentApply,
     CandidateEditJobExpectations,
     CandidateGetWorkExps,
-    CandidateGetOnlineResumeBasicInfo
+    CandidateGetOnlineResumeBasicInfo,
+    CandidateGetEduExps,
+    CandidateGetProjectExps
 }

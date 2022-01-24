@@ -977,6 +977,32 @@ const typeDefs = gql`
   type EnterpriseAccountInfo {
     pos: String,
   }
+  type ResumeEduExpData {
+    id: Int!,
+    school_name: String!,
+    education: Education!,
+    is_all_time: Boolean!,
+    major: String!,
+    time: String!,
+    exp_at_school: String!,
+  }
+  type ResumeEduExpsData {
+    count: Int,
+    data: [ResumeEduExpData]
+  }
+  type ResumeProjectExpData {
+    id: Int!,
+    project_name: String!,
+    role: String!,
+    start_at: String!,
+    end_at: String!,
+    project_description: String!,
+    project_performance: String,
+  }
+  type ResumeProjectExpsData {
+    count: Int,
+    data: [ResumeEduExpData]
+  }
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1038,6 +1064,8 @@ const typeDefs = gql`
     UserGetEnterpriseQuestions("""this arg is for personal user only"""entId: Int, """if this is bigger than 0, \nwill return the answers of this question\nand limit will be this value"""needAnswerPreview: Int, page: Int, pageSize: Int): EnterpriseQuestions
     CandidateGetOnlineResumeBasicInfo: ResumeBasicInfo!
     ENTGetAccountInfo: EnterpriseAccountInfo!
+    CandidateGetEduExps: ResumeEduExpsData!
+    CandidateGetProjectExps: ResumeProjectExpsData!
   }
   
   "most of mutations needed token for authorization"

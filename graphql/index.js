@@ -18,7 +18,8 @@ const { logIn,
     userGetRecruitmentList,
     UserAddJobExpectation,
     UserEditJobExpectation,
-    UserGetEnterpriseQuestions } = require('./user');
+    UserGetEnterpriseQuestions,
+     } = require('./user');
 const { sendSms,sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
@@ -58,7 +59,9 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateEditJobExpectations,
     CandidateGetWorkExps,
     CandidateGetOnlineResumeBasicInfo,
-    CandidateEditSkills } = require('./candidate');
+    CandidateEditSkills,
+    CandidateGetEduExps,
+    CandidateGetProjectExps } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
@@ -129,7 +132,9 @@ const resolvers = {
         CandidateGetWorkExps,
         UserGetEnterpriseQuestions,
         CandidateGetOnlineResumeBasicInfo,
-        ENTGetAccountInfo
+        ENTGetAccountInfo,
+        CandidateGetEduExps,
+        CandidateGetProjectExps
     },
     Mutation: {
         UserRegister: register,
