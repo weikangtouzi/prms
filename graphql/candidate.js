@@ -456,12 +456,12 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!user.resume_id) throw new UserInputError("尚未创建简历");
+    if (!userInfo.resume_id) throw new UserInputError("尚未创建简历");
     const { skills } = args;
     await Resume.update({
         skills: skills
     }, {
-        id: user.resume_id,
+        id: userInfo.resume_id,
     })
 }
 
