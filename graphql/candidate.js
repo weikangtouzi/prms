@@ -458,6 +458,7 @@ const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume_id) throw new UserInputError("尚未创建简历");
     const { skills } = args;
+    // console.log(userInfo)
     await Resume.update({
         skills: skills
     }, {

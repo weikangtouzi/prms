@@ -57,7 +57,8 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateRecruitmentApply,
     CandidateEditJobExpectations,
     CandidateGetWorkExps,
-    CandidateGetOnlineResumeBasicInfo } = require('./candidate');
+    CandidateGetOnlineResumeBasicInfo,
+    CandidateEditSkills } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
@@ -166,7 +167,8 @@ const resolvers = {
         UserVerifyCodeConsume,
         UserAddJobExpectation,
         UserEditJobExpectation,
-        ENTEditAccountInfo
+        ENTEditAccountInfo,
+        CandidateEditSkills
     },
     Subscription: {
         newMessage,
