@@ -461,7 +461,9 @@ const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
     await Resume.update({
         skills: skills
     }, {
-        id: userInfo.resume_id,
+        where: {
+            id: userInfo.resume_id,
+        }
     })
 }
 
