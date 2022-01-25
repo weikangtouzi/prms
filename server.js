@@ -1001,7 +1001,7 @@ const typeDefs = gql`
   }
   type ResumeProjectExpsData {
     count: Int,
-    data: [ResumeEduExpData]
+    data: [ResumeProjectExpData]
   }
   "for most of get query needed token for authorization"
   type Query {
@@ -1066,6 +1066,7 @@ const typeDefs = gql`
     ENTGetAccountInfo: EnterpriseAccountInfo!
     CandidateGetEduExps: ResumeEduExpsData!
     CandidateGetProjectExps: ResumeProjectExpsData!
+    HRGetInterviewcomments(needReplys: Int, onlyMine: Boolean): Void
   }
   
   "most of mutations needed token for authorization"

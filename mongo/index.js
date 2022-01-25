@@ -22,6 +22,8 @@ module.exports = {
         client.db(dbName).collection('administrator_censor_list').createIndex({enterpriseName: "text"})
         client.db(dbName).collection('administrator_censor_list').createIndex({user_id: 1}, {unique: true})
         client.db(dbName).collection('user_log_in_cache').createIndex({createdAt: 1},{expireAfterSeconds: 600})
+        client.db(dbName).collection('comments').createIndex({updatedAt: 1})
+        client.db(dbName).collection('comments').createIndex({updatedAt: -1})
         client.db(dbName).collection('admin_and_roles').updateOne({
           account: "admin",
         }, {
