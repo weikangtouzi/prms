@@ -376,14 +376,13 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     console.log(userInfo)
-    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id,
         schoolName,
         education,
         isFullTime,
         major,
         time,
-        exp_at_school } = args;
+        exp_at_school } = args.info;
     if (id) {
         let update = {};
         if (schoolName) update.school_name = schoolName;
