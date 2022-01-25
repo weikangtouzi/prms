@@ -19,8 +19,8 @@ const { logIn,
     UserAddJobExpectation,
     UserEditJobExpectation,
     UserGetEnterpriseQuestions,
-     } = require('./user');
-const { sendSms,sendEmail } = require('./send_sms');
+} = require('./user');
+const { sendSms, sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
 const { singleUpload } = require('./upload');
 const { getProvinces, getCities, getCounties, getTowns, getAllRegion } = require('./citys_data');
@@ -45,7 +45,8 @@ const { editEnterpriseBasicInfo,
     editJob,
     ENTSearchCandidates,
     ENTEditAccountInfo,
-    ENTGetAccountInfo
+    ENTGetAccountInfo,
+    HRGetInterviewcomments
 } = require('./enterprise');
 const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateGetEnterpriseDetail_InterviewRecomment,
@@ -61,21 +62,23 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateGetOnlineResumeBasicInfo,
     CandidateEditSkills,
     CandidateGetEduExps,
-    CandidateGetProjectExps } = require('./candidate');
+    CandidateGetProjectExps,
+    CandidateEditEduExp,
+    CandidateEditProExp } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
-        __resolveType(obj, context, info){
-            if(obj.min_salary) {
+        __resolveType(obj, context, info) {
+            if (obj.min_salary) {
                 return 'JobDataBriefly'
-            }else {
+            } else {
                 return 'JobDataForHRDetailPageOrEntJobList'
-            }    
+            }
         },
     },
     ContractItem: {
-        __resolveType(obj, context, info){
-            if(obj.job_status) {
+        __resolveType(obj, context, info) {
+            if (obj.job_status) {
                 return 'Talent'
             } else {
                 return 'Contract'
@@ -83,8 +86,8 @@ const resolvers = {
         }
     },
     JobDetailPageReply: {
-        __resolveType(obj, context, info){
-            if(obj.status) {
+        __resolveType(obj, context, info) {
+            if (obj.status) {
                 return 'JobDetailPageReplyEnt'
             } else {
                 return 'JobDetailPageReplyCandiate'
@@ -134,7 +137,8 @@ const resolvers = {
         CandidateGetOnlineResumeBasicInfo,
         ENTGetAccountInfo,
         CandidateGetEduExps,
-        CandidateGetProjectExps
+        CandidateGetProjectExps,
+        HRGetInterviewcomments
     },
     Mutation: {
         UserRegister: register,
@@ -173,7 +177,9 @@ const resolvers = {
         UserAddJobExpectation,
         UserEditJobExpectation,
         ENTEditAccountInfo,
-        CandidateEditSkills
+        CandidateEditProExp,
+        CandidateEditSkills,
+        CandidateEditEduExp
     },
     Subscription: {
         newMessage,

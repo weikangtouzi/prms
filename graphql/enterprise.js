@@ -702,9 +702,23 @@ const HRGetInterviewcomments = async (parent, args, { userInfo }, info) => {
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if(!isvalidJobPoster(userInfo.identity)) throw new ForbiddenError('not a valid joboster')
   const {needReply, onlyMine} = args;
-  mongo.query("comments", (c) => {
-
+  let filter = {
+    "extra.interview_id": {
+      $exists: true
+    }
+  }
+  let project = {
+    replys: 0
+  };
+  let sort = {
+    updatedAt: -1,
+  };
+  if(needReply && needReply > 0) project.replys = {$slice: needReply}
+  if(onlyMine) filter["extra.hr_id"] = userInfo.identity.worker_id
+  let res = await mongo.query("comments", async (c) => {
+    return await (c.find(filter).project(project).sort(sort))
   })
+  console.log(await res.toArray())
 }
 
 module.exports = {
@@ -730,5 +744,6 @@ module.exports = {
   ENTSetEnabled,
   ENTSearchCandidates,
   ENTEditAccountInfo,
-  ENTGetAccountInfo
+  ENTGetAccountInfo,
+  HRGetInterviewcomments
 }

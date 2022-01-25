@@ -305,17 +305,15 @@ const CandidateGetAllJobCategoriesByEntId = async (parent, args, { userInfo }, i
         {
             bind: [entId]
         });
-
     return res[0].map(item => {
         return item.category
     })
 }
 
-
-
 const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { advantage } = args;
     try {
         await Resume.update({
@@ -333,6 +331,7 @@ const CandidateEditPersonalAdvantage = async (parent, args, { userInfo }, info) 
 const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id, compName, posName, department, startAt, endAt, workDetail, hideFromThisCompany } = args.info;
     if (id) {
         let update = {};
@@ -376,6 +375,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
 const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id,
         schoolName,
         education,
@@ -419,6 +419,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id, projectName, role, startAt, endAt, description, performance } = args.info;
     if (id) {
         let update = {};
@@ -456,7 +457,7 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
 const CandidateEditSkills = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.resume_id) throw new UserInputError("尚未创建简历");
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { skills } = args;
     // console.log(userInfo)
     await Resume.update({
@@ -472,6 +473,7 @@ const CandidateSendResume = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { jobId, resumeId, hrId, compId } = args;
     let record = await ResumeDeliveryRecord.findOne({
         where: {
@@ -514,6 +516,7 @@ const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
 const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id, job_category, aimed_city, industry_involved, min_salary_expectation, max_salary_expectation } = args.info;
     let input = {};
     if (job_category) input.job_category = job_category;

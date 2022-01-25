@@ -3,6 +3,7 @@ const { jwtConfig } = require('../project.json')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 const { User, Worker } = require('../models')
+const { ForbiddenError} = require('apollo-server');
 module.exports = {
     before: context => {
         let token
@@ -22,7 +23,7 @@ module.exports = {
                             disabled: null,
                         }
                     })
-                    if (!isAvaliable) throw new AuthenticationError('account is banned');
+                    if (!isAvaliable) throw new ForbiddenError('account is banned');
                 } else {
                     let isAvaliable = User.findOne({
                         where: {
@@ -30,7 +31,7 @@ module.exports = {
                             disabled: null,
                         }
                     })
-                    if (!isAvaliable) throw new AuthenticationError('account is banned');
+                    if (!isAvaliable) throw new ForbiddenError('account is banned');
                 }
                 User.update({ last_log_out_time: null },{
                     where: {
