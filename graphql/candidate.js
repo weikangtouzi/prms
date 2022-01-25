@@ -375,6 +375,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
 const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    console.log(userInfo)
     if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id,
         schoolName,
@@ -397,7 +398,6 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
             }
         });
     } else {
-        if (!user.resume_id) throw new UserInputError("尚未创建简历");
         if (!schoolName) throw new UserInputError("schoolName is required");
         if (!education) throw new UserInputError("education is required");
         if (!isFullTime) throw new UserInputError("isFullTime is required");
