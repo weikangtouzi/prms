@@ -285,7 +285,7 @@ const typeDefs = gql`
     isFullTime: Boolean,
     major: String,
     time: String,
-    exp_at_school: String!
+    exp_at_school: String
   }
   input ProExp {
     "for edit you need pass this data"
