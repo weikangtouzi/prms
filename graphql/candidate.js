@@ -375,7 +375,6 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
 const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    console.log(userInfo)
     const { id,
         schoolName,
         education,
@@ -383,6 +382,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
         major,
         time,
         exp_at_school } = args.info;
+        
     if (id) {
         let update = {};
         if (schoolName) update.school_name = schoolName;
@@ -391,6 +391,8 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
         if (major) update.major = major;
         if (time) update.time = time;
         if (exp_at_school) update.exp_at_school = exp_at_school;
+        console.log(update)
+        if(Object.keys(update).length === 0) throw new UserInputError("empty edit request is not valid");
         await ResumeEduExp.update(update, {
             where: {
                 id: id
@@ -404,7 +406,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
         if (!time) throw new UserInputError("time is required");
         if (!exp_at_school) throw new UserInputError("exp_at_school is required");
         await ResumeEduExp.create({
-            resume_id: user.resume_id,
+            resume_id: userInfo.resume_id,
             school_name: schoolName,
             education: education,
             is_all_time: isFullTime,
@@ -434,7 +436,7 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
             }
         })
     } else {
-        if (!user.resume_id) throw new UserInputError("尚未创建简历");
+        if (!userInfo.resume_id) throw new UserInputError("尚未创建简历");
         if (!projectId) throw new UserInputError("projectId is required");
         if (!role) throw new UserInputError("role is required");
         if (!startAt) throw new UserInputError("startAt is required");
@@ -442,7 +444,7 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
         if (!description) throw new UserInputError("startAt is required");
         if (!performance) throw new UserInputError("endAt is required");
         await ResumeProjectExp.create({
-            resume_id: user.resume_id,
+            resume_id: userInfo.resume_id,
             project_name: projectName,
             role: role,
             startAt: startAt,
