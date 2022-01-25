@@ -436,8 +436,7 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
             }
         })
     } else {
-        if (!userInfo.resume_id) throw new UserInputError("尚未创建简历");
-        if (!projectId) throw new UserInputError("projectId is required");
+        if (!projectName) throw new UserInputError("projectId is required");
         if (!role) throw new UserInputError("role is required");
         if (!startAt) throw new UserInputError("startAt is required");
         if (!endAt) throw new UserInputError("endAt is required");
