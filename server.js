@@ -1136,11 +1136,17 @@ const typeDefs = gql`
     UserSendPrologue(job_id: Int!, to: Int!, prologue: Int!): Void  
     UserAddJobExpectation(info:UserExpectation!): Void
     UserVerifyCodeConsume(info: VerifyInfo) : Void
+    """
+    first time adding job_expectation
+    will cause token regenerate
+    and will get the new token in reply
+    """
     UserEditJobExpectation(info:UserExpectation!): Void
     ENTEditAccountInfo(pos: String): Void
     CandidateRemoveEduExp(id: Int!): Void
     CandidateRemoveProExp(id: Int!): Void
     CandidateRemoveWorkExp(id: Int!): Void
+    CandidateRemoveJobExpectation(id: Int!): Void
   }
   type Subscription {
     newMessage: Message!
