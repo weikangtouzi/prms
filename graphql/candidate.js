@@ -4,6 +4,7 @@ const { AuthenticationError, UserInputError, ForbiddenError } = require('apollo-
 const user = require('../models/user');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo');
+const serializers = require('../utils/serializers');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -516,15 +517,20 @@ const CandidateRecruitmentApply = async (parent, args, { userInfo }, info) => {
 const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const { id, job_category, aimed_city, industry_involved, min_salary_expectation, max_salary_expectation } = args.info;
     let input = {};
+    let count = await JobExpectation.count({
+        where: {
+            user_id: userInfo.user_id,
+        }
+    })
     if (job_category) input.job_category = job_category;
     if (aimed_city) input.aimed_city = aimed_city;
     if (min_salary_expectation) input.min_salary_expectation = min_salary_expectation;
     if (max_salary_expectation) input.max_salary_expectation = max_salary_expectation;
     if (industry_involved) input.industry_involved = industry_involved;
     if (id) {
+        if(count == 1) throw UserInputError("需要保留至少一条求职意向");
         if (Object.keys(input).length == 0) throw new UserInputError("empty mutation is not expected");
         await JobExpectation.update({
             ...input
@@ -532,11 +538,6 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
             id: id,
         })
     } else {
-        let count = await JobExpectation.count({
-            where: {
-                user_id: userInfo.user_id,
-            }
-        })
         if (count >= 3) throw new UserInputError("already have 3 job expectations");
         if (!job_category) throw new UserInputError("job_category is required");
         if (!aimed_city) throw new UserInputError("aimed_city is required");
@@ -547,6 +548,8 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
             user_id: userInfo.user_id,
             ...input
         })
+        if (count == 0) userInfo.has_job_expectations = true;
+        return serializers.jwt(userInfo)
     }
 }
 
@@ -655,6 +658,17 @@ const CandidateRemoveWorkExp = async (parent, args, { userInfo }, info) => {
         }
     })
 }
+const CandidateRemoveJobExpectation = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {id} = args;
+    await JobExpectation.destroy({
+        where: {
+            id: id,
+            user_id: userInfo.user_id,
+        }
+    })
+}
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -678,5 +692,6 @@ module.exports = {
     CandidateGetProjectExps,
     CandidateRemoveEduExp,
     CandidateRemoveProExp,
-    CandidateRemoveWorkExp
+    CandidateRemoveWorkExp,
+    CandidateRemoveJobExpectation
 }
