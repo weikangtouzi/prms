@@ -401,7 +401,7 @@ const CandidateEditEduExp = async (parent, args, { userInfo }, info) => {
     } else {
         if (!schoolName) throw new UserInputError("schoolName is required");
         if (!education) throw new UserInputError("education is required");
-        if (!isFullTime) throw new UserInputError("isFullTime is required");
+        if (isFullTime == undefined) throw new UserInputError("isFullTime is required");
         if (!major) throw new UserInputError("major is required");
         if (!time) throw new UserInputError("time is required");
         if (!exp_at_school) throw new UserInputError("exp_at_school is required");
