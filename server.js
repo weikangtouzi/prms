@@ -292,8 +292,8 @@ const typeDefs = gql`
     id: Int,
     projectName: String,
     role: String,
-    start_at: String,
-    end_at: String,
+    startAt: String,
+    endAt: String,
     description: String,
     performance: String
   }

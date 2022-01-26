@@ -446,8 +446,8 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
             resume_id: userInfo.resume_id,
             project_name: projectName,
             role: role,
-            startAt: startAt,
-            endAt: endAt,
+            start_at: startAt,
+            end_at: endAt,
             description: description,
             performance: performance
         })
