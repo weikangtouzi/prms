@@ -701,7 +701,7 @@ const HRGetInterviewcomments = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if(!isvalidJobPoster(userInfo.identity)) throw new ForbiddenError('not a valid joboster')
-  const {needReply, onlyMine} = args;
+  const {needReplys, onlyMine} = args;
   let filter = {
     "extra.interview_id": {
       $exists: true
@@ -712,13 +712,19 @@ const HRGetInterviewcomments = async (parent, args, { userInfo }, info) => {
   };
   let sort = {
     updatedAt: -1,
+    thumbs: -1
   };
-  if(needReply && needReply > 0) project.replys = {$slice: needReply}
+  if(needReplys && needReplys > 0) project.replys = {$slice: needReplys}
   if(onlyMine) filter["extra.hr_id"] = userInfo.identity.worker_id
   let res = await mongo.query("comments", async (c) => {
     return await (c.find(filter).project(project).sort(sort))
   })
-  console.log(await res.toArray())
+  return (await res.toArray()).map(item => {
+    return {
+      ...item,
+      updatedAt: new Date(item.updatedAt.toString()),
+    }
+  })
 }
 
 module.exports = {
