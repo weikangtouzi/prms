@@ -622,6 +622,39 @@ const CandidateGetOnlineResumeBasicInfo = async (parent, args, { userInfo }, inf
         ...res.dataValues
     }
 }
+const CandidateRemoveEduExp = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
+    const {id} = args;
+    await ResumeEduExp.destroy({
+        where: {
+            id: id
+        }
+    })
+}
+const CandidateRemoveProExp = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
+    const {id} = args;
+    await ResumeProExp.destroy({
+        where: {
+            id: id
+        }
+    })
+}
+const CandidateRemoveWorkExp = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
+    const {id} = args;
+    await ResumeWorkExp.destroy({
+        where: {
+            id: id
+        }
+    })
+}
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -642,5 +675,8 @@ module.exports = {
     CandidateGetWorkExps,
     CandidateGetOnlineResumeBasicInfo,
     CandidateGetEduExps,
-    CandidateGetProjectExps
+    CandidateGetProjectExps,
+    CandidateRemoveEduExp,
+    CandidateRemoveProExp,
+    CandidateRemoveWorkExp
 }
