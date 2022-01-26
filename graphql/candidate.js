@@ -428,8 +428,8 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
         if (role) update.role = role;
         if (startAt) update.start_at = startAt;
         if (endAt) update.end_at = endAt;
-        if (description) update.description = description;
-        if (performance) update.performance = performance;
+        if (description) update.project_description = description;
+        if (performance) update.project_performance = performance;
         await ResumeProjectExp.update(update, {
             where: {
                 id: id,
@@ -448,8 +448,8 @@ const CandidateEditProExp = async (parent, args, { userInfo }, info) => {
             role: role,
             start_at: startAt,
             end_at: endAt,
-            description: description,
-            performance: performance
+            project_description: description,
+            project_performance: performance
         })
     }
 }
