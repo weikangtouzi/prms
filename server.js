@@ -1138,6 +1138,9 @@ const typeDefs = gql`
     UserVerifyCodeConsume(info: VerifyInfo) : Void
     UserEditJobExpectation(info:UserExpectation!): Void
     ENTEditAccountInfo(pos: String): Void
+    CandidateRemoveEduExp(id: Int!): Void
+    CandidateRemoveProExp(id: Int!): Void
+    CandidateRemoveWorkExp(id: Int!): Void
   }
   type Subscription {
     newMessage: Message!

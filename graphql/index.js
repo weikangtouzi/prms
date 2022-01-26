@@ -64,7 +64,10 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateGetEduExps,
     CandidateGetProjectExps,
     CandidateEditEduExp,
-    CandidateEditProExp } = require('./candidate');
+    CandidateEditProExp,
+    CandidateRemoveEduExp,
+    CandidateRemoveProExp,
+    CandidateRemoveWorkExp } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
@@ -179,7 +182,10 @@ const resolvers = {
         ENTEditAccountInfo,
         CandidateEditProExp,
         CandidateEditSkills,
-        CandidateEditEduExp
+        CandidateEditEduExp,
+        CandidateRemoveEduExp,
+        CandidateRemoveProExp,
+        CandidateRemoveWorkExp
     },
     Subscription: {
         newMessage,
