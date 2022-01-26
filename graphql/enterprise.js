@@ -722,7 +722,7 @@ const HRGetInterviewcomments = async (parent, args, { userInfo }, info) => {
   return (await res.toArray()).map(item => {
     return {
       ...item,
-      updatedAt: new Date(item.updatedAt.toString()),
+      updatedAt: new Date(parseInt(item.updatedAt.toString())),
     }
   })
 }
