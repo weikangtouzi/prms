@@ -638,7 +638,7 @@ const CandidateRemoveProExp = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.resume_id) throw new ForbiddenError('尚未创建在线简历，或未切换求职身份');
     const {id} = args;
-    await ResumeProExp.destroy({
+    await ResumeProjectExp.destroy({
         where: {
             id: id
         }
