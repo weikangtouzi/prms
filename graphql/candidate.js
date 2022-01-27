@@ -341,7 +341,7 @@ const CandidateEditWorkExprience = async (parent, args, { userInfo }, info) => {
         if (department) update.department = department;
         if (startAt) update.start_at = startAt;
         if (endAt) update.end_at = endAt;
-        if (workDetail) update.work_detail = workDetail;
+        if (workDetail) update.working_detail = workDetail;
         if (Object.keys(update).length == 0) throw new UserInputError("needed at least one data");
         await ResumeWorkExp.update(update, {
             where:{id: id}
@@ -606,7 +606,7 @@ const CandidateGetProjectExps = async (parent, args, { userInfo }, info) => {
             return {
                 ...row.dataValues,
                 start_at: new Date(row.dataValues.start_at).toISOString(),
-                end_at: new Date(row.dataValues.start_at).toISOString()
+                end_at: new Date(row.dataValues.end_at).toISOString()
             }
         })
     }
