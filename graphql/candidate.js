@@ -684,11 +684,12 @@ const CandidateEditOnlineResumeGrade = async (parent, args, { userInfo }, info) 
 const CandidateGetOnlineResumeGrade = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    return await Resume.findOne({
+    return (await Resume.findOne({
         where: {
             id: userInfo.resume_id
-        }
-    })
+        },
+        attributes: ["grade"]
+    })).dataValues.grade
 }
 module.exports = {
     CandidateGetAllJobExpectations,
