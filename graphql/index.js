@@ -68,7 +68,9 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateRemoveEduExp,
     CandidateRemoveProExp,
     CandidateRemoveWorkExp,
-    CandidateRemoveJobExpectation } = require('./candidate');
+    CandidateRemoveJobExpectation,
+    CandidateGetOnlineResumeGrade,
+    CandidateEditOnlineResumeGrade } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
@@ -142,7 +144,8 @@ const resolvers = {
         ENTGetAccountInfo,
         CandidateGetEduExps,
         CandidateGetProjectExps,
-        HRGetInterviewcomments
+        HRGetInterviewcomments,
+        CandidateGetOnlineResumeGrade
     },
     Mutation: {
         UserRegister: register,
@@ -187,6 +190,7 @@ const resolvers = {
         CandidateRemoveEduExp,
         CandidateRemoveProExp,
         CandidateRemoveWorkExp,
+        CandidateEditOnlineResumeGrade,
         CandidateRemoveJobExpectation
     },
     Subscription: {

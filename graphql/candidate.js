@@ -669,6 +669,27 @@ const CandidateRemoveJobExpectation = async (parent, args, { userInfo }, info) =
         }
     })
 }
+const CandidateEditOnlineResumeGrade = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {grade} = args;
+    await Resume.update({
+        grade,
+    }, {
+        where: {
+            id: userInfo.resume_id
+        }
+    })
+}
+const CandidateGetOnlineResumeGrade = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    return await Resume.findOne({
+        where: {
+            id: userInfo.resume_id
+        }
+    })
+}
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -693,5 +714,7 @@ module.exports = {
     CandidateRemoveEduExp,
     CandidateRemoveProExp,
     CandidateRemoveWorkExp,
-    CandidateRemoveJobExpectation
+    CandidateRemoveJobExpectation,
+    CandidateGetOnlineResumeGrade,
+    CandidateEditOnlineResumeGrade
 }
