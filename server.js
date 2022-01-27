@@ -1067,6 +1067,7 @@ const typeDefs = gql`
     CandidateGetEduExps: ResumeEduExpsData!
     CandidateGetProjectExps: ResumeProjectExpsData!
     HRGetInterviewcomments(needReplys: Int, onlyMine: Boolean): Void
+    CandidateGetOnlineResumeGrade: Int!
   }
   
   "most of mutations needed token for authorization"
@@ -1147,6 +1148,11 @@ const typeDefs = gql`
     CandidateRemoveProExp(id: Int!): Void
     CandidateRemoveWorkExp(id: Int!): Void
     CandidateRemoveJobExpectation(id: Int!): Void
+    """
+    if your grade is 90.3% like this,
+    send 90
+    """
+    CandidateEditOnlineResumeGrade(grade: Int!): Void
   }
   type Subscription {
     newMessage: Message!
