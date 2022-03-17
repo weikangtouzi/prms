@@ -16,17 +16,20 @@ const UserVerifyCodeConsume = async (parent, args, context, info) => {
     const { phoneNumber, verifyCode, operation } = args.info;
     if (verifyCode === "tested") {
         await mongo.query("user_log_in_cache", async (collection) => {
-            let res = await collection.updateOne({
-                phoneNumber
-            }, {
-                $replaceWith: {
-                    phoneNumber,
-                    verified: true,
-                    operation,
-                    createdAt: new Date(),
-                }
-            }, { upsert: true })
-
+            try {
+                await collection.updateOne({
+                    phoneNumber
+                }, [{
+                    $replaceWith: {
+                        phoneNumber,
+                        verified: true,
+                        operation,
+                        createdAt: new Date(),
+                    }
+                }], {upsert: true})
+            } catch (err) {
+                console.error(err)
+            }
         });
         return
     }
@@ -146,7 +149,7 @@ const register = async (parent, args, context, info) => {
         let verified = await checkverified(phoneNumber, info.fieldName)
         if (!verified) {
             console.log(info.fieldName)
-            throw new AuthenticationError('needed verification for none password login')
+            throw new AuthenticationError('invaild operation, if you keep seeing this, please send a feedback to our administrator')
         }
         if (Object.keys(errors).length > 0) {
             throw errors
@@ -173,6 +176,11 @@ const register = async (parent, args, context, info) => {
                 identified: "None"
             });
         }
+        mongo.query("new_user_record", async (collection) => {
+            collection.insertOne({
+                "register_time": new Date()
+            })
+        })
         return serializers.jwt({
             user_id: user.id,
             username: user.username
@@ -186,7 +194,9 @@ const register = async (parent, args, context, info) => {
         } else if (e.name === 'SequelizeValidationError') {
             e.errors.forEach((err) => (errors[err.path] = err.message))
         }
-        console.log(e)
+        if (typeof e == AuthenticationError) {
+            throw e
+        }
         throw new UserInputError(e)
     }
 };

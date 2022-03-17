@@ -70,8 +70,6 @@ const AdminSetRole = async (parent, args, { userInfo }, info) => {
 }
 
 const AdminLogIn = async (parent, args, { userInfo }, info) => {
-    if (!userInfo) throw new AuthenticationError('missing authorization')
-    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     const { account, password } = args;
     try {
         let res = await mongo.query('admin_and_roles', async (collection) => {
@@ -187,7 +185,12 @@ const AdminGetEntList = async ( parent, args, { userInfo }, info) => {
     return res;
 }
 
-
+const AdminGetHomePageDataCollection = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.role) throw new ForbiddenError('not a Admin account')
+    
+}
 
 
 module.exports = {
@@ -195,5 +198,6 @@ module.exports = {
     setCensoredForAnItem,
     AdminLogIn,
     AdminGetUserList,
-    AdminGetEntList
+    AdminGetEntList,
+    AdminGetHomePageDataCollection
 }
