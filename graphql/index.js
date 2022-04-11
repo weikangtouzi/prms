@@ -71,7 +71,17 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateRemoveJobExpectation,
     CandidateGetOnlineResumeGrade,
     CandidateEditOnlineResumeGrade } = require('./candidate');
-const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList } = require('./admin');
+const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList, AdminGetHomePageDataCollection, AdminGetEntList, AdminDisableUserAccount,
+    AdminEnableUserAccount,
+    AdminDisableEnterpriseUserAccount,
+    AdminEnableEnterpriseUserAccount,
+    AdminDisableEnterpriseMainAccount,
+    AdminEnableEnterpriseMainAccount,
+    AdminGetJobList,
+    AdminShowJobInfo,
+    AdminDisableJob,
+    AdminEnableJob,
+    AdminResetPassword } = require('./admin');
 const resolvers = {
     JobDataListForAllUsers: {
         __resolveType(obj, context, info) {
@@ -145,7 +155,12 @@ const resolvers = {
         CandidateGetEduExps,
         CandidateGetProjectExps,
         HRGetInterviewcomments,
-        CandidateGetOnlineResumeGrade
+        CandidateGetOnlineResumeGrade,
+        AdminGetHomePageDataCollection,
+        AdminGetEntList,
+        AdminGetJobList,
+        AdminShowJobInfo,
+
     },
     Mutation: {
         UserRegister: register,
@@ -191,7 +206,16 @@ const resolvers = {
         CandidateRemoveProExp,
         CandidateRemoveWorkExp,
         CandidateEditOnlineResumeGrade,
-        CandidateRemoveJobExpectation
+        CandidateRemoveJobExpectation,
+        AdminDisableUserAccount,
+        AdminEnableUserAccount,
+        AdminDisableEnterpriseUserAccount,
+        AdminEnableEnterpriseUserAccount,
+        AdminDisableEnterpriseMainAccount,
+        AdminEnableEnterpriseMainAccount,
+        AdminDisableJob,
+        AdminEnableJob,
+        AdminResetPassword
     },
     Subscription: {
         newMessage,

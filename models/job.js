@@ -93,6 +93,11 @@ module.exports = (sequelize, DataTypes) => {
     expired_at: {
       type: DataTypes.DATEONLY,
       allowNull: true
+    },
+    isAvaliable: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   }, {
     sequelize,
