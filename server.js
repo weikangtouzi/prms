@@ -1003,6 +1003,54 @@ const typeDefs = gql`
     count: Int,
     data: [ResumeProjectExpData]
   }
+  type UserCounterForAdmin {
+    sum: Int!
+    enterpriseUserCount: Int!
+}
+type JobCounterForAdmin {
+    sum: Int!
+}
+type GraphDataForAdminHomePage {
+  monthly: [Int]!,
+  weekly: [Int]!,
+}
+type NewUserCounterForAdmin {
+    monthly: Int!
+    weekly: Int!
+    graphData: GraphDataForAdminHomePage!
+}
+type AdminHomePageDataCollection {
+    userCounter: UserCounterForAdmin!
+    jobCounter: JobCounterForAdmin!
+    newUserCounter: NewUserCounterForAdmin!
+    censors: Int!
+}
+input EntFilterForAdmin {
+  id: Int,
+  full_name: String,
+  phoneNumber: String,
+  identifyTime: [String],
+  isAvaliable: Boolean
+}
+type JobInfoForAdmin {
+  id: Int!,
+  full_name: String!,
+  phoneNumber: String!,
+  identifyTime: String!,
+  title: String!,
+  category: [String]!,
+  city: String!,
+  detail: String!,
+  address_coordinate: String!,
+  address_description: String!,
+  min_salary: Int!,
+  max_salary: Int!,
+  min_experience: Int!,
+  min_education: EducationRequired,
+  required_num: Int!,
+  isAvaliable: Boolean!,
+}
+
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1068,6 +1116,11 @@ const typeDefs = gql`
     CandidateGetProjectExps: ResumeProjectExpsData!
     HRGetInterviewcomments(needReplys: Int, onlyMine: Boolean): Void
     CandidateGetOnlineResumeGrade: Int!
+    AdminGetHomePageDataCollection: AdminHomePageDataCollection!
+    AdminGetEntList(info: EntFilterForAdmin, page: Int, pageSize: Int): Void
+    AdminGetJobList(id: Int, title: String, isAvaliable: Boolean, page: Int, pageSize: Int): Void
+    AdminShowJobInfo(job_id: Int!): [JobInfoForAdmin]!
+
   }
   
   "most of mutations needed token for authorization"
@@ -1153,6 +1206,15 @@ const typeDefs = gql`
     send 90
     """
     CandidateEditOnlineResumeGrade(grade: Int!): Void
+    AdminDisableUserAccount(user_id: Int!): Void
+    AdminEnableUserAccount(user_id: Int!): Void
+    AdminDisableEnterpriseUserAccount(worker_id: Int!): Void
+    AdminEnableEnterpriseUserAccount(worker_id: Int!): Void
+    AdminDisableEnterpriseMainAccount(ent_id: Int!): Void
+    AdminEnableEnterpriseMainAccount(ent_id: Int!): Void
+    AdminDisableJob(job_id: Int!): Void
+    AdminEnableJob(job_id: Int!): Void
+    AdminResetPassword(oldOne: String, newOne: String): Void
   }
   type Subscription {
     newMessage: Message!
