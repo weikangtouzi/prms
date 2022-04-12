@@ -6,13 +6,13 @@ const { User, Worker } = require('../models')
 const { ForbiddenError} = require('apollo-server');
 module.exports = {
     before: context => {
-        let token
+        let token = null
         if (context.req && context.req.headers.authorization) {
             token = context.req.headers.authorization;
         } else if (context.Authorization) {
             token = context.Authorization
         }
-        if (token) {
+        if (token !== null) {
             let userInfo
             try {
                 userInfo = jwt.verify(token, jwtConfig.secret);
@@ -51,6 +51,7 @@ module.exports = {
                     returning: true
                 })
             }
+            
             context.userInfo = userInfo;
         }
         context.pubsub = pubsub
