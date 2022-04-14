@@ -117,6 +117,11 @@ module.exports = (sequelize, DataTypes) => {
         created_at: {
             type: DataTypes.DATE,
             allowNull: false
+        },
+        is_avaliable: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: true
         }
     }, {
         sequelize,
