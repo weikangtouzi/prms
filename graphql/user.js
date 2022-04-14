@@ -194,6 +194,7 @@ const register = async (parent, args, context, info) => {
         } else if (e.name === 'SequelizeValidationError') {
             e.errors.forEach((err) => (errors[err.path] = err.message))
         }
+        console.error(e)
         if (typeof e == AuthenticationError) {
             throw e
         }
