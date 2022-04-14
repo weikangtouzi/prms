@@ -40,7 +40,7 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
         if (args.filter.page) page = args.filter.page;
         if (args.filter.pageSize) pageSize = args.filter.pageSize;
         let where = {
-            isAvaliable: true
+            is_avaliable: true
         }
         if (category) where.category = category;
         if (salaryExpected) {
