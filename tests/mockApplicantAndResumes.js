@@ -760,17 +760,6 @@ mock().then(() => {
         ended_at: new Date(new Date().getTime() + 1000),
         comp_name: "ent_0",
         status: "Passed"
-    }).then((interview) => {
-        InterviewRecomment.create({
-            interview_id: interview.id,
-            job_name: "Java",
-            user_id: 37,
-            comp_id: 1,
-            content: "aaaaa",
-            description: 2,
-            comp_env: 3,
-            tags: ["a", "b"]
-        })
     })
     Interview.create({
         user_id: 38,
@@ -780,17 +769,6 @@ mock().then(() => {
         ended_at: new Date(new Date().getTime() + 1000),
         comp_name: "ent_0",
         status: "Passed"
-    }).then((interview) => {
-        InterviewRecomment.create({
-            interview_id: interview.id,
-            job_name: "Java",
-            user_id: 38,
-            comp_id: 1,
-            content: "aaaaa",
-            description: 2,
-            comp_env: 3,
-            tags: ["a", "b"]
-        })
     })
     Interview.create({
         user_id: 39,
@@ -801,16 +779,6 @@ mock().then(() => {
         comp_name: "ent_0",
         status: "Passed"
     }).then((interview) => {
-        InterviewRecomment.create({
-            interview_id: interview.id,
-            job_name: "Java",
-            user_id: 39,
-            comp_id: 1,
-            content: "aaaaa",
-            description: 2,
-            comp_env: 3,
-            tags: ["a", "b"]
-        }).then((res) => {
             EnterpriseQuestion.create({
                 user_id: 37,
                 enterprise_id: 1,
@@ -825,7 +793,7 @@ mock().then(() => {
                 })
             })
             process.exit();
-        })
+        
     })
 
 
