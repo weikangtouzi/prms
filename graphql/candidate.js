@@ -5,6 +5,8 @@ const user = require('../models/user');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo');
 const serializers = require('../utils/serializers');
+const queryBuilder = require('../elasticSearch/querys');
+const es_client = require('../elasticSearch/');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -33,34 +35,51 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             education,
             enterpriseSize,
             enterpriseFinancing,
-            sortWithDistance,
             full_time_job,
-            category
+            category,
+            keyword
         } = args.filter;
         if (args.filter.page) page = args.filter.page;
         if (args.filter.pageSize) pageSize = args.filter.pageSize;
-        let where = {
-            is_avaliable: true
-        }
-        if (category) where.category = category;
+        let builder = queryBuilder();
         if (salaryExpected) {
-            where.min_salary = salaryExpected[0];
-            where.max_salary = salaryExpected[1];
+            let shoulds = [];
+            let con_1 = builder.newBool(null, [builder.newRange("min_salary".salaryExpected[0]), builder.newRange("max_salary", null, salaryExpected[0])]);
+            shoulds.push(con_1);
+            shoulds.push(builder.newRange("min_salary", salaryExpected[0], salaryExpected[1]));
+            builder.addMust(builder.newBool(shoulds));
         }
-        if (education) where.min_education = education;
-        if (experience) where.min_experience = experience;
-        if (full_time_job) where.full_time_job = full_time_job;
-        if (enterpriseSize) where.comp_size = enterpriseSize;
-        if (enterpriseFinancing) where.comp_financing = enterpriseFinancing;
-        res = await JobCache.findAndCountAll({
-            where,
-            limit: pageSize,
-            offset: page * pageSize,
-            order: sortWithDistance ? [[sequelize.fn("ST_Distance", sequelize.col("address_coordinate"), sequelize.fn("ST_GeomFromGeoJSON", JSON.stringify({
-                type: "POINT",
-                coordinates: sortWithDistance
-            })))], ["ontop", "DESC"], ["updated_at", "DESC"]] : [["ontop", "DESC"], ["updated_at", "DESC"]]
-        })
+        if(experience) {
+            builder.addMust(builder.newRange("min_experience", null, experience));
+        }
+        if(education && education != "Null") {
+            builder.addMust(builder.newRange("min_education.lvl", null, education));
+        }
+        if(enterpriseSize) {
+            builder.addMust(builder.newMatch("comp_size",enterpriseSize))
+        }
+        if(enterpriseFinancing) {
+            builder.addMust(builder.newMatch("comp_financing",enterpriseFinancing))
+        }
+        if(full_time_job) {
+            builder.addMust(builder.newMatch("full_time_job",full_time_job))
+        }
+        if(category) {
+            let musts = [...category];
+            musts = musts.map(item => {
+                return builder.newMatch("category", item)
+            })
+            builder.addMust(builder.newBool(null, musts));
+        }
+        if(keyword) {
+            let fieldNames = ["title", "category", "comp_name"];
+            let matchs = fieldNames.map(item => {
+                return builder.newMatch(item, keyword)
+            })
+            builder.addMust(builder.newBool(matchs));
+        }
+        res = (await builder.send(es_client, "job_search", pageSize, page * pageSize)).body;
+
     } else {
         res = await JobCache.findAndCountAll({
             limit: pageSize,
@@ -70,13 +89,13 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
     }
     return {
         page, pageSize,
-        count: res.count,
-        data: res.rows.map(row => {
-            row.address_coordinate = JSON.stringify(row.address_coordinate);
-            if (!row.logo) row.logo = "default_hr_logo";
-            if (!row.emergency) row.emergency = false;
-            row.updated_at = row.updated_at.toISOString();
-            return row
+        count: res.hits.total.value,
+        data: res.hits.hits.map(({_source}) => {
+            _source.address_coordinate = JSON.stringify(_source.address_coordinate);
+            if (!_source.emergency) _source.emergency = false;
+            // row.updated_at = row.updated_at.toISOString();
+            // row.created_at = row.created_at.toISOString();
+            return _source
         })
     }
 }
