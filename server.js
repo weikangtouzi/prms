@@ -167,7 +167,7 @@ const typeDefs = gql`
     name: String!,
     pos: String!,
     last_log_out_time: String,
-    logo: String!
+    logo: String
   }
   type CompInfoForJobDetailPage {
     id: Int!,
@@ -176,7 +176,7 @@ const typeDefs = gql`
     address_description: [String]!,
     industry_involved: [String]!,
     business_nature: EnterpriseNature!,
-    enterprise_logo: String!
+    enterprise_logo: String
     enterprise_size: EnterpriseSize!
   }
   
@@ -205,7 +205,7 @@ const typeDefs = gql`
     comp_name: String!,
     comp_size: EnterpriseSize!,
     comp_financing: EnterpriseFinancing!,
-    logo: String!,
+    logo: String,
     emergency: Boolean!,
     createdAt: String!,
     status: JobStatus!,
@@ -299,7 +299,7 @@ const typeDefs = gql`
   }
   type ResumePersonalData {
     "a link to the file"
-    logo: String!,
+    logo: String,
     realName: String!,
     age: Int!,
     gender: Boolean!,
@@ -738,7 +738,7 @@ const typeDefs = gql`
   type WorkerInfoForWorkerList {
     id: Int!,
     name: String!,
-    logo: String!,
+    logo: String,
     pos: String!,
     createdAt: String,
     role: EnterpriseRole,
@@ -753,7 +753,7 @@ const typeDefs = gql`
     content: String!,
     thumbs: Int!,
     createdAt: String!,
-    logo: String!,
+    logo: String,
   }
   type InterviewRecommentListForEntDetail {
     total: Float!,
@@ -783,7 +783,7 @@ const typeDefs = gql`
     pos: String!,
     last_log_out_time: String,
     company_belonged: String!,
-    logo: String!
+    logo: String
   }
   type JobListForHRDetailPageOrEntJobList {
     count: Int!,
@@ -791,7 +791,7 @@ const typeDefs = gql`
   }
   type Contract {
     id: Int!,
-    logo: String!
+    logo: String
     name: String!,
     pos: String,
     ent: String,
@@ -842,7 +842,7 @@ const typeDefs = gql`
   scalar JobStatus
   type Talent {
     id: Int!,
-    logo: String!,
+    logo: String,
     """
     some api not having this
     using Void because the type not settled yet
