@@ -249,7 +249,7 @@ const postJob = async (parent, args, { userInfo }, info) => {
   if (isvalidJobPoster(userInfo.identity)) {
     const { jobTitle, workingAddress, experience, salary, education, description, requiredNum, isFullTime, tags, coordinates, onLineTimes, publishNow, category } = args.info;
     let data = {
-      worker_id: userInfo.user_id,
+      worker_id: userInfo.identity.worker_id,
       title: jobTitle,
       detail: description,
       address_coordinate: {
