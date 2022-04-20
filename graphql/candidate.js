@@ -22,7 +22,7 @@ const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) 
     })
     return res.rows
 }
-const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
+const CandidateSearchJob = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
@@ -37,8 +37,8 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             enterpriseFinancing,
             full_time_job,
             category,
-            keyword
         } = args.filter;
+        const {keyword} = args;
         if (args.filter.page) page = args.filter.page;
         if (args.filter.pageSize) pageSize = args.filter.pageSize;
         let builder = queryBuilder();
@@ -96,6 +96,66 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
             // row.updated_at = row.updated_at.toISOString();
             // row.created_at = row.created_at.toISOString();
             return _source
+        })
+    }
+}
+const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
+    let res;
+    let page = 0;
+    let pageSize = 10;
+    if (args.filter) {
+        let { salaryExpected,
+            experience,
+            education,
+            enterpriseSize,
+            enterpriseFinancing,
+            sortWithDistance,
+            full_time_job,
+            category
+        } = args.filter;
+        if (args.filter.page) page = args.filter.page;
+        if (args.filter.pageSize) pageSize = args.filter.pageSize;
+        let where = {
+            is_avaliable: true
+        }
+        if (category) where.category = category;
+        if (salaryExpected) {
+            where.min_salary = salaryExpected[0];
+            where.max_salary = salaryExpected[1];
+        }
+        if (education) where.min_education = education;
+        if (experience) where.min_experience = experience;
+        if (full_time_job) where.full_time_job = full_time_job;
+        if (enterpriseSize) where.comp_size = enterpriseSize;
+        if (enterpriseFinancing) where.comp_financing = enterpriseFinancing;
+        res = await JobCache.findAndCountAll({
+            where,
+            limit: pageSize,
+            offset: page * pageSize,
+            order: sortWithDistance ? [[sequelize.fn("ST_Distance", sequelize.col("address_coordinate"), sequelize.fn("ST_GeomFromGeoJSON", JSON.stringify({
+                type: "POINT",
+                coordinates: sortWithDistance
+            })))], ["ontop", "DESC"], ["updated_at", "DESC"]] : [["ontop", "DESC"], ["updated_at", "DESC"]]
+        })
+    } else {
+        res = await JobCache.findAndCountAll({
+            limit: pageSize,
+            offset: page * pageSize,
+            order: [["ontop", "DESC"], ["updated_at", "DESC"]]
+        })
+    }
+    return {
+        page, pageSize,
+        count: res.count,
+        data: res.rows.map(row => {
+            row.address_coordinate = JSON.stringify(row.address_coordinate);
+            if (!row.logo) row.logo = "default_hr_logo";
+            if (!row.emergency) row.emergency = false;
+            row.updated_at = row.updated_at.toISOString();
+            return row
         })
     }
 }
@@ -736,5 +796,6 @@ module.exports = {
     CandidateRemoveWorkExp,
     CandidateRemoveJobExpectation,
     CandidateGetOnlineResumeGrade,
-    CandidateEditOnlineResumeGrade
+    CandidateEditOnlineResumeGrade,
+    CandidateSearchJob
 }
