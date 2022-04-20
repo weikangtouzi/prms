@@ -518,7 +518,7 @@ const UserGetEnterpriseDetail_WorkerList = async (parent, args, { userInfo }, in
         final = {
             ...final,
             name: final.real_name,
-            logo: final.User.image_url ? final.User.image_url : "default",
+            logo: final.User.image_url,
         }
         return final
     })

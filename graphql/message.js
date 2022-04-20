@@ -23,7 +23,7 @@ async function getJob(jobId) {
     }]
     let job = await Job.findOne({
         where: {
-            id: jobid,
+            id: jobId,
             // expired_at: {
             //     [Op.gt]: new Date()
             // }

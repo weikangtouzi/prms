@@ -444,6 +444,10 @@ const typeDefs = gql`
     education: Education,
     enterpriseSize: EnterpriseSize,
     enterpriseFinancing: EnterpriseFinancing,
+    """
+    will be ignored when using search query
+    cause search query is sort by score
+    """
     sortWithDistance: [Float],
     category: [String],
     full_time_job: FullTime,
@@ -1120,7 +1124,7 @@ type JobInfoForAdmin {
     AdminGetEntList(info: EntFilterForAdmin, page: Int, pageSize: Int): Void
     AdminGetJobList(id: Int, title: String, isAvaliable: Boolean, page: Int, pageSize: Int): Void
     AdminShowJobInfo(job_id: Int!): [JobInfoForAdmin]!
-
+    CandidateSearchJob(keyword: String, filter: JobFilter): JobSimpifiedDataPageView!
   }
   
   "most of mutations needed token for authorization"

@@ -198,31 +198,31 @@ db.User.afterBulkUpdate((user, options) => {
         }]
       }]
     }).then(res => {
-      if(user.attributes && user.attributes.image_url) {
+      if (user.attributes && user.attributes.image_url) {
         db.EnterpriseQuestion.update({
-        logo: res.dataValues.image_url,
-      }, {
-        where: {
-          user_id: res.dataValues.id
-        }
-      })
-      db.Worker.findOne({
-        where: {
-          user_binding: res.dataValues.id
-        },
-        attributes: ["id"]
-      }).then(({dataValues}) => {
-        if(dataValues) {
-          db.EnterpriseAnswer.update({
-            logo: res.dataValues.image_url,
-          }, {
-            where: {
-              user_id: dataValues.id
-            }
-          })
-        }
-      })
-    }
+          logo: res.dataValues.image_url,
+        }, {
+          where: {
+            user_id: res.dataValues.id
+          }
+        })
+        db.Worker.findOne({
+          where: {
+            user_binding: res.dataValues.id
+          },
+          attributes: ["id"]
+        }).then(({ dataValues }) => {
+          if (dataValues) {
+            db.EnterpriseAnswer.update({
+              logo: res.dataValues.image_url,
+            }, {
+              where: {
+                user_id: dataValues.id
+              }
+            })
+          }
+        })
+      }
       elasticSearch.update({
         index: 'talent_search',
         id: String(res.dataValues.id),
@@ -251,7 +251,7 @@ db.User.afterBulkUpdate((user, options) => {
         throw err
       })
     })
-    
+
   } catch (e) {
     throw e
   }
@@ -449,6 +449,111 @@ db.Interview.afterUpdate((interview, options) => {
           }
         }
       }
+    }).catch(err => {
+      throw err
+    })
+  })
+})
+db.Job.afterCreate((job, options) => {
+  db.Job.findOne({
+    where: {
+      id: job.id
+    },
+    include: [{
+      model: db.Worker,
+      include: [{
+        model: db.Enterprise
+      }, {
+        model: db.User
+      }]
+    }]
+  }).then(res => {
+    db.JobCache.create({
+      ...res.dataValues,
+      job_id: res.dataValues.id,
+      worker_id: res.dataValues.Worker.id,
+      hr_name: res.dataValues.Worker.real_name,
+      hr_pos: res.dataValues.Worker.pos,
+      comp_id: res.dataValues.Worker.Enterprise.id,
+      comp_name: res.dataValues.Worker.Enterprise.enterprise_name,
+      comp_size: res.dataValues.Worker.Enterprise.enterprise_size,
+      comp_financing: res.dataValues.Worker.Enterprise.enterprise_financing,
+      logo: res.dataValues.Worker.User.logo,
+      created_at: res.dataValues.createdAt,
+      updated_at: res.dataValues.updatedAt
+    })
+  })
+})
+db.Job.afterBulkUpdate((job, options) => {
+  db.Job.findOne({
+    where: {
+      id: job.where.id
+    }
+  }).then(res => {
+    db.JobCache.update({
+      ...res.dataValues,
+      created_at: res.dataValues.createdAt,
+      updated_at: res.dataValues.updatedAt
+    }, {
+      where: {
+        job_id: res.dataValues.id
+      }
+    })
+  })
+})
+db.Worker.afterBulkUpdate((worker, options) => {
+  db.Worker.findOne({
+    where: {
+      id: worker.where.id
+    },
+  }).then(res => {
+   db.JobCache.update({
+    worker_id: res.dataValues.id,
+    hr_name: res.dataValues.real_name,
+    hr_pos: res.dataValues.pos,
+   }, {
+     where: {
+        worker_id: res.dataValues.id
+     }
+   })
+  })
+})
+db.Enterprise.afterBulkUpdate((enterprise, options) => {
+  db.Enterprise.findOne({
+    where: {
+      id: enterprise.where.id
+    },
+  }).then(res => {
+    db.JobCache.update({
+      comp_id: res.dataValues.id,
+      comp_name: res.dataValues.enterprise_name,
+      comp_size: res.dataValues.enterprise_size,
+      comp_financing: res.dataValues.enterprise_financing,
+    }, {
+      where: {
+        comp_id: res.dataValues.id
+      }
+    })
+  })
+})
+
+db.JobCache.afterCreate((job) => {
+  db.JobCache.findOne({
+    where: {
+      id: job.id
+    }
+  }).then(res => {
+    elasticSearch.index({
+      index: 'job_search',
+      id: job.id,
+      body: {
+        ...res.dataValues,
+        min_education: {
+          name: res.dataValues.min_education,
+          lvl: Education.getValue(res.dataValues.min_education)
+        }
+      }
+      // operation to perform
     }).catch(err => {
       throw err
     })

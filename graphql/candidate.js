@@ -5,6 +5,8 @@ const user = require('../models/user');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo');
 const serializers = require('../utils/serializers');
+const queryBuilder = require('../elasticSearch/querys');
+const es_client = require('../elasticSearch/');
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -19,6 +21,83 @@ const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) 
         ]
     })
     return res.rows
+}
+const CandidateSearchJob = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    if (!userInfo.jobExpectation || userInfo.jobExpectation.length == 0) throw new ForbiddenError('need job expectation for this operation');
+    let res;
+    let page = 0;
+    let pageSize = 10;
+    if (args.filter) {
+        let { salaryExpected,
+            experience,
+            education,
+            enterpriseSize,
+            enterpriseFinancing,
+            full_time_job,
+            category,
+        } = args.filter;
+        const {keyword} = args;
+        if (args.filter.page) page = args.filter.page;
+        if (args.filter.pageSize) pageSize = args.filter.pageSize;
+        let builder = queryBuilder();
+        if (salaryExpected) {
+            let shoulds = [];
+            let con_1 = builder.newBool(null, [builder.newRange("min_salary".salaryExpected[0]), builder.newRange("max_salary", null, salaryExpected[0])]);
+            shoulds.push(con_1);
+            shoulds.push(builder.newRange("min_salary", salaryExpected[0], salaryExpected[1]));
+            builder.addMust(builder.newBool(shoulds));
+        }
+        if(experience) {
+            builder.addMust(builder.newRange("min_experience", null, experience));
+        }
+        if(education && education != "Null") {
+            builder.addMust(builder.newRange("min_education.lvl", null, education));
+        }
+        if(enterpriseSize) {
+            builder.addMust(builder.newMatch("comp_size",enterpriseSize))
+        }
+        if(enterpriseFinancing) {
+            builder.addMust(builder.newMatch("comp_financing",enterpriseFinancing))
+        }
+        if(full_time_job) {
+            builder.addMust(builder.newMatch("full_time_job",full_time_job))
+        }
+        if(category) {
+            let musts = [...category];
+            musts = musts.map(item => {
+                return builder.newMatch("category", item)
+            })
+            builder.addMust(builder.newBool(null, musts));
+        }
+        if(keyword) {
+            let fieldNames = ["title", "category", "comp_name"];
+            let matchs = fieldNames.map(item => {
+                return builder.newMatch(item, keyword)
+            })
+            builder.addMust(builder.newBool(matchs));
+        }
+        res = (await builder.send(es_client, "job_search", pageSize, page * pageSize)).body;
+
+    } else {
+        res = await JobCache.findAndCountAll({
+            limit: pageSize,
+            offset: page * pageSize,
+            order: [["ontop", "DESC"], ["updated_at", "DESC"]]
+        })
+    }
+    return {
+        page, pageSize,
+        count: res.hits.total.value,
+        data: res.hits.hits.map(({_source}) => {
+            _source.address_coordinate = JSON.stringify(_source.address_coordinate);
+            if (!_source.emergency) _source.emergency = false;
+            // row.updated_at = row.updated_at.toISOString();
+            // row.created_at = row.created_at.toISOString();
+            return _source
+        })
+    }
 }
 const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
@@ -717,5 +796,6 @@ module.exports = {
     CandidateRemoveWorkExp,
     CandidateRemoveJobExpectation,
     CandidateGetOnlineResumeGrade,
-    CandidateEditOnlineResumeGrade
+    CandidateEditOnlineResumeGrade,
+    CandidateSearchJob
 }
