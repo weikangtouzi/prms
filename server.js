@@ -712,6 +712,7 @@ const typeDefs = gql`
     full_time_job: FullTime,
   }
   type EnterpriseInfoForEntDetail {
+    id: Int!,
     enterprise_name: String!,
     business_nature: EnterpriseNature!,
     industry_involved: [String]!,

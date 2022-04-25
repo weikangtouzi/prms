@@ -85,6 +85,14 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
         message_type: messageType,
         readed: false,
     })
+    pubsub.publish("NEW_MESSAGE", {
+        newMessage: {
+            to: msg.user_id,
+            messageType: msg.message_type,
+            messageContent: msg.detail,
+            ...msg.toJSON()
+        }
+    })
     ContractList.upsert({
         user_id: from,
         identity: isPersonal,
@@ -99,11 +107,12 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
         if (res[0].dataValues.createdAt && res[0].dataValues.job_id == jobId) {
             User.findOne({
                 where: {
-                    user_id: res[0].dataValues.target,
+                    id: res[0].dataValues.target,
                     disabled: false,
                 },
                 include: include ? include : [],
             }).then(async user => {
+                console.log(`first time user: ${JSON.stringify(user.toJSON())}`)
                 let job = await getJob(jobId);
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
@@ -114,11 +123,11 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                             id: job.id,
                             title: job.title,
                         },
-                        name: isPersonal ? user.Worker.real_name : user.username,
-                        pos: isPersonal ? user.Worker.pos : null,
-                        ent: isPersonal ? user.Enterprise.enterprise_name : null,
+                        name: isPersonal ? user.real_name : user.username,
+                        pos: isPersonal ?  user.Worker.pos: null,
+                        ent: isPersonal ? user.Worker.Enterprise.enterprise_name : null,
                         last_msg: res.last_msg,
-                        last_msg_time: res.updatedAt.toISOString()
+                        last_msg_time: res.updatedAt
                     }
                 })
             })
@@ -143,11 +152,12 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
         if (res[0].dataValues.createdAt && res[0].dataValues.job_id == jobId) {
             User.findOne({
                 where: {
-                    user_id: from,
+                    id: from,
                     disabled: false
                 },
                 include: include ? include : [],
             }).then(async user => {
+                console.log(`second time user: ${JSON.stringify(user.toJSON())}`)
                 let job = await getJob(jobId);
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
@@ -158,11 +168,11 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                             id: job.id,
                             title: job.title,
                         },
-                        name: isPersonal ? user.Worker.real_name : user.username,
-                        pos: isPersonal ? user.Worker.pos : null,
-                        ent: isPersonal ? user.Enterprise.enterprise_name : null,
+                        name: isPersonal ? user.username : user.real_name,
+                        pos: isPersonal ? null : user.Worker.pos,
+                        ent: isPersonal ? null : user.Worker.Enterprise.enterprise_name,
                         last_msg: res.last_msg,
-                        last_msg_time: res.updatedAt.toISOString()
+                        last_msg_time: res.updatedAt
                     }
                 })
             })
@@ -172,14 +182,7 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
             sendMessageFunc(to, from, jobId, isPersonal, messageContent, "Other", pubsub)
         }
     })
-    pubsub.publish("NEW_MESSAGE", {
-        newMessage: {
-            to: msg.user_id,
-            messageType: msg.message_type,
-            messageContent: msg.detail,
-            ...msg.toJSON()
-        }
-    })
+    
 }
 const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization');
@@ -189,7 +192,6 @@ const sendMessage = async (parent, args, { userInfo, pubsub }, info) => {
     if (to == userInfo.user_id) throw new UserInputError("could not send message to yourself");
     checkBlackList(to, userInfo.user_id);
     let isPersonal = (userInfo.identity.identity == 'PersonalUser');
-    
     await sendMessageFunc(to, userInfo.user_id, jobId, isPersonal, messageContent, messageType, pubsub);
 }
 const newMessage = {
