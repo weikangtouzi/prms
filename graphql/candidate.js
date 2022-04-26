@@ -614,7 +614,9 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
         await JobExpectation.update({
             ...input
         }, {
-            id: id,
+            where: {
+                id
+            }
         })
     } else {
         if (count >= 3) throw new UserInputError("already have 3 job expectations");
