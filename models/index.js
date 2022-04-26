@@ -470,6 +470,7 @@ db.Job.afterCreate((job, options) => {
   }).then(res => {
     db.JobCache.create({
       ...res.dataValues,
+      id: null,
       job_id: res.dataValues.id,
       worker_id: res.dataValues.Worker.id,
       hr_name: res.dataValues.Worker.real_name,

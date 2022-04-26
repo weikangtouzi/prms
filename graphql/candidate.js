@@ -770,6 +770,20 @@ const CandidateGetOnlineResumeGrade = async (parent, args, { userInfo }, info) =
         attributes: ["grade"]
     })).dataValues.grade
 }
+
+const CandidateGetHRIdByWorkerId = async (parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const {id} = args;
+    try {
+        let res = await Worker.findOne({where: {id}, attributes: ["id"],include: [{model: User, attributes: ["id"]}]})
+        return res.dataValues.User.id
+    } catch (e) {
+        throw new UserInputError({e})
+    }
+    
+}
+
 module.exports = {
     CandidateGetAllJobExpectations,
     CandidateGetJobList,
@@ -797,5 +811,6 @@ module.exports = {
     CandidateRemoveJobExpectation,
     CandidateGetOnlineResumeGrade,
     CandidateEditOnlineResumeGrade,
-    CandidateSearchJob
+    CandidateSearchJob,
+    CandidateGetHRIdByWorkerId
 }
