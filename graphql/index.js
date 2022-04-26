@@ -71,6 +71,7 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateRemoveJobExpectation,
     CandidateGetOnlineResumeGrade,
     CandidateEditOnlineResumeGrade,
+    CandidateGetHRIdByWorkerId,
     CandidateSearchJob } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList, AdminGetHomePageDataCollection, AdminGetEntList, AdminDisableUserAccount,
     AdminEnableUserAccount,
@@ -161,7 +162,8 @@ const resolvers = {
         AdminGetEntList,
         AdminGetJobList,
         AdminShowJobInfo,
-        CandidateSearchJob
+        CandidateSearchJob,
+        CandidateGetHRIdByWorkerId
     },
     Mutation: {
         UserRegister: register,
