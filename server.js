@@ -1128,7 +1128,7 @@ type JobInfoForAdmin {
     AdminGetJobList(id: Int, title: String, isAvaliable: Boolean, page: Int, pageSize: Int): Void
     AdminShowJobInfo(job_id: Int!): [JobInfoForAdmin]!
     CandidateSearchJob(keyword: String, filter: JobFilter): JobSimpifiedDataPageView!
-    CandidateGetHRIdByWorkerId(id: Int!) Int!
+    CandidateGetHRIdByWorkerId(id: Int!): Int!
   }
   
   "most of mutations needed token for authorization"
