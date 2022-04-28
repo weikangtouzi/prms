@@ -1057,6 +1057,10 @@ type JobInfoForAdmin {
   required_num: Int!,
   isAvaliable: Boolean!,
 }
+type UsernameAndLogo {
+  username: String!,
+  logo: String
+}
 
   "for most of get query needed token for authorization"
   type Query {
@@ -1129,6 +1133,7 @@ type JobInfoForAdmin {
     AdminShowJobInfo(job_id: Int!): [JobInfoForAdmin]!
     CandidateSearchJob(keyword: String, filter: JobFilter): JobSimpifiedDataPageView!
     CandidateGetHRIdByWorkerId(id: Int!): Int!
+    UserGetUsernameAndLogoWithId(user_id: Int!): UsernameAndLogo!
   }
   
   "most of mutations needed token for authorization"
