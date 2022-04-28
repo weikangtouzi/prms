@@ -823,6 +823,22 @@ const UserGetEnterpriseQuestions = async (parent, args, { userInfo }, info) => {
         })
     }
 }
+
+const UserGetUsernameAndLogoWithId = async ( parent, args, { userInfo }, info) => {
+    if (!userInfo) throw new AuthenticationError('missing authorization')
+    if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+    const { user_id } = args;
+    let res = await User.findOne({
+        where: {
+            id: user_id
+        }
+    })
+    return {
+        username: res.dataValues.username,
+        logo: res.image_url
+    }
+}
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
@@ -851,5 +867,6 @@ module.exports = {
     userGetRecruitmentList,
     UserAddJobExpectation,
     UserEditJobExpectation,
-    UserGetEnterpriseQuestions
+    UserGetEnterpriseQuestions,
+    UserGetUsernameAndLogoWithId
 }

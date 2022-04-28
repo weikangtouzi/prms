@@ -19,6 +19,7 @@ const { logIn,
     UserAddJobExpectation,
     UserEditJobExpectation,
     UserGetEnterpriseQuestions,
+    UserGetUsernameAndLogoWithId
 } = require('./user');
 const { sendSms, sendEmail } = require('./send_sms');
 const { insertPersonalData, phoneNumberCheck, checkIdCardNumber, showDatas } = require('./extra_data');
@@ -163,7 +164,8 @@ const resolvers = {
         AdminGetJobList,
         AdminShowJobInfo,
         CandidateSearchJob,
-        CandidateGetHRIdByWorkerId
+        CandidateGetHRIdByWorkerId,
+        UserGetUsernameAndLogoWithId
     },
     Mutation: {
         UserRegister: register,
