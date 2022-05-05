@@ -560,5 +560,11 @@ db.JobCache.afterCreate((job) => {
     })
   })
 })
+db.Enterprise.hasMany(db.Job, {
+  foreignKey: "comp_id"
+})
+db.Job.belongsTo(db.Enterprise, {
+  foreignKey: "comp_id"
+})
 db.mongo = mongo;
 module.exports = db;
