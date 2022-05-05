@@ -736,6 +736,7 @@ const typeDefs = gql`
     createdAt: String!,
     job_counter: Int,
     abbreviation: String!,
+    jobs: [JobDataBriefly]
   }
   enum DisabledLevel {
     LOW,

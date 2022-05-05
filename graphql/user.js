@@ -585,6 +585,10 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
                 [Op.substring]: keyword
             }
         },
+        include: [{
+            model: Job,
+            limit: 3,
+        }],
         limit: pageSize,
         offset: page * pageSize
     });
@@ -598,7 +602,13 @@ const UserSearchEnterprise = async (parent, args, { userInfo }, info) => {
             return {
                 ...item.toJSON(),
                 enterprise_coordinates: JSON.stringify(item.dataValues.coordinates),
-                created_at: item.dataValues.createdAt.toISOString()
+                created_at: item.dataValues.createdAt.toISOString(),
+                jobs: item.dataValues.Jobs.map(job => {
+                    return {
+                        ...job.dataValues,
+                        status: serializers.dateToJobStatus(new Date(job.dataValues.expired_at))
+                    }
+                })
             }
         })
     }
