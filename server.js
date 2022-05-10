@@ -1072,8 +1072,8 @@ type ResumePack {
   createdAt: String!,
   updatedAt: String!,
   ResumeWorkExps: [ResumeWorkExp]!
-  ResumeEduExp: [ResumeEduExp]!
-  ResumeProjectExp: [ResumeProExp]!
+  ResumeEduExps: [ResumeEduExp]!
+  ResumeProjectExps: [ResumeProExp]!
 }
 
 type ResumeDetail {
