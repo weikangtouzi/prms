@@ -1063,39 +1063,6 @@ type UsernameAndLogo {
   logo: String
 }
 
-type ResumePack {
-  id: Int!,
-  grade: Int!,
-  is_attachment: Boolean!,
-  skills: [String]!,
-  personal_advantage: String!,
-  createdAt: String!,
-  updatedAt: String!,
-  ResumeWorkExps: [ResumeWorkExp]!
-  ResumeEduExps: [ResumeEduExp]!
-  ResumeProjectExps: [ResumeProExp]!
-}
-
-type ResumeDetail {
-  id: Int!,
-  username: String!,
-  email: String,
-  phone_number: String!,
-  real_name: String,
-  image_url: String,
-  last_log_out_time: String,
-  gender: Boolean,
-  birth_date: String,
-  current_city: String,
-  first_time_working: String,
-  job_status: ResumeJobStatus!,
-  employment_nature: ResumeEmployNature!
-  education: Education!
-  createdAt: String!,
-  updatedAt: String!,
-  Resumes: [ResumePack]
-}
-
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1168,7 +1135,7 @@ type ResumeDetail {
     CandidateSearchJob(keyword: String, filter: JobFilter): JobSimpifiedDataPageView!
     CandidateGetHRIdByWorkerId(id: Int!): Int!
     UserGetUsernameAndLogoWithId(user_id: Int!): UsernameAndLogo!
-    HRGetCandidateResume(candidate_id: Int!): ResumeDetail
+    HRGetCandidateResume(candidate_id: Int!): Void
   }
   
   "most of mutations needed token for authorization"
