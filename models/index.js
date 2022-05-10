@@ -566,5 +566,17 @@ db.Enterprise.hasMany(db.Job, {
 db.Job.belongsTo(db.Enterprise, {
   foreignKey: "comp_id"
 })
+db.Resume.hasMany(db.ResumeEduExp, {
+  foreignKey: "resume_id"
+})
+db.ResumeEduExp.belongsTo(db.Resume, {
+  foreignKey: "resume_id"
+})
+db.Resume.hasMany(db.ResumeProjectExp, {
+  foreignKey: "resume_id"
+})
+db.ResumeProjectExp.belongsTo(db.Resume, {
+  foreignKey: "resume_id"
+})
 db.mongo = mongo;
 module.exports = db;

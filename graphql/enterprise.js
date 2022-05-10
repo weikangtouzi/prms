@@ -1,5 +1,6 @@
 const { UserInputError, AuthenticationError, ForbiddenError } = require('apollo-server');
-const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message, JobExpectation, sequelize, Resume } = require('../models');
+const { Enterprise, User, Worker, Job, ResumeDeliveryRecord, Interview, Message, JobExpectation, sequelize, Resume,
+  ResumeWorkExp, ResumeEduExp, ResumeProjectExp} = require('../models');
 const jwt = require('jsonwebtoken');
 const { isvalidTimeSection, isvalidEnterpriseAdmin, isvalidJobPoster } = require('../utils/validations');
 const { jwtConfig } = require('../project.json');
@@ -726,6 +727,33 @@ const HRGetInterviewcomments = async (parent, args, { userInfo }, info) => {
     }
   })
 }
+const HRGetCandidateResume = async (parent, args, { userInfo }, info) => {
+  if (!userInfo) throw new AuthenticationError('missing authorization')
+  if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
+  if(!isvalidJobPoster(userInfo.identity)) throw new ForbiddenError('not a valid joboster')
+  const {candidate_id} = args;
+  let res = await User.findOne({
+      where: {
+          id: candidate_id,
+          disabled: false
+      },
+      include: [{
+        model: Resume,
+        where: {
+          is_public: true
+        },
+        include: [{
+          model:ResumeWorkExp
+        },{
+          model:ResumeEduExp},{
+          model:ResumeProjectExp
+          }]
+      }]
+  })
+  return {
+    ...res.dataValues
+  }
+}
 
 module.exports = {
   editEnterpriseBasicInfo,
@@ -751,5 +779,6 @@ module.exports = {
   ENTSearchCandidates,
   ENTEditAccountInfo,
   ENTGetAccountInfo,
-  HRGetInterviewcomments
+  HRGetInterviewcomments,
+  HRGetCandidateResume
 }
