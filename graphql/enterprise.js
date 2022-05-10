@@ -750,6 +750,25 @@ const HRGetCandidateResume = async (parent, args, { userInfo }, info) => {
           }]
       }]
   })
+  if(res.dataValues.Resumes.length === 0) throw new UserInputError("该用户未创建简历或简历不公开")
+  res.dataValues.Resumes = res.dataValues.Resumes.map(item => {
+    item.ResumeWorkExps = item.ResumeWorkExps.map(item => {
+      item.enterpriseName = item.enterprise_name
+      item.positionName = item.position_name
+      item.departmentName = item.department_name
+      return item
+    })
+    item.ResumeEduExps = item.dataValues.ResumeEduExps.map(item => {
+      item.schoolName = item.school_name
+      return item
+    })
+    item.ResumeProjectExps = item.dataValues.ResumeProjectExps.map(item => {
+      item.projectName = item.project_name
+      return item
+    })
+    return item
+  })
+  console.log(res.dataValues)
   return {
     ...res.dataValues
   }

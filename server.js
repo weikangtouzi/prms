@@ -346,7 +346,6 @@ const typeDefs = gql`
     id: Int!,
     projectName: String!,
     role: String!,
-    time: String!,
     detail: String!
     "maybe not needed to send when showing the whole resume at a page"
     project_performance: String,
@@ -358,6 +357,7 @@ const typeDefs = gql`
     "check out Education type for value options"
     education: String!,
     detail: String!
+    time: String!
   }
   type ResumeData {
     personalData: ResumePersonalData!,
