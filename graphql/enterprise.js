@@ -749,6 +749,8 @@ const HRGetCandidateResume = async (parent, args, { userInfo }, info) => {
           model:ResumeEduExp},{
           model:ResumeProjectExp
           }]
+      }, {
+        model: JobExpectation
       }]
   })
   if(res.dataValues.Resumes.length === 0) throw new UserInputError("该用户未创建简历或简历不公开")
