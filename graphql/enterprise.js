@@ -9,6 +9,7 @@ const { Op } = require('sequelize');
 const elasticSearch = require('../elasticSearch')
 const queryBuilder = require('../elasticSearch/querys');
 const { Education } = require('./types');
+const { password } = require('pg/lib/defaults');
 const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -751,7 +752,11 @@ const HRGetCandidateResume = async (parent, args, { userInfo }, info) => {
       }]
   })
   if(res.dataValues.Resumes.length === 0) throw new UserInputError("该用户未创建简历或简历不公开")
-  return res
+  return {
+    ...res.dataValues,
+    password: null,
+    identified: null
+  }
 }
 
 module.exports = {
