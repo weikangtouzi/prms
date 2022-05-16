@@ -152,7 +152,6 @@ const CandidateGetJobList = async (parent, args, { userInfo }, info) => {
         count: res.count,
         data: res.rows.map(row => {
             row.address_coordinate = JSON.stringify(row.address_coordinate);
-            if (!row.logo) row.logo = "default_hr_logo";
             if (!row.emergency) row.emergency = false;
             row.updated_at = row.updated_at.toISOString();
             return row
@@ -609,7 +608,7 @@ const CandidateEditJobExpectations = async (parent, args, { userInfo }, info) =>
     if (max_salary_expectation) input.max_salary_expectation = max_salary_expectation;
     if (industry_involved) input.industry_involved = industry_involved;
     if (id) {
-        if(count == 1) throw UserInputError("需要保留至少一条求职意向");
+        if(count == 1) throw new UserInputError("需要保留至少一条求职意向");
         if (Object.keys(input).length == 0) throw new UserInputError("empty mutation is not expected");
         await JobExpectation.update({
             ...input
