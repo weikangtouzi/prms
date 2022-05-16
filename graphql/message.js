@@ -168,9 +168,9 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                             id: job.id,
                             title: job.title,
                         },
-                        name: isPersonal ? user.username : user.real_name,
-                        pos: isPersonal ? null : user.Worker.pos,
-                        ent: isPersonal ? null : user.Worker.Enterprise.enterprise_name,
+                        name: isPersonal ? user.real_name : user.username,
+                        pos: isPersonal ? user.Worker.pos : null,
+                        ent: isPersonal ? user.Worker.Enterprise.enterprise_name : null,
                         last_msg: res.last_msg,
                         last_msg_time: res.updatedAt
                     }
