@@ -682,7 +682,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
                 address_description: data.address_description,
                 salaryExpected: [data.min_salary, data.max_salary],
                 experience: data.min_experience,
-                education: data.education,
+                education: data.min_education,
                 required_num: data.required_num,
                 full_time_job: data.full_time_job,
                 tags: data.tags,
@@ -718,7 +718,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
                 address_description: data.address_description,
                 salaryExpected: [data.min_salary, data.max_salary],
                 experience: data.min_experience,
-                education: data.education,
+                education: data.min_education,
                 required_num: data.required_num,
                 full_time_job: data.full_time_job,
                 tags: data.tags,
@@ -744,7 +744,7 @@ const UserGetJob = async (parent, args, { userInfo }, info) => {
             }
         }
     }
-
+    console.log(res);
     return res
 }
 

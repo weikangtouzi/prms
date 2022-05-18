@@ -43,8 +43,9 @@ const CandidateSearchJob = async (parent, args, { userInfo }, info) => {
         if (args.filter.pageSize) pageSize = args.filter.pageSize;
         let builder = queryBuilder();
         if (salaryExpected) {
+            console.log(salaryExpected)
             let shoulds = [];
-            let con_1 = builder.newBool(null, [builder.newRange("min_salary".salaryExpected[0]), builder.newRange("max_salary", null, salaryExpected[0])]);
+            let con_1 = builder.newBool(null, [builder.newRange("min_salary",salaryExpected[0]), builder.newRange("max_salary", null, salaryExpected[0])]);
             shoulds.push(con_1);
             shoulds.push(builder.newRange("min_salary", salaryExpected[0], salaryExpected[1]));
             builder.addMust(builder.newBool(shoulds));
