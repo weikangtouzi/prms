@@ -143,13 +143,7 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
             sendMessageFunc(to, from, jobId, isPersonal, messageContent, "Other", pubsub)
         }
     })
-    ContractList.upsert({
-        user_id: to,
-        identity: !isPersonal,
-        target: from,
-        last_msg: msg.detail,
-        job_id: jobId
-    }, {
+    ContractList.upsert(contractDataTwo, {
         where: {
             user_id: to
         }
