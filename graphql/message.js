@@ -67,17 +67,14 @@ async function getJob(jobId) {
     };
 }
 async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, messageType, pubsub) {
-    let include;
-    if (isPersonal) {
-        include = [{
+    let include = [{
             model: Worker,
             attributes: ["real_name", "pos"],
             include: [{
                 model: Enterprise,
                 attributes: ["enterprise_name"]
             }]
-        }]
-    }
+    }]
     let msg = await Message.create({
         user_id: to,
         from,
@@ -93,24 +90,34 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
             ...msg.toJSON()
         }
     })
-    ContractList.upsert({
+    contractDataOne = {
         user_id: from,
         identity: isPersonal,
         target: to,
         last_msg: msg.detail,
-        job_id: jobId
-    }, {
+    }
+    contractDataTwo = {
+        user_id: to,
+        identity: !isPersonal,
+        target: from,
+        last_msg: msg.detail,
+    }
+    if(jobId) {
+        contractDataOne.job_id = jobId
+        contractDataTwo.job_id = jobId
+    }
+    ContractList.upsert(contractDataOne, {
         user_id: from
     }, {
         returning: true
     }).then(async (res) => {
-        if (res[0].dataValues.createdAt && res[0].dataValues.job_id == jobId) {
+        if (res[0].dataValues.createdAt && (res[0].dataValues.job_id == jobId || jobId == undefined)) {
             User.findOne({
                 where: {
                     id: res[0].dataValues.target,
                     disabled: false,
                 },
-                include: include ? include : [],
+                include: !isPersonal ?  [] : include,
             }).then(async user => {
                 console.log(`first time user: ${JSON.stringify(user.toJSON())}`)
                 let job = await getJob(jobId);
@@ -149,13 +156,13 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
     }, {
         returning: true
     }).then(async (res) => {
-        if (res[0].dataValues.createdAt && res[0].dataValues.job_id == jobId) {
+        if (res[0].dataValues.createdAt && (res[0].dataValues.job_id == jobId || jobId == undefined)) {
             User.findOne({
                 where: {
                     id: from,
                     disabled: false
                 },
-                include: include ? include : [],
+                include: !isPersonal ? include : [],
             }).then(async user => {
                 console.log(`second time user: ${JSON.stringify(user.toJSON())}`)
                 let job = await getJob(jobId);
@@ -168,9 +175,9 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                             id: job.id,
                             title: job.title,
                         },
-                        name: isPersonal ? user.real_name : user.username,
-                        pos: isPersonal ? user.Worker.pos : null,
-                        ent: isPersonal ? user.Worker.Enterprise.enterprise_name : null,
+                        name: isPersonal ? user.username : user.real_name,
+                        pos: isPersonal ? null : user.Worker.pos,
+                        ent: isPersonal ? null : user.Worker.Enterprise.enterprise_name,
                         last_msg: res.last_msg,
                         last_msg_time: res.updatedAt
                     }

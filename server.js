@@ -641,7 +641,7 @@ const typeDefs = gql`
     this just works when two user is hr and candidate
     will be skiped when user is other identities
     """
-    jobId: Int!,
+    jobId: Int,
   }
   type MessageEntitySelectionString {
     value: String
