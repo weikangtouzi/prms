@@ -560,6 +560,7 @@ db.JobCache.afterCreate((job) => {
     })
   })
 })
+
 db.Enterprise.hasMany(db.Job, {
   foreignKey: "comp_id"
 })
