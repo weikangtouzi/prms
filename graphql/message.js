@@ -299,10 +299,10 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
                 ent: item.User.Worker.Enterprise.enterprise_name,
                 last_msg: item.last_msg,
                 last_msg_time: item.updatedAt.toISOString(),
-                job: {
+                job: item.Job? {
                     id: item.Job.dataValues.id,
                     title: item.Job.dataValues.title
-                },
+                } : null,
             }
         })
     } else {
@@ -311,10 +311,10 @@ const UserGetContractList = async (parent, args, { userInfo }, info) => {
             return {
                 id: userInfo.user_id == item.user_id ? item.target : item.user_id,
                 logo: item.User.image_url? item.User.image_url : "",
-                job: {
+                job: item.Job?{
                     id: item.Job.dataValues.id,
                     title: item.Job.dataValues.title
-                },
+                }: null,
                 name: item.User.real_name ? item.User.real_name : item.User.username,
                 gender: item.User.gender,
                 age: new Date().getFullYear() - new Date(item.User.birth_date).getFullYear(),
