@@ -67,6 +67,7 @@ async function getJob(jobId) {
     };
 }
 async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, messageType, pubsub) {
+    console.log("to: " + to + ", from: " + from + ", jobId: " + jobId + ", isPersonal: " + isPersonal + ", messageContent: " + messageContent + ", messageType: " + messageType);
     let include = [{
             model: Worker,
             attributes: ["real_name", "pos"],
@@ -120,15 +121,18 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                 include: !isPersonal ?  [] : include,
             }).then(async user => {
                 console.log(`first time user: ${JSON.stringify(user.toJSON())}`)
-                let job = await getJob(jobId);
+                let job 
+                if (jobId) {
+                    job = await getJob(jobId);
+                }
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
                         target: user.id,
                         user_id: from,
                         logo: user.image_url,
                         job: {
-                            id: job.id,
-                            title: job.title,
+                            id: job? job.id: null,
+                            title: job? job.title: null,
                         },
                         name: isPersonal ? user.real_name : user.username,
                         pos: isPersonal ?  user.Worker.pos: null,
@@ -138,7 +142,7 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                     }
                 })
             })
-        } else if(res[0].dataValues.job_id !== jobId) {
+        } else if(res[0].dataValues.job_id !== jobId && jobId !== undefined) {
             let messageContent = JSON.stringify(await getJob(jobId));
             sendMessageFunc(to, from, jobId, isPersonal, messageContent, "Other", pubsub)
         }
@@ -159,15 +163,18 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                 include: !isPersonal ? include : [],
             }).then(async user => {
                 console.log(`second time user: ${JSON.stringify(user.toJSON())}`)
-                let job = await getJob(jobId);
+                let job
+                if(jobId) {
+                    job = await getJob(jobId);
+                }
                 pubsub.publish("NEW_CONTRACT", {
                     newContract: {
                         target: user.id,
                         user_id: from,
                         logo: user.image_url,
                         job: {
-                            id: job.id,
-                            title: job.title,
+                            id: job? job.id: null,
+                            title: job? job.title: null,
                         },
                         name: isPersonal ? user.username : user.real_name,
                         pos: isPersonal ? null : user.Worker.pos,
@@ -178,7 +185,7 @@ async function sendMessageFunc(to, from, jobId, isPersonal, messageContent, mess
                 })
             })
 
-        } else if(res[0].dataValues.job_id !== jobId) {
+        } else if(res[0].dataValues.job_id !== jobId && jobId !== undefined) {
             let messageContent = JSON.stringify(await getJob(jobId));
             sendMessageFunc(to, from, jobId, isPersonal, messageContent, "Other", pubsub)
         }
