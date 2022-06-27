@@ -83,6 +83,7 @@ const AdminLogIn = async (parent, args, { userInfo }, info) => {
                 if (!await bcrypt.compare(password, user.password)) throw new UserInputError('password is incorrect');
                 return {
                     token: serializers.jwt({
+                        uuid: user._id,
                         account: account,
                         role: user.role.name,
                     }),
@@ -243,7 +244,7 @@ const AdminDisableUserAccount = async (parent, args, { userInfo }, info) => {
     let res = await User.update({
         where: {
             id: user_id,
-            disabled: false
+            disabled: null
         },
         returning: true
     },{
@@ -264,7 +265,7 @@ const AdminEnableUserAccount = async (parent, args, { userInfo }, info) => {
         },
         returning: true
     },{
-        disabled: false
+        disabled: null
     })
     if (res[0] === 0) throw new UserInputError('user not found or not being disabled')
 }
@@ -312,7 +313,7 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
     let res = await Enterprise.update({
         where: {
             id: enterprise_id,
-            disabled: false
+            disabled: null
         },
         returning: true
     },{
@@ -341,7 +342,7 @@ const AdminEnableEnterpriseMainAccount = async (parent, args, { userInfo }, info
         },
         returning: true
     },{
-        disabled: false
+        disabled: null
     })
     if (res[0] === 0) throw new UserInputError('enterprise not found or not being disabled')
     await Worker.update({
