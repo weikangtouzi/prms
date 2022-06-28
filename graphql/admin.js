@@ -86,6 +86,7 @@ const AdminLogIn = async (parent, args, { userInfo }, info) => {
                         uuid: user._id,
                         account: account,
                         role: user.role.name,
+                        identity: "Admin"
                     }),
                     rights: JSON.stringify(user.role.rights)
                 }

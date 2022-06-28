@@ -17,47 +17,57 @@ module.exports = {
             let userInfo
             try {
                 userInfo = jwt.verify(token, jwtConfig.secret);
+                console.log(userInfo)
                 if (userInfo.identity)  {
                     let isAvaliable
-                    if(!userInfo.identity == "EnterpriseUser") {
+                    switch(userInfo.identity.identity) {
+                    case "EnterpriseUser":
                         isAvaliable = Worker.findOne({
                             where: {
                                 user_binding: userInfo.user_id,
                                 disabled: null,
                             }
                         })
-                    } else {
-                        isAvaliable = User.findOne({
+                        User.update({ last_log_out_time: null },{
                             where: {
                                 id: userInfo.user_id,
-                                disabled: null,
                             }
                         })
-                    }
-                    if (!isAvaliable) throw new ForbiddenError('account is banned');
-                    User.update({ last_log_out_time: null },{
+                        break;
+                    case "Admin":
+                        if(!userInfo.uuid) throw new ForbiddenError("not a valid user")
+                        console.log(userInfo)
+                        let admin = mongo.query('admin_and_roles', async (collection) => {
+                            try {
+                                let user = await collection.findOne({
+                                    account: userInfo.account,
+                                })
+                                if (!user) throw new UserInputError('account not found');
+                                return user
+                            } catch (e) {
+                                throw e
+                            }
+                        })
+                        userInfo = {
+                            ...admin,
+                            id: admin.uuid
+                        }
+                        break;
+                        }
+                        
+                } else {
+                    isAvaliable = User.findOne({
                         where: {
                             id: userInfo.user_id,
+                            disabled: null,
                         }
                     })
-                } else {
-                    if(!userInfo.uuid) throw new ForbiddenError("not a valid user")
-                    console.log(userInfo)
-                    let admin = mongo.query('admin_and_roles', async (collection) => {
-                        try {
-                            let user = await collection.findOne({
-                                account: userInfo.account,
-                            })
-                            if (!user) throw new UserInputError('account not found');
-                            return user
-                        } catch (e) {
-                            throw e
-                        }
+                    if (!isAvaliable) throw new ForbiddenError('account is banned');
+                        User.update({ last_log_out_time: null },{
+                            where: {
+                                id: userInfo.user_id,
+                            }
                     })
-                    userInfo = {
-                        ...admin,
-                        id: admin.uuid
-                    }
                 }
             } catch (err) {
                 userInfo = err
@@ -72,7 +82,7 @@ module.exports = {
                 // //     returning: true
                 // // })
             }
-            
+            console.log(userInfo)
             context.userInfo = userInfo;
         }
         context.pubsub = pubsub
