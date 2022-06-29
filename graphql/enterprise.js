@@ -336,7 +336,7 @@ const HRInviteInterview = async (parent, args, { userInfo, pubsub }, info) => {
     let interview = await Interview.create({
       user_id: userId,
       job_id: jobId,
-      hr_id: userInfo.user_id,
+      hr_id: userInfo.identity.worker_id,
       appointment_time: new Date(time[0]),
       ended_at: new Date(time[1]),
       comp_name: userInfo.identity.entName

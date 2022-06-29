@@ -226,7 +226,8 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                         worker_id: worker.id,
                         role: args.role,
                         identity: args.targetIdentity,
-                        entId: worker.Enterprise.dataValues.id
+                        entId: worker.Enterprise.dataValues.id,
+                        entName: worker.Enterprise.dataValues.enterprise_name,
                     }
                 }
             } else {
