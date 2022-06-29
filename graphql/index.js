@@ -74,7 +74,8 @@ const { CandidateGetAllJobExpectations, CandidateGetJobList,
     CandidateGetOnlineResumeGrade,
     CandidateEditOnlineResumeGrade,
     CandidateGetHRIdByWorkerId,
-    CandidateSearchJob } = require('./candidate');
+    CandidateSearchJob,
+    CandidateSendResume } = require('./candidate');
 const { getCensorList, setCensoredForAnItem, AdminLogIn, AdminGetUserList, AdminGetHomePageDataCollection, AdminGetEntList, AdminDisableUserAccount,
     AdminEnableUserAccount,
     AdminDisableEnterpriseUserAccount,
@@ -222,7 +223,8 @@ const resolvers = {
         AdminEnableEnterpriseMainAccount,
         AdminDisableJob,
         AdminEnableJob,
-        AdminResetPassword
+        AdminResetPassword,
+        CandidateSendResume
     },
     Subscription: {
         newMessage,
