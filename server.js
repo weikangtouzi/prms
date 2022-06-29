@@ -1159,7 +1159,7 @@ type UsernameAndLogo {
     "insert or edit a project experience"
     CandidateEditProExp(info: ProExp): Void
     "if wanted to send the online one, then don't need to pass resumeId"
-    CandidateSendResume(resumeId:Int, targetUser: Int): Void
+    CandidateSendResume(resumeId:Int, jobId: Int!, hrId: Int!, compId: Int!): Void
     "will create a interview data and set it to waiting, may return the interview id for dev version"
     HRInviteInterview(userId: Int!, jobId: Int!, time: [String]!): Void
     "cancel a interview, both side will have this authority, may failed when time is close to the appointed time"

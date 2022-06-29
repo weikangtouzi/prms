@@ -1,7 +1,6 @@
-const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, EnterpriseQuestion, EnterpriseAnswer, InterviewRecomment, Resume, ResumeWorkExp, ResumeEduExp, ResumeProjectExp, JobReadRecord } = require('../models');
+const { JobExpectation, JobCache, sequelize, Job, Worker, Enterprise, User, ResumeDeliveryRecord, EnterpriseAnswer, InterviewRecomment, Resume, ResumeWorkExp, ResumeEduExp, ResumeProjectExp, JobReadRecord } = require('../models');
 const { Op } = require('sequelize');
 const { AuthenticationError, UserInputError, ForbiddenError } = require('apollo-server');
-const user = require('../models/user');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo');
 const serializers = require('../utils/serializers');
@@ -565,7 +564,7 @@ const CandidateSendResume = async (parent, args, { userInfo }, info) => {
     await ResumeDeliveryRecord.create({
         user_id: userInfo.user_id,
         job_id: jobId,
-        resume_id: resumeId,
+        resume_id: resumeId? resumeId : userInfo.resume_id,
         comp_id: compId,
         hr_id: hrId
     });
