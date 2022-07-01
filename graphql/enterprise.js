@@ -38,9 +38,7 @@ const enterpriseIdentify = async (parent, args, { userInfo }, info) => {
 const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-  try {
-    isvalidEnterpriseAdmin(userInfo.identity)
-  } catch (e) {
+  if(!isvalidEnterpriseAdmin(userInfo.identity)) {
     let info = await mongo.query('administrator_censor_list', async (collection) => {
       let res = await collection.findOne({
         passed: true,
@@ -71,7 +69,7 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
         tel: tel
       });
     } catch (e) {
-      throw new UserInputError({ e })
+      throw new UserInputError(e)
     }
 
   }

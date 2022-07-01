@@ -95,7 +95,7 @@ async function checkverified(phoneNumber, operation) {
 }
 function isvalidEnterpriseAdmin(userIdentity) {
     if (!userIdentity) {
-        throw new ForbiddenError('missing identity in token, you request is not gonna be applied')
+        return false
     }
     return userIdentity.identity == "EnterpriseUser" && userIdentity.role && userIdentity.role == "Admin"
 }
