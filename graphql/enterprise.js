@@ -61,8 +61,10 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
         enterprise_financing: enterpriseFinancing,
         enterprise_size: enterpriseSize,
         enterprise_logo: logo,
-        enterprise_loc_longtitude: enterprisecCoordinate[0],
-        enterprise_loc_latitude: enterprisecCoordinate[1],
+        enterprise_coordinates: {
+          type: 'Point',
+          coordinates: enterprisecCoordinate
+        },
         enterprise_loc_detail: enterpriseLocation,
         homepage,
         established_time: establishedDate,
