@@ -51,7 +51,7 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
     }
     const { enterpriseName, abbreviation, enterpriseNature, enterpriseLocation, enterpriseProfile, enterprisecCoordinate, enterpriseIndustry, enterpriseFinancing, logo, enterpriseSize, establishedDate, homepage, tel } = args.info;
     try {
-      await Enterprise.create({
+      let ent = await Enterprise.create({
         user_id: userInfo.user_id,
         enterprise_name: enterpriseName,
         abbreviation: abbreviation,
@@ -70,6 +70,14 @@ const insertEnterpriseBasicInfo = async (parent, args, { userInfo }, info) => {
         established_time: establishedDate,
         tel: tel
       });
+      await Worker.create({
+        company_belonged: ent.id,
+        real_name: userInfo.real_name? userInfo.real_name: null,
+        user_binding: userInfo.user_id,
+        role: "Admin",
+        pos: "unknown",
+        phone_number: info.phoneNumber
+      })
     } catch (e) {
       throw new UserInputError(e)
     }
