@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     real_name: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
     user_binding: {
       type: DataTypes.INTEGER,
