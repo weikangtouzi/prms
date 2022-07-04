@@ -238,7 +238,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
                 where: {
                     id: userInfo.user_id,
                 },
-                attributes: ["id"],
+                attributes: ["id", "real_name"],
                 include: [{
                     model: JobExpectation,
                     attributes: ["job_category"]
@@ -254,6 +254,7 @@ const chooseOrSwitchIdentity = async (parent, args, { userInfo }, info) => {
             tokenObj = {
                 user_id: userInfo.user_id,
                 username: userInfo.username,
+                real_name: user.real_name? user.real_name: null,
                 identity: { identity: args.targetIdentity },
                 jobExpectation: user.dataValues.JobExpectations.map(item => { return item.dataValues }),
             }
