@@ -1065,7 +1065,7 @@ type UsernameAndLogo {
 
 type AdminUserList {
   total: String
-  rows: [BasicUserInfo]!
+  rows: [UserBasicInfo]
 }
 
   "for most of get query needed token for authorization"
