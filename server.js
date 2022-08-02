@@ -1063,6 +1063,11 @@ type UsernameAndLogo {
   logo: String
 }
 
+type AdminUserList {
+  total: String
+  rows: [BasicUser]
+}
+
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
@@ -1111,7 +1116,7 @@ type UsernameAndLogo {
     UserGetContractList: [ContractItem]!
     UserGetBasicInfo: UserBasicInfo!
     AdminLogIn(account: String!, password: String!): AdminLogInResult!
-    AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): [UserBasicInfo]!
+    AdminGetUserList(info: UserListFilter, pageSize: Int, page: Int): AdminUserList!
     CandidateGetAllJobCategoriesByEntId(entId:Int): [[String]]!
     StaticSendEmail(emailAddress: String!): String
     StaticGetHotJobs(category: String!): Void
