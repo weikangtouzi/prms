@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo')
 const { Enterprise, User, Worker } = require('../models')
-const JobModel = require('../models').JobModel;
+const JobModel = require('../models').Job;
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { ObjectId } = require('bson');
 const serializers = require('../utils/serializers');
@@ -24,7 +24,10 @@ const getCensorList = async (parent, args, { userInfo }, info) => {
         } else {
             res = await collection.find({ passed: false, editable: false }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).toArray();
         }
-        return res
+        return {
+            ...await collection.count(),
+            rows: res
+        }
     })
     return res
 }
@@ -458,7 +461,7 @@ const AdminResetPassword = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const {oldOne, newOne} = args;
     if (oldOne === newOne) throw new UserInputError('new password is the same as old one')
-    let old = bcrypt.hashSync(oldOne);
+    let old = bcrypt.hashSync(oldOne, 2);
     mongo.query("admin_and_roles", async (collection) => {
         let res = await collection.findOne({
             account: userInfo.account,
