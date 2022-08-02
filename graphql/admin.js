@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const mongo = require('../mongo')
 const { Enterprise, User, Worker } = require('../models')
-const JobModel = require('../models').Job;
+const JobModel = require('../models').JobModel;
 const { AuthenticationError, UserInputError } = require('apollo-server');
 const { ObjectId } = require('bson');
 const serializers = require('../utils/serializers');
@@ -14,15 +14,13 @@ const {DateBuilder} = require('../utils/dateBuilder');
 const getCensorList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { pageSize, lastIndex } = args;
+    const { pageSize, page } = args;
     let res = await mongo.query('administrator_censor_list', async (collection) => {
         let res
-        if (lastIndex) {
+        if (page) {
             res = await collection.find({
-                passed: false, editable: false, time: {
-                    $gt: lastIndex
-                }
-            }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).toArray();
+                passed: false, editable: false
+            }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).skip(page * pageSize).toArray();
         } else {
             res = await collection.find({ passed: false, editable: false }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).toArray();
         }
@@ -147,13 +145,17 @@ const AdminGetUserList = async (parent, args, { userInfo }, info) => {
         }
         if(!page) page = 0;
         if(!pageSize) pageSize = 10;
-        let res = await User.findAll({
+        let res = await User.findAndCountAll({
             where,
             limit: pageSize,
             offset: page * pageSize,
             order: [["createdAt", "DESC"]]
-        }).map(item =>{ return item.dataVaules});
-        return res;
+        });
+        res.rows.map(item =>{ return item.dataVaules});
+        return {
+            total: res.count,
+            rows: res.rows
+        };
     }
 }
 const AdminGetEntList = async ( parent, args, { userInfo }, info) => {
@@ -179,14 +181,18 @@ const AdminGetEntList = async ( parent, args, { userInfo }, info) => {
             [Op.lte]: new Date(registerTime[1])
         }
         if(isAvaliable) where.isAvaliable = isAvaliable;
-        res = (await Enterprise.findAll({
+        res = await Enterprise.findAndCountAll({
             where,
             limit: pageSize,
             offset: pageSize * page,
             order: [["createdAt", "DESC"]]
-        })).map(item =>{ return item.dataValues});
+        });
+        res.rows.map(item =>{ return item.dataValues});
     }
-    return res;
+    return {
+        total: res.count,
+        rows: res.rows
+    };
 }
 
 const AdminGetHomePageDataCollection = async (parent, args, { userInfo }, info) => {
@@ -374,14 +380,16 @@ const AdminGetJobList = async (parent, args, { userInfo }, info) => {
     } else {
         where.id = id;
     }
-    let res = await Job.findAll({
+    let res = await JobModel.findAndCountAll({
         where: where,
         limit: pageSize,
         offset: page * pageSize,
         order: [['createdAt', 'DESC']]
-    }
-    )
-    return res;
+    })
+    return {
+        total: res.count,
+        rows: res.rows
+    };
 }
 
 const AdminShowJobInfo = async (parent, args, { userInfo }, info) => {
@@ -389,7 +397,7 @@ const AdminShowJobInfo = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { job_id } = args;
-    let res = await Job.findOne({
+    let res = await JobModel.findOne({
         where: {
             id: job_id
         },
@@ -418,7 +426,7 @@ const AdminDisableJob = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { job_id } = args;
-    let res = await Job.update({
+    let res = await JobModel.update({
         where: {
             id: job_id,
             isAvaliable: true
@@ -433,7 +441,7 @@ const AdminEnableJob = async (parent, args, { userInfo }, info) => {
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { job_id } = args;
-    let res = await Job.update({
+    let res = await JobModel.update({
         where: {
             id: job_id,
             isAvaliable: false
@@ -450,6 +458,7 @@ const AdminResetPassword = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const {oldOne, newOne} = args;
     if (oldOne === newOne) throw new UserInputError('new password is the same as old one')
+    let old = bcrypt.hashSync(oldOne);
     mongo.query("admin_and_roles", async (collection) => {
         let res = await collection.findOne({
             account: userInfo.account,

@@ -91,6 +91,7 @@ const CandidateSearchJob = async (parent, args, { userInfo }, info) => {
         page, pageSize,
         count: res.hits.total.value,
         data: res.hits.hits.map(({_source}) => {
+            console.log(_source)
             _source.address_coordinate = JSON.stringify(_source.address_coordinate);
             if (!_source.emergency) _source.emergency = false;
             // row.updated_at = row.updated_at.toISOString();

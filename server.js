@@ -1092,7 +1092,7 @@ type UsernameAndLogo {
     HRGetApplicants(filter: ApplicantFilter): SearchApplicantsResult
     CandidateCheckResumeCompletion: Boolean!
     ENTCheckEnterpriseIdentification: EnterpriseIdentification!
-    AdminGetCensorList(pageSize: Int, lastIndex: String): [CensorData]
+    AdminGetCensorList(pageSize: Int, page: Int): [CensorData]
     StaticGetAllRegion: RegionList!
     ENTPrecheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
     "just tests"

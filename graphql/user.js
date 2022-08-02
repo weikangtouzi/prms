@@ -851,6 +851,8 @@ const UserGetUsernameAndLogoWithId = async ( parent, args, { userInfo }, info) =
     }
 }
 
+
+
 function checkUser(user, errors) {
     if (!user) {
         errors.username = 'user not found'
