@@ -814,7 +814,7 @@ const typeDefs = gql`
   }
   type UserBasicInfo {
     username: String!,
-    image_url: String!, 
+    image_url: String, 
     gender: Boolean, 
     birth_date: String, 
     current_city: String, 
