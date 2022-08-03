@@ -10,7 +10,7 @@ const { Op } = require('sequelize');
 const { isvaildNum } = require('../utils/validations');
 const { urlFormater } = require('../utils/serializers');
 const editJsonFile = require('edit-json-file');
-const {DateBuilder} = require('../utils/dateBuilder');
+const { DateBuilder } = require('../utils/dateBuilder');
 const getCensorList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -25,7 +25,7 @@ const getCensorList = async (parent, args, { userInfo }, info) => {
             res = await collection.find({ passed: false, editable: false }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).toArray();
         }
         return {
-            ...await collection.count(),
+            ...(await collection.count()),
             rows: res
         }
     })
@@ -109,18 +109,21 @@ const AdminGetUserList = async (parent, args, { userInfo }, info) => {
         currentCity,
         registerTime,
         isAvaliable,
-        } = args.info;
-    let {page, pageSize} = args;
-    if(id) {
+    } = args.info;
+    let { page, pageSize } = args;
+    if (id) {
         let res = await User.findOne({
             where: {
                 id: id,
             }
         });
-        return [res.toJSON()]
+        return {
+            total: 1,
+            rows: [res.toJSON()]
+        }
     } else {
         let where = {};
-        if(keyword && keyword.trim() !== '') {
+        if (keyword && keyword.trim() !== '') {
             where.username = {
                 [Op.substring]: keyword.trim(),
             }
@@ -129,73 +132,81 @@ const AdminGetUserList = async (parent, args, { userInfo }, info) => {
             }
         }
         let error = {};
-        if(keyword && keyword.trim() !== '') {
-            where.phoneNumber = {
+        if (phoneNumber && phoneNumber.trim() !== '') {
+            where.phone_number = {
                 [Op.substring]: phoneNumber.trim(),
             }
         }
-        if(currentCity) {
+        if (currentCity) {
             where.current_city = currentCity;
         }
-        if(registerTime && registerTime.length == 2) {
+        if (registerTime && registerTime.length == 2) {
             where.createdAt = {
                 [Op.gte]: new Date(registerTime[0]),
                 [Op.lte]: new Date(registerTime[1])
             }
         }
-        if(isAvaliable !== undefined) {
+        if (isAvaliable !== undefined) {
             where.isAvaliable = isAvaliable;
         }
-        if(!page) page = 0;
-        if(!pageSize) pageSize = 10;
+        if (!page) page = 0;
+        if (!pageSize) pageSize = 10;
         let res = await User.findAndCountAll({
             where,
             limit: pageSize,
             offset: page * pageSize,
             order: [["createdAt", "DESC"]]
         });
-        res.rows.map(item =>{ return item.dataVaules});
+        res.rows.map(item => { return item.dataVaules });
         return {
             total: res.count,
             rows: res.rows
         };
     }
 }
-const AdminGetEntList = async ( parent, args, { userInfo }, info) => {
-    const {id, fullName, phoneNumber, identitifyTime, isAvaliable} = args.info;
-    let {page, pageSize} = args;
+const AdminGetEntList = async (parent, args, { userInfo }, info) => {
+    const { id, fullName, phoneNumber, identitifyTime, isAvaliable } = args.info;
+    let { page, pageSize } = args;
     let res;
-    if(id) {
-        res =[ await Enterprise.findOne({
+    if (id) {
+        res = [await Enterprise.findOne({
             where: {
                 id,
             }
         })]
-    }else {
-        if(!pageSize) pageSize = 10;
-        if(!page) page = 0;
+        return {
+            total: 1,
+            rows: res
+        };
+    } else {
+        if (!pageSize) pageSize = 10;
+        if (!page) page = 0;
         let where = {};
-        if(fullName) where.fullName = {
+        if (fullName) where.enterprise_name = {
             [Op.substring]: fullName
         };
-        if(phoneNumber) where.phoneNumber = phoneNumber;
-        if(identitifyTime && identitifyTime.length == 2) where.identitifyTime = {
+        if (phoneNumber && phoneNumber.trim() !== '') {
+            where.phone_number = {
+                [Op.substring]: phoneNumber.trim(),
+            }
+        }
+        if (identitifyTime && identitifyTime.length == 2) where.identitifyTime = {
             [Op.gte]: new Date(registerTime[0]),
             [Op.lte]: new Date(registerTime[1])
         }
-        if(isAvaliable) where.isAvaliable = isAvaliable;
+        if (isAvaliable) where.disabled = !isAvaliable;
         res = await Enterprise.findAndCountAll({
             where,
             limit: pageSize,
             offset: pageSize * page,
             order: [["createdAt", "DESC"]]
         });
-        res.rows.map(item =>{ return item.dataValues});
+        return {
+            total: res.count,
+            rows: res.rows.map(item => { return item.dataValues })
+        };
     }
-    return {
-        total: res.count,
-        rows: res.rows
-    };
+    
 }
 
 const AdminGetHomePageDataCollection = async (parent, args, { userInfo }, info) => {
@@ -230,19 +241,19 @@ const AdminGetHomePageDataCollection = async (parent, args, { userInfo }, info) 
         sum: 0,
         enterpriseUserCount: 0,
     }
-    user_counter.sum = await User.count({where: {}})
-    user_counter.enterpriseUserCount = await Worker.count({where: {}})
+    user_counter.sum = await User.count({ where: {} })
+    user_counter.enterpriseUserCount = await Worker.count({ where: {} })
     let censors = await mongo.query('administrator_censor_list', async (collection) => {
         return await collection.count({
             editable: false,
             passed: false
         })
     })
-    let sum = await JobModel.count({where: {}})
+    let sum = await JobModel.count({ where: {} })
     return {
         newUserCounter: new_user_counter,
         userCounter: user_counter,
-        jobCounter: {sum},
+        jobCounter: { sum },
         censors,
     }
 }
@@ -257,7 +268,7 @@ const AdminDisableUserAccount = async (parent, args, { userInfo }, info) => {
             disabled: null
         },
         returning: true
-    },{
+    }, {
         disabled: true
     })
     if (res[0] === 0) throw new UserInputError('user not found or already be disabled')
@@ -274,7 +285,7 @@ const AdminEnableUserAccount = async (parent, args, { userInfo }, info) => {
             disabled: true
         },
         returning: true
-    },{
+    }, {
         disabled: null
     })
     if (res[0] === 0) throw new UserInputError('user not found or not being disabled')
@@ -291,14 +302,14 @@ const AdminDisableEnterpriseUserAccount = async (parent, args, { userInfo }, inf
             disabled: null
         },
         returning: true
-    },{
+    }, {
         disabled: "HIGH"
     })
     if (res[0] === 0) throw new UserInputError('enterprise user not found or already be disabled')
 
 }
 
-const AdminEnableEnterpriseUserAccount = async (parent, args, { userInfo }, info) => { 
+const AdminEnableEnterpriseUserAccount = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
@@ -309,7 +320,7 @@ const AdminEnableEnterpriseUserAccount = async (parent, args, { userInfo }, info
             disabled: "HIGH"
         },
         returning: true
-    },{
+    }, {
         disabled: null
     })
     if (res[0] === 0) throw new UserInputError('enterprise user not found or not being disabled')
@@ -321,22 +332,23 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { enterprise_id } = args;
     let res = await Enterprise.update({
+        disabled: true
+    }, {
         where: {
             id: enterprise_id,
             disabled: null
         },
         returning: true
-    },{
-        disabled: true
+
     })
     if (res[0] === 0) throw new UserInputError('enterprise not found or already be disabled')
     await Worker.update({
+        disabled: "MIDIUM"
+    }, {
         where: {
             company_belonged: enterprise_id,
             disabled: null,
         }
-    },{
-        disabled: "MIDIUM"
     })
 }
 
@@ -351,7 +363,7 @@ const AdminEnableEnterpriseMainAccount = async (parent, args, { userInfo }, info
             disabled: true
         },
         returning: true
-    },{
+    }, {
         disabled: null
     })
     if (res[0] === 0) throw new UserInputError('enterprise not found or not being disabled')
@@ -360,7 +372,7 @@ const AdminEnableEnterpriseMainAccount = async (parent, args, { userInfo }, info
             company_belonged: enterprise_id,
             disabled: "MIDIUM"
         }
-    },{
+    }, {
         disabled: null
     })
 }
@@ -430,12 +442,12 @@ const AdminDisableJob = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { job_id } = args;
     let res = await JobModel.update({
+        isAvaliable: false
+    }, {
         where: {
             id: job_id,
             isAvaliable: true
         }
-    },{
-        isAvaliable: false
     })
     if (res[0] === 0) throw new UserInputError('job not found or already be disabled')
 }
@@ -445,12 +457,12 @@ const AdminEnableJob = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { job_id } = args;
     let res = await JobModel.update({
+        isAvaliable: true
+    }, {
         where: {
             id: job_id,
             isAvaliable: false
         }
-    },{
-        isAvaliable: true
     }
     )
     if (res[0] === 0) throw new UserInputError('job not found or not being disabled')
@@ -459,23 +471,26 @@ const AdminResetPassword = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
-    const {oldOne, newOne} = args;
+    const { oldOne, newOne } = args;
     if (oldOne === newOne) throw new UserInputError('new password is the same as old one')
     let old = bcrypt.hashSync(oldOne, 2);
-    mongo.query("admin_and_roles", async (collection) => {
-        let res = await collection.findOne({
-            account: userInfo.account,
-            password: old
+    try {
+        mongo.query("admin_and_roles", async (collection) => {
+            let res = await collection.findOne({
+                account: userInfo.account,
+                password: old
+            })
+            if (!res) throw new UserInputError('old password is not correct')
+            await collection.updateOne({
+                account: userInfo.account
+            }, {
+                $set: {
+                    password: newOne
+                }
+            })
         })
-        if (!res) throw new UserInputError('old password is not correct')
-        await collection.updateOne({
-            account: userInfo.account
-        }, {
-            $set: {
-                password: newOne
-            }
-        })
-    })
+    }catch(e) { throw e}
+    
 }
 
 module.exports = {

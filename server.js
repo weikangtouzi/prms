@@ -813,6 +813,7 @@ const typeDefs = gql`
     job: Void
   }
   type UserBasicInfo {
+    id: Int!,
     username: String!,
     image_url: String, 
     gender: Boolean, 
@@ -822,6 +823,7 @@ const typeDefs = gql`
     education: Education,
     phone_number: String!,
     email: String
+    disabled: Boolean
   }
   type AdminLogInResult {
     token: String!,
@@ -1064,10 +1066,13 @@ type UsernameAndLogo {
 }
 
 type AdminUserList {
-  total: String
+  total: Int
   rows: [UserBasicInfo]
 }
-
+type AdminCensorList {
+  total: Int
+  rows: [CensorData]
+}
   "for most of get query needed token for authorization"
   type Query {
     "api for login"
