@@ -1037,8 +1037,8 @@ type AdminHomePageDataCollection {
 }
 input EntFilterForAdmin {
   id: Int,
-  full_name: String,
-  phoneNumber: String,
+  enterprise_name: String,
+  tel: String,
   identifyTime: [String],
   isAvaliable: Boolean
 }
@@ -1102,7 +1102,7 @@ type AdminCensorList {
     HRGetApplicants(filter: ApplicantFilter): SearchApplicantsResult
     CandidateCheckResumeCompletion: Boolean!
     ENTCheckEnterpriseIdentification: EnterpriseIdentification!
-    AdminGetCensorList(pageSize: Int, page: Int): [CensorData]
+    AdminGetCensorList(pageSize: Int, page: Int): AdminCensorList!
     StaticGetAllRegion: RegionList!
     ENTPrecheckForInviteWorkMate(phoneNumber: String): WorkerMatePrecheckResult!
     "just tests"
