@@ -267,7 +267,10 @@ const AdminDisableUserAccount = async (parent, args, { userInfo }, info) => {
     }, {
         where: {
             id: user_id,
-            disabled: null
+            [Op.or]: {
+                disabled: false,
+                disabled: null
+            }
         },
         returning: true
     })
@@ -280,13 +283,13 @@ const AdminEnableUserAccount = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { user_id } = args;
     let res = await User.update({
+        disabled: false
+    }, {
         where: {
             id: user_id,
             disabled: true
         },
         returning: true
-    }, {
-        disabled: null
     })
     if (res[0] === 0) throw new UserInputError('user not found or not being disabled')
 }
@@ -297,13 +300,13 @@ const AdminDisableEnterpriseUserAccount = async (parent, args, { userInfo }, inf
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { worker_id } = args;
     let res = await Worker.update({
+        disabled: "HIGH"
+    }, {
         where: {
             id: worker_id,
             disabled: null
         },
         returning: true
-    }, {
-        disabled: "HIGH"
     })
     if (res[0] === 0) throw new UserInputError('enterprise user not found or already be disabled')
 
@@ -315,13 +318,13 @@ const AdminEnableEnterpriseUserAccount = async (parent, args, { userInfo }, info
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { worker_id } = args;
     let res = await Worker.update({
+        disabled: null
+    }, {
         where: {
             id: worker_id,
             disabled: "HIGH"
         },
         returning: true
-    }, {
-        disabled: null
     })
     if (res[0] === 0) throw new UserInputError('enterprise user not found or not being disabled')
 }
@@ -336,7 +339,10 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
     }, {
         where: {
             id: ent_id,
-            disabled: null
+            [Op.or]: {
+                disabled: false,
+                disabled: null
+            }
         },
         returning: true
 
@@ -356,24 +362,24 @@ const AdminEnableEnterpriseMainAccount = async (parent, args, { userInfo }, info
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
-    const { enterprise_id } = args;
+    const { ent_id } = args;
     let res = await Enterprise.update({
+        disabled: false
+    }, {
         where: {
-            id: enterprise_id,
+            id: ent_id,
             disabled: true
         },
         returning: true
-    }, {
-        disabled: null
     })
     if (res[0] === 0) throw new UserInputError('enterprise not found or not being disabled')
     await Worker.update({
+        disabled: null
+    }, {
         where: {
-            company_belonged: enterprise_id,
+            company_belonged: ent_id,
             disabled: "MIDIUM"
         }
-    }, {
-        disabled: null
     })
 }
 
