@@ -165,7 +165,7 @@ const AdminGetUserList = async (parent, args, { userInfo }, info) => {
     }
 }
 const AdminGetEntList = async (parent, args, { userInfo }, info) => {
-    const { id, fullName, phoneNumber, identitifyTime, isAvaliable } = args.info;
+    const { id, enterprise_name, tel, identitifyTime, isAvaliable } = args.info;
     let { page, pageSize } = args;
     let res;
     if (id) {
@@ -182,12 +182,12 @@ const AdminGetEntList = async (parent, args, { userInfo }, info) => {
         if (!pageSize) pageSize = 10;
         if (!page) page = 0;
         let where = {};
-        if (fullName) where.enterprise_name = {
-            [Op.substring]: fullName
+        if (enterprise_name) where.enterprise_name = {
+            [Op.substring]: enterprise_name
         };
-        if (phoneNumber && phoneNumber.trim() !== '') {
-            where.phone_number = {
-                [Op.substring]: phoneNumber.trim(),
+        if (tel && tel.trim() !== '') {
+            where.tel = {
+                [Op.substring]: tel.trim(),
             }
         }
         if (identitifyTime && identitifyTime.length == 2) where.identitifyTime = {
@@ -263,13 +263,13 @@ const AdminDisableUserAccount = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { user_id } = args;
     let res = await User.update({
+        disabled: true
+    }, {
         where: {
             id: user_id,
             disabled: null
         },
         returning: true
-    }, {
-        disabled: true
     })
     if (res[0] === 0) throw new UserInputError('user not found or already be disabled')
 }
@@ -330,12 +330,12 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
-    const { enterprise_id } = args;
+    const { ent_id } = args;
     let res = await Enterprise.update({
         disabled: true
     }, {
         where: {
-            id: enterprise_id,
+            id: ent_id,
             disabled: null
         },
         returning: true
@@ -346,7 +346,7 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
         disabled: "MIDIUM"
     }, {
         where: {
-            company_belonged: enterprise_id,
+            company_belonged: ent_id,
             disabled: null,
         }
     })
@@ -473,19 +473,17 @@ const AdminResetPassword = async (parent, args, { userInfo }, info) => {
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { oldOne, newOne } = args;
     if (oldOne === newOne) throw new UserInputError('new password is the same as old one')
-    let old = bcrypt.hashSync(oldOne, 2);
     try {
-        mongo.query("admin_and_roles", async (collection) => {
+        await mongo.query("admin_and_roles", async (collection) => {
             let res = await collection.findOne({
                 account: userInfo.account,
-                password: old
             })
-            if (!res) throw new UserInputError('old password is not correct')
+            if (!(await bcrypt.compare(oldOne, res.password))) throw new UserInputError('old password is not correct')
             await collection.updateOne({
                 account: userInfo.account
             }, {
                 $set: {
-                    password: newOne
+                    password: bcrypt.hashSync(newOne, 5)
                 }
             })
         })
