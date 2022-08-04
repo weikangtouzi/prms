@@ -503,10 +503,12 @@ db.Job.afterBulkUpdate((job, options) => {
   })
 })
 db.Worker.afterBulkUpdate((worker, options) => {
+  let where;
+  if(worker.where.id) where = { id: worker.where.id }
+  if(worker.where.company_belonged) where = { company_id: worker.where.company_belonged }
+  if(!where) return
   db.Worker.findOne({
-    where: {
-      id: worker.where.id
-    },
+    where,
   }).then(res => {
    db.JobCache.update({
     worker_id: res.dataValues.id,

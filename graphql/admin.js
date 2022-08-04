@@ -334,6 +334,7 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
     if (!userInfo.role) throw new ForbiddenError('not a Admin account')
     const { ent_id } = args;
+    console.log(ent_id)
     let res = await Enterprise.update({
         disabled: true
     }, {
@@ -342,9 +343,8 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
             disabled: false,
         },
         returning: true
-
     })
-    if (res[0] === 0) throw new UserInputError('enterprise not found or already be disabled')
+    if (res[0] === 0) throw new UserInputError('enterprise not found or already be disabled');
     await Worker.update({
         disabled: "MIDIUM"
     }, {
