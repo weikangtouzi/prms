@@ -25,7 +25,9 @@ const getCensorList = async (parent, args, { userInfo }, info) => {
             res = await collection.find({ passed: false, editable: false }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).toArray();
         }
         return {
-            total: (await collection.count()),
+            total: (await collection.count({
+                passed: false, editable: false
+            })),
             rows: res
         }
     })
@@ -206,7 +208,7 @@ const AdminGetEntList = async (parent, args, { userInfo }, info) => {
             rows: res.rows.map(item => { return item.dataValues })
         };
     }
-    
+
 }
 
 const AdminGetHomePageDataCollection = async (parent, args, { userInfo }, info) => {
@@ -267,13 +269,11 @@ const AdminDisableUserAccount = async (parent, args, { userInfo }, info) => {
     }, {
         where: {
             id: user_id,
-            [Op.or]: {
-                disabled: false,
-                disabled: null
-            }
+            disabled: false,
         },
         returning: true
     })
+    console.log(res)
     if (res[0] === 0) throw new UserInputError('user not found or already be disabled')
 }
 
@@ -339,10 +339,7 @@ const AdminDisableEnterpriseMainAccount = async (parent, args, { userInfo }, inf
     }, {
         where: {
             id: ent_id,
-            [Op.or]: {
-                disabled: false,
-                disabled: null
-            }
+            disabled: false,
         },
         returning: true
 
@@ -493,8 +490,8 @@ const AdminResetPassword = async (parent, args, { userInfo }, info) => {
                 }
             })
         })
-    }catch(e) { throw e}
-    
+    } catch (e) { throw e }
+
 }
 
 module.exports = {
