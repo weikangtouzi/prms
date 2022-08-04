@@ -505,7 +505,7 @@ db.Job.afterBulkUpdate((job, options) => {
 db.Worker.afterBulkUpdate((worker, options) => {
   let where;
   if(worker.where.id) where = { id: worker.where.id }
-  if(worker.where.company_belonged) where = { company_id: worker.where.company_belonged }
+  if(worker.where.company_belonged) where = { company_belonged: worker.where.company_belonged }
   if(!where) return
   db.Worker.findOne({
     where,
