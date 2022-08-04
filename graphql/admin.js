@@ -25,7 +25,7 @@ const getCensorList = async (parent, args, { userInfo }, info) => {
             res = await collection.find({ passed: false, editable: false }).sort({ time: 1 }).limit(pageSize ? pageSize : 10).toArray();
         }
         return {
-            ...(await collection.count()),
+            total: (await collection.count()),
             rows: res
         }
     })
