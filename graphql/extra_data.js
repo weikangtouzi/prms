@@ -15,8 +15,7 @@ const insertPersonalData = async (parent, args, context, info) => {
         if (name.trim() == "") { throw new UserInputError('真实姓名不能为空') }
         if (number.trim() == "") { throw new UserInputError('手机号不能为空') }
         // isvaildNum(error, pro_number, true);
-        if (idCardNum.trim() == "") { throw new UserInputError('身份证号不能为空') }
-        isvaildidCardNum(error, idCardNum, true);
+        if (idCardNum.trim() !== "") { isvaildidCardNum(error, idCardNum, true); }
         if (Object.keys(error).length > 0) { throw new UserInputError('bad input', { error }) }
         await mongo.query('TalentPool', async (collection) => {
             collection.updateOne({ "data.idCardNum": idCardNum }, {
