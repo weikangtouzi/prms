@@ -1,6 +1,6 @@
 const { Client } = require('@elastic/elasticsearch')
-const {username, password} = require('./config')
-const client = new Client({ node: 'http://localhost:9200',auth: {
+const {username, password, host} = require('./config')
+const client = new Client({ node: host,auth: {
   username,
   password
 }})

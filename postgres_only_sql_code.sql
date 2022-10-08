@@ -90,8 +90,8 @@ CREATE TRIGGER trigger_count_unreaded_msg_for_contract_list_on_update
     after update ON message
     For each row
     EXECUTE PROCEDURE count_unreaded_msg_for_contract_list();
-DROP INDEX IF EXISTS name_search;
-CREATE INDEX name_search
-    ON public.recruitment USING gist
-    (name COLLATE pg_catalog."default" gist_trgm_ops)
-    TABLESPACE pg_default;
+-- DROP INDEX IF EXISTS name_search;
+-- CREATE INDEX name_search
+--     ON public.recruitment USING gist
+--     (name COLLATE pg_catalog."default" gist_trgm_ops)
+--     TABLESPACE pg_default;

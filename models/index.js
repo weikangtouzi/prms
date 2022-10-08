@@ -20,7 +20,7 @@ if (config.use_env_variable) {
     });
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, {
-    logging: false,
+    // logging: false,
     ...config
   });
 }

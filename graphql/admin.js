@@ -105,13 +105,17 @@ const AdminLogIn = async (parent, args, { userInfo }, info) => {
 const AdminGetUserList = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
-    const { id,
+    let id , keyword, phoneNumber, currentCity, registerTime, isAvaliable
+    if(args.info) {
+        
+    ({   id,
         keyword,
         phoneNumber,
         currentCity,
         registerTime,
         isAvaliable,
-    } = args.info;
+    } = args.info);
+    }
     let { page, pageSize } = args;
     if (id) {
         let res = await User.findOne({
