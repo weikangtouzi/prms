@@ -66,7 +66,7 @@
     "host": "be.chenzaozhao.com/graphql"
   },
   "mongodb": {
-    "url": "mongodb://localhost:27017/prms?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+    "url": "mongodb://127.0.0.1:27017/prms?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
   },
   "uploadPath": "/uploadedFiles",
   "domain": "be.chenzaozhao.com",
