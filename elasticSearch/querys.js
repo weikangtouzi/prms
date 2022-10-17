@@ -113,16 +113,14 @@ class QueryBuilder {
     }
   }
   newSort(fieldName, ASC) {
-    let sort = {}
+    let sort = new Map()
     sort[fieldName] = {}
     if(ASC) {
       sort[fieldName].order = "asc";
     } else {
       sort[fieldName].order = "desc";
     }
-    return {
-      sort
-    }
+    return new Object(sort)
   }
   async send(client, index, size, from) {
     return await client.search({

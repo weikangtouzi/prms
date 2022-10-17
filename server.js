@@ -913,6 +913,7 @@ const typeDefs = gql`
       other data only show out when is available
     """
     resume_data: Void,
+    job_status: Void,
   }
   type TalentListForSearchResult {
     count: Int!,

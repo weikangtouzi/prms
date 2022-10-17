@@ -584,7 +584,10 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
   if (!userInfo) throw new AuthenticationError('missing authorization')
   if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
   if (isvalidJobPoster(userInfo.identity)) {
-    const { keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status, age, job_status } = args.filter;
+    let keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status, age, job_status
+    if(args.filter) ({ keyword, sortByUpdatedTime, category, education, industry_involved, city, gender, experience, salary, interview_status, age, job_status } = args.filter);
+    
+    
     let builder = queryBuilder();
     if (keyword) {
       let fieldNames = ["real_name", "Resumes.skills", "Resumes.ResumeWorkExp.comp_name"];
@@ -595,6 +598,7 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
 
     }
     if (sortByUpdatedTime) builder.addSort(builder.newSort("updatedAt", false))
+    builder.addSort(builder.newSort("job_status.lvl", true))
     if (category) {
       let musts = [...category];
       musts = musts.map(must => {
@@ -649,10 +653,11 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
       builder.addMust(builder.newRange("birth_date", ...age_filter))
     }
     if (job_status) {
-      builder.addMust(builder.newMatch("job_status", job_status))
+      builder.addMust(builder.newMatch("job_status.name", job_status))
     }
     builder.addMust(builder.newMatch("disabled", false))
     builder.addMust(builder.newMatch("Resumes.is_public", true))
+    console.log(builder.query)
     let size = 10;
     let from = 0;
     if (args.pageSize) size = args.pageSize;
@@ -672,7 +677,8 @@ const ENTSearchCandidates = async (parent, args, { userInfo }, info) => {
           job_expectation: hit._source.JobExpectations,
           age: hit._source.birth_date ? (new Date().getFullYear()) - (new Date(hit._source.birth_date).getFullYear()) : null,
           resume_data: hit._source.Resumes[0],
-          interview_status
+          interview_status,
+          job_status: hit._source.job_status.name
         }
       })
     }
