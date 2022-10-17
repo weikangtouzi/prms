@@ -141,15 +141,15 @@ const ResumeJobStatus = new GraphQLEnumType({
     name: "ResumeJobStatus",
     values: {
 
-        NoJobButNoJob: { value: 0 },
+        NoJobButWantJob: { value: 0 },
 
-        NoJobButWantJob: { value: 1 },
-
-        OnTheJob: { value: 2 },
+        NoJobButNoJob: { value: 1 },
+        
+        OnTheJob: { value: 4 },
 
         OnTheJobButLookingForAJob: { value: 3 },
 
-        GraduatingStudent: { value: 4 },
+        GraduatingStudent: { value: 2 },
     }
 })
 module.exports = {

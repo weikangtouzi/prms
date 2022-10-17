@@ -9,7 +9,8 @@ const db = {};
 const mongo = require('../mongo');
 const { info } = require('../utils/logger');
 const elasticSearch = require('../elasticSearch')
-const { Education } = require('../graphql/types/')
+const { Education, ResumeJobStatus} = require('../graphql/types/')
+
 mongo.init();
 let sequelize;
 if (config.use_env_variable) {
@@ -20,7 +21,7 @@ if (config.use_env_variable) {
     });
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, {
-    // logging: false,
+    logging: false,
     ...config
   });
 }
@@ -234,6 +235,10 @@ db.User.afterBulkUpdate((user, options) => {
             education: res.dataValues.education ? {
               name: res.dataValues.education,
               lvl: Education.getValue(res.dataValues.education).value
+            } : null, 
+            job_status: res.dataValues.job_status ? {
+              name: res.dataValues.job_status,
+              lvl: ResumeJobStatus.getValue(res.dataValues.job_status).value
             } : null,
             Resumes: res.dataValues.Resumes.map(item => {
               return {
@@ -241,6 +246,7 @@ db.User.afterBulkUpdate((user, options) => {
                 ResumeWorkExps: item.dataValues.ResumeWorkExps[0] ? item.dataValues.ResumeWorkExps[0].dataValues : null
               }
             }),
+
             JobExpectations: res.dataValues.JobExpectations.map(item => item.dataValues),
             first_time_working: res.dataValues.first_time_working ? new Date(res.dataValues.first_time_working) : null,
             birth_date: res.dataValues.birth_date ? new Date(res.dataValues.birth_date) : null,

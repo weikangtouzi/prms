@@ -6,6 +6,7 @@ const mongo = require('../mongo');
 const serializers = require('../utils/serializers');
 const queryBuilder = require('../elasticSearch/querys');
 const es_client = require('../elasticSearch/');
+const {Education} = require('../graphql/types')
 const CandidateGetAllJobExpectations = async (parent, args, { userInfo }, info) => {
     if (!userInfo) throw new AuthenticationError('missing authorization')
     if (userInfo instanceof jwt.TokenExpiredError) throw new AuthenticationError('token expired', { expiredAt: userInfo.expiredAt })
@@ -52,9 +53,11 @@ const CandidateSearchJob = async (parent, args, { userInfo }, info) => {
         if(experience) {
             builder.addMust(builder.newRange("min_experience", null, experience));
         }
-        if(education && education != "Null") {
-            builder.addMust(builder.newRange("min_education.lvl", null, education));
-        }
+        if (education && education != "Null") builder.addMust(builder.newRange("min_education.lvl", null, Education.getValue(education).value))
+//        if(education && education != "Null") {
+//            builder.addMust(builder.newRange("min_education.lvl", null, education));
+//        }
+
         if(enterpriseSize) {
             builder.addMust(builder.newMatch("comp_size",enterpriseSize))
         }
